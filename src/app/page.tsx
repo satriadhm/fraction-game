@@ -30,16 +30,6 @@ export default function LandingPage() {
 
         <ul className="flex space-x-6 font-medium">
           <li>
-            <a href="#features" className="hover:underline">
-              Fitur
-            </a>
-          </li>
-          <li>
-            <a href="#about" className="hover:underline">
-              Tentang
-            </a>
-          </li>
-          <li>
             <button
               onClick={() => router.push("/login")}
               className="bg-white text-blue-600 px-4 py-2 rounded-md hover:bg-blue-50 transition-colors"
@@ -64,15 +54,14 @@ export default function LandingPage() {
           <p className="text-blue-700 text-sm md:text-lg max-w-md">
             <em>Innovative Numerical Training for Advancing Fraction</em>
             <br />
-            Belajar pecahan dengan cara yang menyenangkan dan interaktif!
-            Mulai perjalananmu sekarang dan raih pemahaman mendalam
-            tentang pecahan.
+            Learn fractions in a fun and interactive way! Start your journey now
+            and gain a deeper understanding of fractions.
           </p>
           <button
             onClick={() => router.push("/menu")}
             className="mt-4 bg-blue-600 text-white px-6 py-3 rounded-full font-semibold hover:bg-blue-700 transition-colors"
           >
-            Mulai Belajar
+            Start Learning
           </button>
         </div>
 
@@ -91,7 +80,9 @@ export default function LandingPage() {
 
       {/* FOOTER */}
       <footer className="bg-blue-600 text-white py-6 px-8 flex flex-col md:flex-row items-center justify-between">
-        <span className="font-semibold">© 2025 INTAN. All rights reserved.</span>
+        <span className="font-semibold">
+          © 2025 INTAN. All rights reserved.
+        </span>
         <div className="flex items-center space-x-4 mt-4 md:mt-0">
           <a href="#" className="hover:underline">
             Privacy Policy
