@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 
 const Step1 = () => {
   const router = useRouter();

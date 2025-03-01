@@ -34,7 +34,7 @@ const LandingPage = () => {
             className="relative cursor-pointer"
           >
             <img
-              src={`/images/${food.toLowerCase()}.png`}
+              src={`/${food.toLowerCase()}.png`}
               alt={food}
               className="w-32 h-32 hover:scale-110 transition-transform"
             />
