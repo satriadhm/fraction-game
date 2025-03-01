@@ -1,7 +1,11 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 
-const SwipeableContent = ({ contents }) => {
+interface SwipeableContentProps {
+  contents: string[];
+}
+
+const SwipeableContent: React.FC<SwipeableContentProps> = ({ contents }) => {
   const [index, setIndex] = useState(0);
 
   const nextContent = () => setIndex((prev) => (prev + 1) % contents.length);
