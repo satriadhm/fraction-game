@@ -12,13 +12,13 @@ const SwipeableContent: React.FC<SwipeableContentProps> = ({ contents }) => {
   const prevContent = () => setIndex((prev) => (prev - 1 + contents.length) % contents.length);
 
   return (
-    <div className="relative w-full max-w-2xl h-64 overflow-hidden">
+    <div className="relative w-full max-w-2xl h-64 overflow-hidden bg-yellow-200 p-4 rounded-lg shadow-lg">
       <motion.div
         key={index}
         initial={{ x: "100%" }}
         animate={{ x: "0%" }}
         exit={{ x: "-100%" }}
-        className="absolute w-full h-full flex items-center justify-center bg-white p-6 rounded-lg shadow-lg"
+        className="absolute w-full h-full flex items-center justify-center text-xl font-bold"
       >
         {contents[index]}
       </motion.div>
