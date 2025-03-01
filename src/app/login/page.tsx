@@ -39,7 +39,7 @@ const Login = () => {
         {error && <p className="text-red-500 mb-4">{error}</p>}
         <button
           onClick={handleLogin}
-          className="w-full bg-blue-500 text-white p-2 rounded"
+          className="w-full bg-orange-600 text-white p-2 rounded hover:bg-orange-700 transition-colors"
         >
           Login
         </button>
