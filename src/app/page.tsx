@@ -3,13 +3,6 @@
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 
-/**
- * Contoh Landing Page Minimalis ala Diner Dash
- * - Menggunakan palet warna yang diambil dari brand/icon (misal blue salmon & cokelat tua).
- * - Desain minimalis, layout rapi dengan white space, tipografi sans-serif.
- * - Elemen dekoratif kecil bernuansa restoran cepat saji.
- */
-
 export default function LandingPage() {
   const router = useRouter();
 
@@ -27,17 +20,6 @@ export default function LandingPage() {
             className="object-contain"
           />
         </div>
-
-        <ul className="flex space-x-6 font-medium">
-          <li>
-            <button
-              onClick={() => router.push("/login")}
-              className="bg-white text-blue-600 px-4 py-2 rounded-md hover:bg-blue-50 transition-colors"
-            >
-              Login
-            </button>
-          </li>
-        </ul>
       </nav>
 
       {/* HERO SECTION */}
@@ -59,7 +41,7 @@ export default function LandingPage() {
           </p>
           <button
             onClick={() => router.push("/menu")}
-            className="mt-4 bg-blue-600 text-white px-6 py-3 rounded-full font-semibold hover:bg-blue-700 transition-colors"
+            className="mt-4 bg-blue-600 text-white px-9 py-6 rounded-full font-semibold hover:bg-blue-700 transition-colors"
           >
             Start Learning
           </button>
