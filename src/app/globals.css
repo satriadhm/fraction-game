@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-@theme {
+:root {
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
@@ -14,6 +14,12 @@
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
+  }
+}
+
+@layer base {
+  .text-outline-pink {
+    -webkit-text-stroke: 2px #ec4899; /* Outline pink 2px (menggunakan kode warna pink-500 Tailwind) */
   }
 }
 
