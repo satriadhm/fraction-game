@@ -9,7 +9,7 @@ const Step3 = () => {
     <div className="flex flex-col items-center justify-center min-h-screen bg-red-100 p-8">
       <h1 className="text-4xl font-extrabold text-gray-800 mb-8">Step 3: Pecahan Gabungan</h1>
       <iframe className="mb-6 w-full max-w-2xl h-64 rounded-lg shadow-lg" src={process.env.NEXT_PUBLIC_YOUTUBE_STEP3} allowFullScreen></iframe>
-      <SwipeableContent contents={["Pecahan campuran terdiri dari bilangan bulat dan pecahan.", "Konversi pecahan campuran ke pecahan biasa dengan mengalikan bilangan bulat dengan penyebut."]} />
+      <SwipeableContent contents={["Mixed fractions consist of whole numbers and fractions.", "Convert mixed fractions to improper fractions by multiplying the whole number by the denominator.."]} />
       <button onClick={() => router.push('/game3')} className="mt-8 bg-blue-600 text-white p-4 rounded shadow-lg hover:bg-blue-700">Mainkan Game</button>
     </div>
   );
