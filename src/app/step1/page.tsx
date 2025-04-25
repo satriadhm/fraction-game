@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { SwipeableContent } from "../components/SwipeableContent";
+import SwipeableContent from "../components/SwipeableContent";
 
 const Step1 = () => {
   const router = useRouter();
@@ -58,7 +58,7 @@ const Step1 = () => {
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
         onClick={() => router.push("/step1/game1")}
-        className="bg-orange-600 text-white px-8 py-4 rounded-full text-xl font-bold shadow-lg hover:bg-orange-700 transition-colors"
+        className="bg-pink-600 text-white px-8 py-4 rounded-full text-xl font-bold shadow-lg hover:bg-pink-700 transition-colors"
       >
         Play Game
       </motion.button>
