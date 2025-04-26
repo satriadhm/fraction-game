@@ -1,14 +1,36 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import React from "react";
-import { motion, AnimatePresence, Transition, Variant } from "framer-motion";
+import React, { JSX } from "react";
+import { motion, AnimatePresence, Transition } from "framer-motion";
+
+// Define custom target types with more specific properties
+type SafeVariant = {
+  opacity?: number | number[];
+  scale?: number | number[];
+  rotate?: number | number[];
+  x?: number | string | number[] | string[];
+  y?: number | string | number[] | string[];
+  [key: string]: any;
+};
 
 // Define more specific types for animations
 interface AnimationVariants {
-  initial: Variant;
-  animate: Variant;
-  exit: Variant;
-  transition?: Transition;
+  initial: SafeVariant;
+  animate: SafeVariant;
+  exit: SafeVariant;
+  transition?: {
+    duration?: number;
+    delay?: number;
+    repeat?: number;
+    repeatType?: "loop" | "reverse" | "mirror" | undefined;
+    type?: string;
+    stiffness?: number;
+    damping?: number;
+    mass?: number;
+    ease?: string;
+    [key: string]: any;
+  };
 }
 
 // Common animation presets with proper typing
@@ -55,7 +77,7 @@ export const animations: Record<string, AnimationVariants> = {
       scale: [1, 1.05, 1],
     },
     exit: { scale: 1 },
-    transition: { duration: 2, repeat: Infinity },
+    transition: { duration: 2, repeat: Infinity, repeatType: "mirror" },
   },
   float: {
     initial: { y: 0 },
@@ -99,6 +121,7 @@ const MotionElement: React.FC<MotionElementProps> = ({
       ? customAnimation
       : animations[type as AnimationType];
 
+  // Create a separate transition object that doesn't cause type conflicts
   const transitionConfig: Transition = {
     ...(animation.transition || {}),
     delay,
@@ -126,13 +149,10 @@ const MotionElement: React.FC<MotionElementProps> = ({
     );
   }
 
-  // Use the motion component that matches the 'as' prop
-  const Component = motion[as as keyof typeof motion];
-
-  // If the Component exists, use it. Otherwise, fall back to motion.div
-  if (Component) {
+  // Handle different element types
+  if (as === "h1") {
     return (
-      <Component
+      <motion.h1
         className={className}
         initial={animation.initial}
         animate={animation.animate}
@@ -141,11 +161,102 @@ const MotionElement: React.FC<MotionElementProps> = ({
         onClick={onClick}
       >
         {children}
-      </Component>
+      </motion.h1>
+    );
+  } else if (as === "h2") {
+    return (
+      <motion.h2
+        className={className}
+        initial={animation.initial}
+        animate={animation.animate}
+        exit={animation.exit}
+        transition={transitionConfig}
+        onClick={onClick}
+      >
+        {children}
+      </motion.h2>
+    );
+  } else if (as === "h3") {
+    return (
+      <motion.h3
+        className={className}
+        initial={animation.initial}
+        animate={animation.animate}
+        exit={animation.exit}
+        transition={transitionConfig}
+        onClick={onClick}
+      >
+        {children}
+      </motion.h3>
+    );
+  } else if (as === "p") {
+    return (
+      <motion.p
+        className={className}
+        initial={animation.initial}
+        animate={animation.animate}
+        exit={animation.exit}
+        transition={transitionConfig}
+        onClick={onClick}
+      >
+        {children}
+      </motion.p>
+    );
+  } else if (as === "span") {
+    return (
+      <motion.span
+        className={className}
+        initial={animation.initial}
+        animate={animation.animate}
+        exit={animation.exit}
+        transition={transitionConfig}
+        onClick={onClick}
+      >
+        {children}
+      </motion.span>
+    );
+  } else if (as === "button") {
+    return (
+      <motion.button
+        className={className}
+        initial={animation.initial}
+        animate={animation.animate}
+        exit={animation.exit}
+        transition={transitionConfig}
+        onClick={onClick}
+      >
+        {children}
+      </motion.button>
+    );
+  } else if (as === "li") {
+    return (
+      <motion.li
+        className={className}
+        initial={animation.initial}
+        animate={animation.animate}
+        exit={animation.exit}
+        transition={transitionConfig}
+        onClick={onClick}
+      >
+        {children}
+      </motion.li>
+    );
+  } else if (as === "ul") {
+    return (
+      <motion.ul
+        className={className}
+        initial={animation.initial}
+        animate={animation.animate}
+        exit={animation.exit}
+        transition={transitionConfig}
+        onClick={onClick}
+      >
+        {children}
+      </motion.ul>
     );
   }
 
-  // Default to motion.div
+  // Default to motion.div for any other element type
   return (
     <motion.div
       className={className}

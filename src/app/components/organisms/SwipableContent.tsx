@@ -1,19 +1,23 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence, Variant, Transition } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import Icon from "../atoms/Icon";
 import Typography from "../atoms/Typography";
 import { ButtonColor } from "../atoms/Button";
 
-// Define proper animation variant types
-interface AnimationVariants {
-  enter: (direction: number) => Variant;
-  center: Variant;
-  exit: (direction: number) => Variant;
-}
+// Define safer animation variant types
+type SafeVariant = {
+  x?: string | number;
+  y?: string | number;
+  opacity?: number;
+  scale?: number;
+  rotate?: number;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [key: string]: any;
+};
 
-interface SwipeableContentProps {
+interface SwipableContentProps {
   contents: string[];
   backgroundColor?: string;
   textColor?: string;
@@ -30,7 +34,7 @@ interface SwipeableContentProps {
 /**
  * A component for displaying swipeable/carousel content with navigation
  */
-const SwipeableContent: React.FC<SwipeableContentProps> = ({
+const SwipableContent: React.FC<SwipableContentProps> = ({
   contents,
   backgroundColor = "bg-yellow-100",
   textColor = "text-gray-800",
@@ -71,8 +75,8 @@ const SwipeableContent: React.FC<SwipeableContentProps> = ({
   };
 
   // Animation variants for the slide transition
-  const variants: AnimationVariants = {
-    enter: (direction: number) => ({
+  const variants = {
+    enter: (direction: number): SafeVariant => ({
       x: direction > 0 ? "100%" : "-100%",
       opacity: 0,
     }),
@@ -80,16 +84,10 @@ const SwipeableContent: React.FC<SwipeableContentProps> = ({
       x: 0,
       opacity: 1,
     },
-    exit: (direction: number) => ({
+    exit: (direction: number): SafeVariant => ({
       x: direction < 0 ? "100%" : "-100%",
       opacity: 0,
     }),
-  };
-
-  // Transition configuration
-  const slideTransition: Transition = {
-    x: { type: "spring", stiffness: 300, damping: 30 },
-    opacity: { duration: 0.2 },
   };
 
   // Calculate button colors based on passed color
@@ -102,7 +100,7 @@ const SwipeableContent: React.FC<SwipeableContentProps> = ({
     yellow: "bg-yellow-500 hover:bg-yellow-600",
   }[buttonColor];
 
-  // Button hover animation
+  // Button animations
   const buttonHoverAnimation = { scale: 1.1 };
   const buttonTapAnimation = { scale: 0.9 };
 
@@ -121,7 +119,10 @@ const SwipeableContent: React.FC<SwipeableContentProps> = ({
             initial="enter"
             animate="center"
             exit="exit"
-            transition={slideTransition}
+            transition={{
+              x: { type: "spring", stiffness: 300, damping: 30 },
+              opacity: { duration: 0.2 },
+            }}
             className={`absolute w-full h-full flex items-center justify-center p-6 text-center ${textColor}`}
           >
             <Typography variant="body1" className="text-xl font-bold">
@@ -188,4 +189,4 @@ const SwipeableContent: React.FC<SwipeableContentProps> = ({
   );
 };
 
-export default SwipeableContent;
+export default SwipableContent;

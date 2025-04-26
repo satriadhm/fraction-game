@@ -28,7 +28,7 @@ export { default as CuteDecorationEffect } from './organisms/CuteDecorationEffec
 export { default as GameProgressTracker } from './organisms/GameProgressTracker';
 export { default as MultipleQuestion } from './organisms/MultipleQuestion';
 export { default as PizzaInteractive } from './organisms/PizzaInteractive';
-export { default as SwipeableContent } from './organisms/SwipableContent';
+export { default as SwipableContent } from './organisms/SwipableContent';
 
 // Templates
 export { default as GameLayout } from './templates/GameLayout';

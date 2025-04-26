@@ -8,9 +8,9 @@ import {
   CuteHeart,
   CuteStar,
 } from "../components/atoms/CuteShapes";
-import SwipeableContent from "../components/molecules/SwipeableContent";
 import Icon from "../components/atoms/Icon";
 import Image from "next/image";
+import { SwipableContent } from "../components";
 
 const Step3 = () => {
   const router = useRouter();
@@ -96,7 +96,7 @@ const Step3 = () => {
           <CuteStar size={20} className="absolute -bottom-2 -left-2 z-10" />
           <CuteHeart size={20} className="absolute -bottom-2 -right-2 z-10" />
 
-          <SwipeableContent
+          <SwipableContent
             contents={[
               "Fractions can be represented on a number line, showing their relative position between whole numbers.",
               "A number line helps visualize the size and relationship between different fractions.",
