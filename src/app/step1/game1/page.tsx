@@ -8,8 +8,9 @@ import Icon from "../../components/atoms/Icon";
 import ConfettiEffect from "../../components/organisms/ConfettiEffect";
 import GameResults from "../../components/game/GameResult";
 import PizzaSliceGame from "../../components/game/PizzaSliceGame";
-import CandyProgressBar from "@/app/components/game/CandyProgressBar";
-import MultipleChoiceGame from "@/app/components/game/MultipleChoiceGame";
+import CandyProgressBar from "../../components/game/CandyProgressBar";
+import MultipleChoiceGame from "../../components/game/MultipleChoiceGame";
+import { useTwoStageGame } from "@/app/hooks";
 
 const Game1 = () => {
   const router = useRouter();
@@ -47,7 +48,7 @@ const Game1 = () => {
   const multipleChoiceQuestions = [
     {
       question: "What fraction of the pizza is shaded?",
-      image: "/pizza-3-4.png", // 3/4 pizza shaded
+      image: "/pizza-3-4.png", // Use consistent 'image' property
       options: ["1/4", "2/4", "3/4", "1/2"],
       correctAnswer: "3/4",
     },
@@ -228,7 +229,13 @@ const Game1 = () => {
           ) : (
             <MultipleChoiceGame
               question={multipleChoiceQuestions[game.currentQuestion]}
-              onAnswer={game.currentGameState.handleAnswer}
+              onAnswer={(selectedOption) => {
+                // Create an adapter that converts string to boolean
+                const isCorrect =
+                  selectedOption ===
+                  multipleChoiceQuestions[game.currentQuestion].correctAnswer;
+                game.currentGameState.handleAnswer(isCorrect);
+              }}
               disabled={!!game.currentGameState.showFeedback}
             />
           )}

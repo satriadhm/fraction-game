@@ -117,6 +117,7 @@ const FeedbackPopup: React.FC<FeedbackPopupProps> = ({
                 transition={{ duration: 0.5 }}
               >
                 <Icon
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
                   type={config[type].icon as any}
                   size={sizeConfig[size].iconSize}
                   color="white"

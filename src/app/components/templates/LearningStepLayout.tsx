@@ -1,11 +1,11 @@
-import React from 'react';
-import { motion } from 'framer-motion';
-import Image from 'next/image';
-import Typography from '../atoms/Typography';
-import NavigationButton from '../molecules/NavigationButton';
-import SwipeableContent from '../organisms/SwipeableContent';
-import CuteDecorationWrapper from '../organisms/CuteDecorationWrapper';
-import CuteShapes, { CuteHeart, CuteStar } from '../atoms/CuteShapes';
+import React from "react";
+import { motion } from "framer-motion";
+import Image from "next/image";
+import Typography from "../atoms/Typography";
+import NavigationButton from "../molecules/NavigationButton";
+import { CuteHeart, CuteStar } from "../atoms/CuteShapes";
+import CuteDecorationWrapper from "../organisms/CuteDecorationEffect";
+import SwipableContent from "../organisms/SwipableContent";
 
 interface LearningStepLayoutProps {
   title: string;
@@ -21,7 +21,7 @@ interface LearningStepLayoutProps {
   nextStepPath?: string;
   prevStepPath?: string;
   showNextPrevButtons?: boolean;
-  decorationTheme?: 'random' | 'hearts' | 'stars' | 'food' | 'mixed';
+  decorationTheme?: "random" | "hearts" | "stars" | "food" | "mixed";
   decorationCount?: number;
   className?: string;
 }
@@ -30,42 +30,51 @@ interface LearningStepLayoutProps {
  * A template for learning step pages with video, swipeable content, and navigation
  */
 const LearningStepLayout: React.FC<LearningStepLayoutProps> = ({
-  title,
   stepNumber,
   stepName,
   iconSrc,
   videoSrc,
   contentSlides,
   gamePath,
-  menuPath = '/menu',
-  backgroundColor = 'bg-gradient-to-b from-green-50 to-green-100',
-  accentColor = 'pink',
+  menuPath = "/menu",
+  backgroundColor = "bg-gradient-to-b from-green-50 to-green-100",
+  accentColor = "pink",
   nextStepPath,
   prevStepPath,
   showNextPrevButtons = false,
-  decorationTheme = 'random',
+  decorationTheme = "random",
   decorationCount = 8,
-  className = ''
+  className = "",
 }) => {
   // Get accent color for different elements
-  const getColorClass = (element: 'bg' | 'text' | 'border', intensity: number = 500) => {
+  const getColorClass = (
+    element: "bg" | "text" | "border" | "from" | "to",
+    intensity: number = 500
+  ) => {
     return `${element}-${accentColor}-${intensity}`;
   };
-  
+
   // Button colors
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const primaryButtonColor = accentColor as any;
-  const secondaryButtonColor = accentColor === 'pink' ? 'blue' : 'pink';
-  
+  const secondaryButtonColor = accentColor === "pink" ? "blue" : "pink";
+
   return (
-    <CuteDecorationWrapper numItems={decorationCount} theme={decorationTheme} className="relative overflow-hidden">
-      <div className={`flex flex-col items-center justify-center min-h-screen ${backgroundColor} p-8 ${className}`}>
+    <CuteDecorationWrapper
+      numItems={decorationCount}
+      theme={decorationTheme}
+      className="relative overflow-hidden"
+    >
+      <div
+        className={`flex flex-col items-center justify-center min-h-screen ${backgroundColor} p-8 ${className}`}
+      >
         {/* Decorative background shapes */}
         <motion.div
           className="absolute -top-20 -right-20 w-40 h-40 bg-green-200 rounded-full opacity-50"
           animate={{ scale: [1, 1.1, 1], rotate: [0, 5, 0] }}
           transition={{ duration: 8, repeat: Infinity }}
         />
-        
+
         <motion.div
           className="absolute -bottom-20 -left-20 w-40 h-40 bg-yellow-200 rounded-full opacity-50"
           animate={{ scale: [1, 1.2, 1], rotate: [0, -5, 0] }}
@@ -84,8 +93,10 @@ const LearningStepLayout: React.FC<LearningStepLayoutProps> = ({
               Step {stepNumber}: {stepName}
             </Typography>
           </motion.div>
-          <motion.div 
-            className={`absolute -bottom-2 left-0 right-0 h-1 ${getColorClass('bg')} rounded-full`}
+          <motion.div
+            className={`absolute -bottom-2 left-0 right-0 h-1 ${getColorClass(
+              "bg"
+            )} rounded-full`}
             initial={{ width: 0, x: "50%" }}
             animate={{ width: "100%", x: 0 }}
             transition={{ duration: 0.8, delay: 0.3 }}
@@ -116,7 +127,11 @@ const LearningStepLayout: React.FC<LearningStepLayoutProps> = ({
             transition={{ duration: 0.5, delay: 0.2 }}
             className="w-full max-w-2xl mb-6 relative"
           >
-            <div className={`absolute inset-0 bg-gradient-to-r ${getColorClass('from')}-400 ${getColorClass('to')}-600 rounded-xl -m-2 z-0`}></div>
+            <div
+              className={`absolute inset-0 bg-gradient-to-r ${getColorClass(
+                "from"
+              )}-400 ${getColorClass("to")}-600 rounded-xl -m-2 z-0`}
+            ></div>
             <div className="absolute inset-0 bg-white rounded-lg m-1 z-10"></div>
             <iframe
               className="w-full h-64 rounded-lg shadow-lg relative z-20"
@@ -146,8 +161,8 @@ const LearningStepLayout: React.FC<LearningStepLayoutProps> = ({
           <div className="absolute -bottom-2 -right-2 z-10">
             <CuteHeart size={20} />
           </div>
-          
-          <SwipeableContent
+
+          <SwipableContent
             contents={contentSlides}
             buttonColor={primaryButtonColor}
             withDots={true}
@@ -177,7 +192,7 @@ const LearningStepLayout: React.FC<LearningStepLayoutProps> = ({
             placement="start"
           />
         </div>
-        
+
         {/* Next/Previous step navigation (if enabled) */}
         {showNextPrevButtons && (
           <div className="w-full max-w-2xl flex justify-between mt-8">
@@ -194,7 +209,7 @@ const LearningStepLayout: React.FC<LearningStepLayoutProps> = ({
             ) : (
               <div></div> // Empty div for spacing
             )}
-            
+
             {nextStepPath && (
               <NavigationButton
                 path={nextStepPath}
@@ -208,9 +223,9 @@ const LearningStepLayout: React.FC<LearningStepLayoutProps> = ({
             )}
           </div>
         )}
-        
+
         {/* Cute footer element */}
-        <motion.div 
+        <motion.div
           className={`w-full max-w-md h-4 bg-gradient-to-r from-${accentColor}-400 via-transparent to-${accentColor}-400 rounded-full mt-8`}
           animate={{
             opacity: [0.5, 1, 0.5],

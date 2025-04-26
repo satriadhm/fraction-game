@@ -25,7 +25,6 @@ interface MultipleChoiceQuestionProps {
 const MultipleChoiceQuestion: React.FC<MultipleChoiceQuestionProps> = ({
   question,
   options,
-  correctAnswer,
   imageUrl,
   imageAlt = 'Question illustration',
   imageWidth = 160,

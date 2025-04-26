@@ -1,3 +1,4 @@
+// src/app/components/game/MultipleChoiceGame.tsx
 "use client";
 
 import React from "react";
@@ -11,6 +12,7 @@ interface MultipleChoiceGameProps {
     options: string[];
     correctAnswer: string;
     image?: string;
+    imageUrl?: string; // Added to support both naming conventions
   };
   onAnswer: (selectedOption: string) => void;
   disabled?: boolean;
@@ -25,6 +27,9 @@ const MultipleChoiceGame: React.FC<MultipleChoiceGameProps> = ({
   const colors = ["pink", "purple", "blue", "green"] as const;
   const effects = ["grow", "wobble", "bounce", "shake"] as const;
 
+  // Use either image or imageUrl property, whichever is available
+  const imageSource = question.image || question.imageUrl;
+
   return (
     <div className="w-full">
       <div className="relative mb-6 px-4 py-3 bg-purple-100 rounded-xl border-2 border-purple-200">
@@ -37,7 +42,7 @@ const MultipleChoiceGame: React.FC<MultipleChoiceGameProps> = ({
         </motion.p>
       </div>
 
-      {question.image && (
+      {imageSource && (
         <div className="flex justify-center mb-6">
           <motion.div
             initial={{ scale: 0.8, opacity: 0 }}
@@ -45,7 +50,7 @@ const MultipleChoiceGame: React.FC<MultipleChoiceGameProps> = ({
             transition={{ delay: 0.2 }}
           >
             <Image
-              src={question.image}
+              src={imageSource}
               alt="Question illustration"
               width={160}
               height={160}

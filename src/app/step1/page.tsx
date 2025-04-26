@@ -4,13 +4,13 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import {
-  SwipeableContent,
   AnimatedButton,
   CuteDecorationEffect,
   CuteHeart,
   CuteStar,
   CuteStrawberry,
   Icon,
+  SwipableContent,
 } from "../components";
 
 const Step1 = () => {
@@ -97,7 +97,7 @@ const Step1 = () => {
           <CuteStar size={20} className="absolute -bottom-2 -left-2 z-10" />
           <CuteHeart size={20} className="absolute -bottom-2 -right-2 z-10" />
 
-          <SwipeableContent
+          <SwipableContent
             contents={[
               "Fractions represent parts of a whole. The denominator (bottom number) tells how many equal parts the whole is divided into.",
               "The numerator (top number) tells how many parts we're talking about.",

@@ -2,8 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 
 export type ProgressBarVariant = 'standard' | 'gradient' | 'candy' | 'segments';
-export type ProgressBarColor = 'pink' | 'blue' | 'green' | 'purple' | 'orange' | 'yellow';
-
+type ProgressBarColor = 'pink' | 'blue' | 'green' | 'purple' | 'orange' | 'yellow' | 'red';
 interface ProgressBarProps {
   value: number;
   max: number;
@@ -36,7 +35,8 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
       green: 'bg-green-500',
       purple: 'bg-purple-500',
       orange: 'bg-orange-500',
-      yellow: 'bg-yellow-500'
+      yellow: 'bg-yellow-500',
+      red: 'bg-red-500'
     },
     gradient: {
       pink: 'bg-gradient-to-r from-pink-400 to-pink-600',
@@ -44,7 +44,8 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
       green: 'bg-gradient-to-r from-green-400 to-green-600',
       purple: 'bg-gradient-to-r from-purple-400 to-purple-600',
       orange: 'bg-gradient-to-r from-orange-400 to-orange-600',
-      yellow: 'bg-gradient-to-r from-yellow-400 to-yellow-600'
+      yellow: 'bg-gradient-to-r from-yellow-400 to-yellow-600',
+      red: 'bg-gradient-to-r from-red-400 to-red-600',
     }
   };
 
