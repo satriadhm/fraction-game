@@ -3,15 +3,20 @@
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import Image from "next/image";
-import SwipeableContent from "../components/SwipeableContent";
+import SwipableContent from "../components/organisms/SwipableContent";
 import AnimatedButton from "../components/molecules/AnimatedButton";
-import { CuteDecorationWrapper, CuteHeart, CuteStrawberry, CuteStar } from "../components/CuteDecorations";
+import CuteDecorationEffect from "../components/organisms/CuteDecorationEffect";
+import {
+  CuteHeart,
+  CuteStar,
+  CuteStrawberry,
+} from "../components/atoms/CuteShapes";
 
 const Step1 = () => {
   const router = useRouter();
 
   return (
-    <CuteDecorationWrapper numItems={8} className="relative overflow-hidden">
+    <CuteDecorationEffect numItems={8} className="relative overflow-hidden">
       <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-green-50 to-green-100 p-8">
         {/* Cute background elements */}
         <motion.div
@@ -19,7 +24,7 @@ const Step1 = () => {
           animate={{ scale: [1, 1.1, 1], rotate: [0, 5, 0] }}
           transition={{ duration: 8, repeat: Infinity }}
         />
-        
+
         <motion.div
           className="absolute -bottom-20 -left-20 w-40 h-40 bg-yellow-200 rounded-full opacity-50"
           animate={{ scale: [1, 1.2, 1], rotate: [0, -5, 0] }}
@@ -36,7 +41,7 @@ const Step1 = () => {
           >
             Step 1: Fraction of Shape
           </motion.h1>
-          <motion.div 
+          <motion.div
             className="absolute -bottom-2 left-0 right-0 h-1 bg-pink-400 rounded-full"
             initial={{ width: 0, x: "50%" }}
             animate={{ width: "100%", x: 0 }}
@@ -52,7 +57,7 @@ const Step1 = () => {
           className="mb-4"
         >
           <Image
-            src="/pizza-store.png" 
+            src="/pizza-store.png"
             alt="Pizza icon"
             width={80}
             height={80}
@@ -90,8 +95,8 @@ const Step1 = () => {
           <CuteStrawberry size={20} className="absolute -top-2 -right-2 z-10" />
           <CuteStar size={20} className="absolute -bottom-2 -left-2 z-10" />
           <CuteHeart size={20} className="absolute -bottom-2 -right-2 z-10" />
-          
-          <SwipeableContent
+
+          <SwipableContent
             contents={[
               "Fractions represent parts of a whole. The denominator (bottom number) tells how many equal parts the whole is divided into.",
               "The numerator (top number) tells how many parts we're talking about.",
@@ -110,9 +115,25 @@ const Step1 = () => {
             size="large"
             hoverEffect="bounce"
             icon={
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"
+                />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
               </svg>
             }
           >
@@ -125,17 +146,28 @@ const Step1 = () => {
             size="medium"
             hoverEffect="wobble"
             icon={
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 17l-5-5m0 0l5-5m-5 5h12" />
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M11 17l-5-5m0 0l5-5m-5 5h12"
+                />
               </svg>
             }
           >
             Back to Menu
           </AnimatedButton>
         </div>
-        
+
         {/* Cute footer element */}
-        <motion.div 
+        <motion.div
           className="w-full max-w-md h-4 bg-gradient-to-r from-pink-400 via-transparent to-pink-400 rounded-full mt-8"
           animate={{
             opacity: [0.5, 1, 0.5],
@@ -143,7 +175,7 @@ const Step1 = () => {
           transition={{ duration: 2, repeat: Infinity }}
         />
       </div>
-    </CuteDecorationWrapper>
+    </CuteDecorationEffect>
   );
 };
 

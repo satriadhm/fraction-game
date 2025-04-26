@@ -5,13 +5,12 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import AnimatedButton from "../components/molecules/AnimatedButton";
+import CuteDecorationWrapper from "../components/organisms/CuteDecorationEffect";
 import {
-  CuteDecorationWrapper,
   CuteHeart,
   CuteStar,
   CuteIceCream,
-} from "../components/CuteDecorations";
-
+} from "../components/atoms/CuteShapes";
 
 const Particles = () => {
   const [particles, setParticles] = useState<
@@ -128,7 +127,6 @@ const JourneyPath = () => {
     </svg>
   );
 };
-
 
 const Menu = () => {
   const router = useRouter();

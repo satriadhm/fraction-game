@@ -5,11 +5,28 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import AnimatedButton from "../../components/molecules/AnimatedButton";
-import {
-  CandyProgressBar,
-  CuteDecorationWrapper,
-  CuteStar,
-} from "../../components/CuteDecorations";
+import CuteDecorationEffect from "../../components/organisms/CuteDecorationEffect";
+import { CuteStar } from "../../components/atoms/CuteShapes";
+import ProgressBar from "../../components/molecules/ProgressBar";
+
+// Custom candy-style progress bar component using ProgressBar
+const CandyProgressBar = ({
+  progress,
+  total,
+}: {
+  progress: number;
+  total: number;
+}) => {
+  return (
+    <ProgressBar
+      value={progress}
+      max={total}
+      variant="candy"
+      color="pink"
+      height={10}
+    />
+  );
+};
 
 const Game1 = () => {
   const router = useRouter();
@@ -264,8 +281,9 @@ const Game1 = () => {
 
   if (showResults) {
     return (
-      <CuteDecorationWrapper
+      <CuteDecorationEffect
         numItems={10}
+        theme="mixed"
         className="min-h-screen overflow-hidden bg-gradient-to-br from-blue-50 to-purple-100"
       >
         <div className="flex flex-col items-center justify-center min-h-screen p-8">
@@ -386,7 +404,7 @@ const Game1 = () => {
             </div>
           </motion.div>
         </div>
-      </CuteDecorationWrapper>
+      </CuteDecorationEffect>
     );
   }
 
