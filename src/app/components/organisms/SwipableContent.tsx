@@ -1,8 +1,17 @@
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import Icon from '../atoms/Icon';
-import Typography from '../atoms/Typography';
-import { ButtonColor } from '../atoms/Button';
+"use client";
+
+import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence, Variant, Transition } from "framer-motion";
+import Icon from "../atoms/Icon";
+import Typography from "../atoms/Typography";
+import { ButtonColor } from "../atoms/Button";
+
+// Define proper animation variant types
+interface AnimationVariants {
+  enter: (direction: number) => Variant;
+  center: Variant;
+  exit: (direction: number) => Variant;
+}
 
 interface SwipeableContentProps {
   contents: string[];
@@ -23,22 +32,22 @@ interface SwipeableContentProps {
  */
 const SwipeableContent: React.FC<SwipeableContentProps> = ({
   contents,
-  backgroundColor = 'bg-yellow-100',
-  textColor = 'text-gray-800',
-  buttonColor = 'pink',
+  backgroundColor = "bg-yellow-100",
+  textColor = "text-gray-800",
+  buttonColor = "pink",
   height = 256,
-  className = '',
+  className = "",
   withDots = true,
   withPagination = false,
   autoPlay = false,
   autoPlayInterval = 5000,
-  onIndexChange
+  onIndexChange,
 }) => {
   const [index, setIndex] = useState(0);
   const [direction, setDirection] = useState(0);
 
   // Autoplay effect
-  React.useEffect(() => {
+  useEffect(() => {
     if (autoPlay) {
       const timer = setTimeout(() => {
         nextContent();
@@ -53,7 +62,7 @@ const SwipeableContent: React.FC<SwipeableContentProps> = ({
     setIndex(newIndex);
     if (onIndexChange) onIndexChange(newIndex);
   };
-  
+
   const prevContent = () => {
     setDirection(-1);
     const newIndex = (index - 1 + contents.length) % contents.length;
@@ -62,33 +71,43 @@ const SwipeableContent: React.FC<SwipeableContentProps> = ({
   };
 
   // Animation variants for the slide transition
-  const variants = {
+  const variants: AnimationVariants = {
     enter: (direction: number) => ({
-      x: direction > 0 ? '100%' : '-100%',
-      opacity: 0
+      x: direction > 0 ? "100%" : "-100%",
+      opacity: 0,
     }),
     center: {
       x: 0,
-      opacity: 1
+      opacity: 1,
     },
     exit: (direction: number) => ({
-      x: direction < 0 ? '100%' : '-100%',
-      opacity: 0
-    })
+      x: direction < 0 ? "100%" : "-100%",
+      opacity: 0,
+    }),
+  };
+
+  // Transition configuration
+  const slideTransition: Transition = {
+    x: { type: "spring", stiffness: 300, damping: 30 },
+    opacity: { duration: 0.2 },
   };
 
   // Calculate button colors based on passed color
   const buttonBgColor = {
-    pink: 'bg-pink-500 hover:bg-pink-600',
-    blue: 'bg-blue-500 hover:bg-blue-600',
-    green: 'bg-green-500 hover:bg-green-600',
-    purple: 'bg-purple-500 hover:bg-purple-600',
-    orange: 'bg-orange-500 hover:bg-orange-600',
-    yellow: 'bg-yellow-500 hover:bg-yellow-600'
+    pink: "bg-pink-500 hover:bg-pink-600",
+    blue: "bg-blue-500 hover:bg-blue-600",
+    green: "bg-green-500 hover:bg-green-600",
+    purple: "bg-purple-500 hover:bg-purple-600",
+    orange: "bg-orange-500 hover:bg-orange-600",
+    yellow: "bg-yellow-500 hover:bg-yellow-600",
   }[buttonColor];
 
+  // Button hover animation
+  const buttonHoverAnimation = { scale: 1.1 };
+  const buttonTapAnimation = { scale: 0.9 };
+
   return (
-    <div 
+    <div
       className={`relative w-full max-w-2xl overflow-hidden rounded-lg shadow-lg ${backgroundColor} ${className}`}
       style={{ height: `${height}px` }}
     >
@@ -102,10 +121,7 @@ const SwipeableContent: React.FC<SwipeableContentProps> = ({
             initial="enter"
             animate="center"
             exit="exit"
-            transition={{
-              x: { type: "spring", stiffness: 300, damping: 30 },
-              opacity: { duration: 0.2 }
-            }}
+            transition={slideTransition}
             className={`absolute w-full h-full flex items-center justify-center p-6 text-center ${textColor}`}
           >
             <Typography variant="body1" className="text-xl font-bold">
@@ -114,47 +130,49 @@ const SwipeableContent: React.FC<SwipeableContentProps> = ({
           </motion.div>
         </AnimatePresence>
       </div>
-      
+
       {/* Left navigation button */}
       <div className="absolute inset-y-0 left-0 flex items-center">
-        <motion.button 
-          onClick={prevContent} 
+        <motion.button
+          onClick={prevContent}
           className={`${buttonBgColor} text-white rounded-full w-10 h-10 flex items-center justify-center shadow-lg focus:outline-none mx-2`}
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
+          whileHover={buttonHoverAnimation}
+          whileTap={buttonTapAnimation}
           aria-label="Previous"
         >
           <Icon type="chevron-left" size={24} />
         </motion.button>
       </div>
-      
+
       {/* Right navigation button */}
       <div className="absolute inset-y-0 right-0 flex items-center">
-        <motion.button 
-          onClick={nextContent} 
+        <motion.button
+          onClick={nextContent}
           className={`${buttonBgColor} text-white rounded-full w-10 h-10 flex items-center justify-center shadow-lg focus:outline-none mx-2`}
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
+          whileHover={buttonHoverAnimation}
+          whileTap={buttonTapAnimation}
           aria-label="Next"
         >
           <Icon type="chevron-right" size={24} />
         </motion.button>
       </div>
-      
+
       {/* Navigation dots */}
       {withDots && (
         <div className="absolute bottom-2 left-0 right-0 flex justify-center space-x-2">
           {contents.map((_, i) => (
             <motion.div
               key={i}
-              className={`w-2 h-2 rounded-full ${i === index ? `bg-${buttonColor}-600` : 'bg-gray-300'}`}
+              className={`w-2 h-2 rounded-full ${
+                i === index ? `bg-${buttonColor}-600` : "bg-gray-300"
+              }`}
               whileHover={{ scale: 1.2 }}
               onClick={() => {
                 setDirection(i > index ? 1 : -1);
                 setIndex(i);
                 if (onIndexChange) onIndexChange(i);
               }}
-              style={{ cursor: 'pointer' }}
+              style={{ cursor: "pointer" }}
             />
           ))}
         </div>

@@ -3,14 +3,15 @@
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import Image from "next/image";
-import SwipableContent from "../components/organisms/SwipableContent";
-import AnimatedButton from "../components/molecules/AnimatedButton";
-import CuteDecorationEffect from "../components/organisms/CuteDecorationEffect";
 import {
+  SwipeableContent,
+  AnimatedButton,
+  CuteDecorationEffect,
   CuteHeart,
   CuteStar,
   CuteStrawberry,
-} from "../components/atoms/CuteShapes";
+  Icon,
+} from "../components";
 
 const Step1 = () => {
   const router = useRouter();
@@ -96,7 +97,7 @@ const Step1 = () => {
           <CuteStar size={20} className="absolute -bottom-2 -left-2 z-10" />
           <CuteHeart size={20} className="absolute -bottom-2 -right-2 z-10" />
 
-          <SwipableContent
+          <SwipeableContent
             contents={[
               "Fractions represent parts of a whole. The denominator (bottom number) tells how many equal parts the whole is divided into.",
               "The numerator (top number) tells how many parts we're talking about.",
@@ -104,6 +105,7 @@ const Step1 = () => {
               "When we shade parts of a shape, we can express the shaded portion as a fraction.",
               "Addition of fractions must have the same denominator.",
             ]}
+            buttonColor="pink"
           />
         </motion.div>
 
@@ -114,28 +116,7 @@ const Step1 = () => {
             color="pink"
             size="large"
             hoverEffect="bounce"
-            icon={
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-6 w-6"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"
-                />
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-            }
+            icon={<Icon type="play" />}
           >
             Play Game
           </AnimatedButton>
@@ -145,22 +126,7 @@ const Step1 = () => {
             color="blue"
             size="medium"
             hoverEffect="wobble"
-            icon={
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M11 17l-5-5m0 0l5-5m-5 5h12"
-                />
-              </svg>
-            }
+            icon={<Icon type="back" />}
           >
             Back to Menu
           </AnimatedButton>
