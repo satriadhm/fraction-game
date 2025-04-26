@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import AnimatedButton from "../components/AnimatedButton";
+import AnimatedButton from "../components/molecules/AnimatedButton";
 import {
   CuteDecorationWrapper,
   CuteHeart,

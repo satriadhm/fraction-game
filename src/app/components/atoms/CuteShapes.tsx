@@ -1,66 +1,18 @@
-import { motion } from "framer-motion";
 import React from "react";
 
-interface FloatingItemProps {
-  x?: string;
-  y?: string;
-  delay?: number;
+// Interface for all cute shape components
+interface CuteShapeProps {
   size?: number;
   color?: string;
-  children?: React.ReactNode;
-  duration?: number;
   className?: string;
 }
 
-export const FloatingItem: React.FC<FloatingItemProps> = ({
-  x = "0%",
-  y = "0%",
-  delay = 0,
-  size = 30,
-  color = "#EC4899",
-  children,
-  duration = 3,
-  className = "",
-}) => {
-  return (
-    <motion.div
-      className={`absolute ${className}`}
-      style={{
-        left: x,
-        top: y,
-        width: size,
-        height: size,
-      }}
-      initial={{ y: 0, x: 0 }}
-      animate={{
-        y: [0, -20, 0],
-        x: [0, 10, 0],
-      }}
-      transition={{
-        duration: duration,
-        repeat: Infinity,
-        repeatType: "reverse",
-        delay: delay,
-      }}
-    >
-      {children ? (
-        children
-      ) : (
-        <div
-          className="rounded-full"
-          style={{ backgroundColor: color, width: "100%", height: "100%" }}
-        />
-      )}
-    </motion.div>
-  );
-};
-
 // A cute heart shape
-export const CuteHeart: React.FC<{
-  color?: string;
-  size?: number;
-  className?: string;
-}> = ({ color = "#EC4899", size = 30, className = "" }) => {
+export const CuteHeart: React.FC<CuteShapeProps> = ({ 
+  color = "#EC4899", 
+  size = 30, 
+  className = "" 
+}) => {
   return (
     <svg
       viewBox="0 0 24 24"
@@ -77,11 +29,11 @@ export const CuteHeart: React.FC<{
 };
 
 // A cute star shape
-export const CuteStar: React.FC<{
-  color?: string;
-  size?: number;
-  className?: string;
-}> = ({ color = "#FCD34D", size = 30, className = "" }) => {
+export const CuteStar: React.FC<CuteShapeProps> = ({ 
+  color = "#FCD34D", 
+  size = 30, 
+  className = "" 
+}) => {
   return (
     <svg
       viewBox="0 0 24 24"
@@ -98,10 +50,10 @@ export const CuteStar: React.FC<{
 };
 
 // A cute strawberry
-export const CuteStrawberry: React.FC<{
-  size?: number;
-  className?: string;
-}> = ({ size = 30, className = "" }) => {
+export const CuteStrawberry: React.FC<CuteShapeProps> = ({ 
+  size = 30, 
+  className = "" 
+}) => {
   return (
     <svg
       viewBox="0 0 512 512"
@@ -122,9 +74,9 @@ export const CuteStrawberry: React.FC<{
 };
 
 // A cute ice cream cone
-export const CuteIceCream: React.FC<{ size?: number; className?: string }> = ({
-  size = 30,
-  className = "",
+export const CuteIceCream: React.FC<CuteShapeProps> = ({ 
+  size = 30, 
+  className = "" 
 }) => {
   return (
     <svg
@@ -146,9 +98,9 @@ export const CuteIceCream: React.FC<{ size?: number; className?: string }> = ({
 };
 
 // A cute cookie
-export const CuteCookie: React.FC<{ size?: number; className?: string }> = ({
-  size = 30,
-  className = "",
+export const CuteCookie: React.FC<CuteShapeProps> = ({ 
+  size = 30, 
+  className = "" 
 }) => {
   return (
     <svg
@@ -167,76 +119,13 @@ export const CuteCookie: React.FC<{ size?: number; className?: string }> = ({
   );
 };
 
-// A cute decoration wrapper that adds random floating items around content
-export const CuteDecorationWrapper: React.FC<{
-  children: React.ReactNode;
-  numItems?: number;
-  className?: string;
-}> = ({ children, numItems = 5, className = "" }) => {
-  const decorations = [
-    <CuteHeart key="heart" />,
-    <CuteStar key="star" />,
-    <CuteStrawberry key="strawberry" />,
-    <CuteIceCream key="icecream" />,
-    <CuteCookie key="cookie" />,
-  ];
-
-  return (
-    <div className={`relative ${className}`}>
-      {children}
-      {[...Array(numItems)].map((_, i) => {
-        const decoration =
-          decorations[Math.floor(Math.random() * decorations.length)];
-        return (
-          <FloatingItem
-            key={i}
-            x={`${Math.random() * 90 + 5}%`}
-            y={`${Math.random() * 90 + 5}%`}
-            delay={Math.random() * 5}
-            duration={2 + Math.random() * 3}
-            size={20 + Math.random() * 20}
-          >
-            {decoration}
-          </FloatingItem>
-        );
-      })}
-    </div>
-  );
+// Export all shapes in an object
+const CuteShapes = {
+  Heart: CuteHeart,
+  Star: CuteStar,
+  Strawberry: CuteStrawberry,
+  IceCream: CuteIceCream,
+  Cookie: CuteCookie
 };
 
-// A candy themed progress bar
-export const CandyProgressBar: React.FC<{
-  progress: number;
-  total: number;
-  className?: string;
-}> = ({ progress, total, className = "" }) => {
-  const percentage = (progress / total) * 100;
-
-  return (
-    <div
-      className={`w-full h-6 bg-gray-200 rounded-full overflow-hidden ${className}`}
-    >
-      <motion.div
-        className="h-full bg-gradient-to-r from-pink-400 to-pink-600 rounded-full"
-        initial={{ width: 0 }}
-        animate={{ width: `${percentage}%` }}
-        transition={{ duration: 0.5, ease: "easeOut" }}
-      >
-        <div className="h-full w-full bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-transparent via-pink-300/30 to-transparent"></div>
-      </motion.div>
-    </div>
-  );
-};
-
-const CuteDecorations = {
-  FloatingItem,
-  CuteHeart,
-  CuteStar,
-  CuteStrawberry,
-  CuteIceCream,
-  CuteCookie,
-  CuteDecorationWrapper,
-  CandyProgressBar,
-};
-
-export default CuteDecorations;
+export default CuteShapes;

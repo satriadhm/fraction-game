@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import AnimatedButton from "../../components/AnimatedButton";
+import AnimatedButton from "../../components/molecules/AnimatedButton";
 import {
   CandyProgressBar,
   CuteDecorationWrapper,

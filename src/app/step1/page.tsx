@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import SwipeableContent from "../components/SwipeableContent";
-import AnimatedButton from "../components/AnimatedButton";
+import AnimatedButton from "../components/molecules/AnimatedButton";
 import { CuteDecorationWrapper, CuteHeart, CuteStrawberry, CuteStar } from "../components/CuteDecorations";
 
 const Step1 = () => {
