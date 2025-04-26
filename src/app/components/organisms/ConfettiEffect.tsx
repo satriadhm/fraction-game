@@ -45,26 +45,8 @@ const ConfettiEffect: React.FC<ConfettiEffectProps> = ({
   const [confetti, setConfetti] = useState<ConfettiPiece[]>([]);
   const [isComplete, setIsComplete] = useState(false);
 
-  // Generate confetti pieces when 'show' changes to true
-  useEffect(() => {
-    if (show && !isComplete) {
-      const newConfetti = generateConfetti();
-      setConfetti(newConfetti);
-      setIsComplete(false);
-
-      // Set timer to clean up confetti after animation completes
-      const timer = setTimeout(() => {
-        setConfetti([]);
-        setIsComplete(true);
-        if (onComplete) onComplete();
-      }, duration * 1000 + 500); // Extra time to ensure all animations complete
-
-      return () => clearTimeout(timer);
-    }
-  }, [show, duration, onComplete]);
-
   // Generate random confetti pieces
-  const generateConfetti = (): ConfettiPiece[] => {
+  const generateConfetti = React.useCallback((): ConfettiPiece[] => {
     return Array.from({ length: pieces }).map((_, index) => {
       // Random starting position based on origin
       const position = getStartPosition(origin);
@@ -90,7 +72,25 @@ const ConfettiEffect: React.FC<ConfettiEffectProps> = ({
         delay,
       };
     });
-  };
+  }, [pieces, origin, shapes, sizes, colors, duration]);
+
+  // Generate confetti pieces when 'show' changes to true
+  useEffect(() => {
+    if (show && !isComplete) {
+      const newConfetti = generateConfetti();
+      setConfetti(newConfetti);
+      setIsComplete(false);
+
+      // Set timer to clean up confetti after animation completes
+      const timer = setTimeout(() => {
+        setConfetti([]);
+        setIsComplete(true);
+        if (onComplete) onComplete();
+      }, duration * 1000 + 500); // Extra time to ensure all animations complete
+
+      return () => clearTimeout(timer);
+    }
+  }, [show, duration, onComplete, isComplete, generateConfetti]);
 
   // Calculate starting position based on origin
   const getStartPosition = (origin: ConfettiOrigin) => {

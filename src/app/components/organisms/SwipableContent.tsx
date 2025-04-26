@@ -50,6 +50,13 @@ const SwipableContent: React.FC<SwipableContentProps> = ({
   const [index, setIndex] = useState(0);
   const [direction, setDirection] = useState(0);
 
+  const nextContent = React.useCallback(() => {
+    setDirection(1);
+    const newIndex = (index + 1) % contents.length;
+    setIndex(newIndex);
+    if (onIndexChange) onIndexChange(newIndex);
+  }, [index, contents.length, onIndexChange]);
+
   // Autoplay effect
   useEffect(() => {
     if (autoPlay) {
@@ -58,14 +65,7 @@ const SwipableContent: React.FC<SwipableContentProps> = ({
       }, autoPlayInterval);
       return () => clearTimeout(timer);
     }
-  }, [autoPlay, autoPlayInterval, index]);
-
-  const nextContent = () => {
-    setDirection(1);
-    const newIndex = (index + 1) % contents.length;
-    setIndex(newIndex);
-    if (onIndexChange) onIndexChange(newIndex);
-  };
+  }, [autoPlay, autoPlayInterval, index, nextContent]);
 
   const prevContent = () => {
     setDirection(-1);
