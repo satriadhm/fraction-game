@@ -1,202 +1,290 @@
 "use client";
 
-import React, { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import React, { useState, useRef, useEffect } from "react";
+import { motion } from "framer-motion";
+import {
+  Typography,
+  AnimatedButton,
+  Icon,
+  CuteStar,
+  CuteHeart,
+  ConfettiEffect,
+  GameLayout,
+} from "@/app/components";
 import { useRouter } from "next/navigation";
-import GameLayout from "../../components/templates/GameLayout";
-import MultipleQuestion from "../../components/organisms/MultipleQuestion";
-import AnimatedButton from "../../components/molecules/AnimatedButton";
-import Icon from "../../components/atoms/Icon";
-import Image from "next/image";
 
-const Game3 = () => {
+const FractionMatchingGame = () => {
   const router = useRouter();
-  const [currentQuestion, setCurrentQuestion] = useState(0);
-  const [score, setScore] = useState(0);
-  const [showFeedback, setShowFeedback] = useState<
-    "success" | "error" | "warning" | "info" | null
-  >(null);
+  const [currentLevel, setCurrentLevel] = useState(0);
+  const [userConnections, setUserConnections] = useState({});
+  const [selectedFraction, setSelectedFraction] = useState(null);
+  const [lines, setLines] = useState([]);
+  const [success, setSuccess] = useState(false);
+  const [showFeedback, setShowFeedback] = useState(null);
   const [showConfetti, setShowConfetti] = useState(false);
   const [gameComplete, setGameComplete] = useState(false);
+  const [score, setScore] = useState(0);
 
-  // Game questions about fractions on a number line
-  const questions = [
+  const containerRef = useRef(null);
+  const fractionRefs = useRef({});
+
+  // Game levels with equivalent fractions to match
+  const levels = [
     {
-      question: "Which fraction is located at point A on the number line?",
-      imageUrl: "/number-line-1.png", // This would be a number line with point A at 1/4
-      options: ["1/4", "1/2", "3/4", "1"],
-      correctAnswer: "1/4",
-      explanation:
-        "Point A is located at 1/4 of the way between 0 and 1 on the number line.",
-    },
-    {
-      question: "Which point on the number line represents the fraction 2/3?",
-      options: ["Point A", "Point B", "Point C", "Point D"],
-      correctAnswer: "Point C",
-      explanation:
-        "Point C is located at 2/3 of the way between 0 and 1 on the number line.",
-    },
-    {
-      question:
-        "If a fraction is greater than 1, where is it located on the number line?",
-      options: [
-        "To the left of 0",
-        "Between 0 and 1",
-        "At exactly 1",
-        "To the right of 1",
+      id: 1,
+      leftSide: [
+        { id: "L1", fraction: "1/2", color: "bg-pink-400" },
+        { id: "L2", fraction: "1/4", color: "bg-blue-700" },
+        { id: "L3", fraction: "3/6", color: "bg-blue-500" },
       ],
-      correctAnswer: "To the right of 1",
-      explanation:
-        "Fractions greater than 1 (like 5/4 or 3/2) are located to the right of 1 on the number line.",
+      rightSide: [
+        { id: "R1", fraction: "2/4", color: "bg-pink-400" },
+        { id: "R2", fraction: "2/8", color: "bg-blue-700" },
+        { id: "R3", fraction: "1/2", color: "bg-blue-500" },
+      ],
+      connections: { L1: "R1", L2: "R2", L3: "R3" },
     },
     {
-      question: "Which fraction is halfway between 0 and 1 on the number line?",
-      options: ["1/4", "1/3", "1/2", "2/3"],
-      correctAnswer: "1/2",
-      explanation:
-        "1/2 is located exactly halfway between 0 and 1 on the number line.",
+      id: 2,
+      leftSide: [
+        { id: "L1", fraction: "1/3", color: "bg-pink-400" },
+        { id: "L2", fraction: "2/6", color: "bg-pink-500" },
+        { id: "L3", fraction: "4/8", color: "bg-blue-600" },
+      ],
+      rightSide: [
+        { id: "R1", fraction: "2/6", color: "bg-pink-400" },
+        { id: "R2", fraction: "1/3", color: "bg-pink-500" },
+        { id: "R3", fraction: "1/2", color: "bg-blue-600" },
+      ],
+      connections: { L1: "R1", L2: "R2", L3: "R3" },
     },
     {
-      question:
-        "Which of these fractions would be placed furthest to the right on a number line?",
-      options: ["3/4", "5/8", "7/10", "2/3"],
-      correctAnswer: "3/4",
-      explanation:
-        "3/4 = 0.75, which is greater than 5/8 (0.625), 7/10 (0.7), and 2/3 (0.667).",
+      id: 3,
+      leftSide: [
+        { id: "L1", fraction: "2/3", color: "bg-pink-400" },
+        { id: "L2", fraction: "3/5", color: "bg-pink-500" },
+        { id: "L3", fraction: "5/10", color: "bg-blue-500" },
+      ],
+      rightSide: [
+        { id: "R1", fraction: "4/6", color: "bg-pink-400" },
+        { id: "R2", fraction: "6/10", color: "bg-pink-500" },
+        { id: "R3", fraction: "1/2", color: "bg-blue-500" },
+      ],
+      connections: { L1: "R1", L2: "R2", L3: "R3" },
+    },
+    {
+      id: 4,
+      leftSide: [
+        { id: "L1", fraction: "1/2", color: "bg-pink-400" },
+        { id: "L2", fraction: "3/4", color: "bg-pink-500" },
+        { id: "L3", fraction: "2/5", color: "bg-blue-500" },
+      ],
+      rightSide: [
+        { id: "R1", fraction: "3/6", color: "bg-pink-400" },
+        { id: "R2", fraction: "6/8", color: "bg-pink-500" },
+        { id: "R3", fraction: "4/10", color: "bg-blue-500" },
+      ],
+      connections: { L1: "R1", L2: "R2", L3: "R3" },
+    },
+    {
+      id: 5,
+      leftSide: [
+        { id: "L1", fraction: "5/10", color: "bg-pink-400" },
+        { id: "L2", fraction: "2/8", color: "bg-pink-500" },
+        { id: "L3", fraction: "3/9", color: "bg-blue-500" },
+      ],
+      rightSide: [
+        { id: "R1", fraction: "1/2", color: "bg-pink-400" },
+        { id: "R2", fraction: "1/4", color: "bg-pink-500" },
+        { id: "R3", fraction: "1/3", color: "bg-blue-500" },
+      ],
+      connections: { L1: "R1", L2: "R2", L3: "R3" },
     },
   ];
 
-  const checkAnswer = (selectedOption: string) => {
-    const currentQ = questions[currentQuestion];
-    const isCorrect = selectedOption === currentQ.correctAnswer;
+  // Initialize fraction refs
+  useEffect(() => {
+    fractionRefs.current = {};
+  }, [currentLevel]);
 
-    if (isCorrect) {
-      setScore(score + 1);
-      setShowFeedback("success");
-      setShowConfetti(true);
+  // Calculate center position of element
+  const getElementCenter = (el) => {
+    if (!el) return { x: 0, y: 0 };
+    const rect = el.getBoundingClientRect();
+    const containerRect = containerRef.current.getBoundingClientRect();
+    return {
+      x: rect.left + rect.width / 2 - containerRect.left,
+      y: rect.top + rect.height / 2 - containerRect.top,
+    };
+  };
+
+  // Handle fraction selection
+  const handleFractionClick = (side, fractionId) => {
+    // First selection or selecting from other side
+    if (
+      !selectedFraction ||
+      (selectedFraction && selectedFraction.side !== side)
+    ) {
+      setSelectedFraction({ side, id: fractionId });
+
+      // If this is the second selection (connecting)
+      if (selectedFraction) {
+        // Determine left and right IDs
+        const leftId =
+          selectedFraction.side === "left" ? selectedFraction.id : fractionId;
+        const rightId =
+          selectedFraction.side === "right" ? selectedFraction.id : fractionId;
+
+        // Create new connection
+        const connectionKey =
+          side === "left" ? fractionId : selectedFraction.id;
+        const connectionValue =
+          side === "right" ? fractionId : selectedFraction.id;
+
+        // Add the connection
+        setUserConnections((prev) => ({
+          ...prev,
+          [connectionKey]: connectionValue,
+        }));
+
+        // Add the line
+        const leftEl = fractionRefs.current[leftId];
+        const rightEl = fractionRefs.current[rightId];
+
+        if (leftEl && rightEl) {
+          const leftCenter = getElementCenter(leftEl);
+          const rightCenter = getElementCenter(rightEl);
+
+          setLines((prev) => [
+            ...prev,
+            {
+              id: `${leftId}-${rightId}`,
+              x1: leftCenter.x,
+              y1: leftCenter.y,
+              x2: rightCenter.x,
+              y2: rightCenter.y,
+              leftId,
+              rightId,
+            },
+          ]);
+        }
+
+        setSelectedFraction(null);
+      }
     } else {
-      setShowFeedback("error");
+      // Deselect if clicking the same fraction
+      setSelectedFraction(null);
+    }
+  };
+
+  // Check answers
+  const checkAnswers = () => {
+    const currentLevelData = levels[currentLevel];
+    const correctConnections = currentLevelData.connections;
+
+    // Check if all connections are correct
+    let allCorrect = true;
+
+    // Check each connection
+    Object.keys(correctConnections).forEach((leftId) => {
+      const correctRightId = correctConnections[leftId];
+      const userRightId = userConnections[leftId];
+
+      if (userRightId !== correctRightId) {
+        allCorrect = false;
+      }
+    });
+
+    // Check if all required connections are made
+    const correctConnectionsCount = Object.keys(correctConnections).length;
+    const userConnectionsCount = Object.keys(userConnections).length;
+
+    if (userConnectionsCount !== correctConnectionsCount) {
+      allCorrect = false;
     }
 
-    // Move to next question after feedback
-    setTimeout(() => {
-      setShowFeedback(null);
-      setShowConfetti(false);
+    // Show feedback and update score
+    setSuccess(allCorrect);
+    setShowFeedback(allCorrect ? "success" : "error");
+    setShowConfetti(allCorrect);
 
-      if (currentQuestion < questions.length - 1) {
-        setCurrentQuestion(currentQuestion + 1);
-      } else {
-        setGameComplete(true);
-      }
-    }, 2000);
+    if (allCorrect) {
+      setScore((prev) => prev + 1);
+
+      // Move to next level after delay
+      setTimeout(() => {
+        if (currentLevel < levels.length - 1) {
+          setCurrentLevel((prev) => prev + 1);
+          resetLevel();
+        } else {
+          setGameComplete(true);
+        }
+        setShowFeedback(null);
+        setShowConfetti(false);
+      }, 2000);
+    } else {
+      // Hide feedback after delay
+      setTimeout(() => {
+        setShowFeedback(null);
+      }, 2000);
+    }
   };
 
-  // Number line visualization component
-  const NumberLine = () => {
-    return (
-      <div className="w-full flex flex-col items-center justify-center mb-6">
-        <div className="relative w-full max-w-md h-16">
-          {/* Main line */}
-          <div className="absolute top-8 left-0 right-0 h-1 bg-blue-600"></div>
-
-          {/* Tick marks */}
-          <div className="absolute top-4 left-0 w-1 h-8 bg-blue-600"></div>
-          <div className="absolute top-4 left-1/4 w-1 h-8 bg-blue-600"></div>
-          <div className="absolute top-4 left-1/2 w-1 h-8 bg-blue-600"></div>
-          <div className="absolute top-4 left-3/4 w-1 h-8 bg-blue-600"></div>
-          <div className="absolute top-4 right-0 w-1 h-8 bg-blue-600"></div>
-
-          {/* Labels */}
-          <div className="absolute top-14 left-0 text-sm font-bold -translate-x-1">
-            0
-          </div>
-          <div className="absolute top-14 left-1/4 text-sm font-bold -translate-x-1">
-            1/4
-          </div>
-          <div className="absolute top-14 left-1/2 text-sm font-bold -translate-x-1">
-            1/2
-          </div>
-          <div className="absolute top-14 left-3/4 text-sm font-bold -translate-x-1">
-            3/4
-          </div>
-          <div className="absolute top-14 right-0 text-sm font-bold -translate-x-1">
-            1
-          </div>
-
-          {/* Point markers - these would change based on the question */}
-          <motion.div
-            className="absolute top-1 left-1/4 w-6 h-6 rounded-full bg-red-500 text-white flex items-center justify-center -translate-x-3"
-            animate={{ y: [0, -5, 0] }}
-            transition={{ duration: 1, repeat: Infinity }}
-          >
-            A
-          </motion.div>
-          <motion.div
-            className="absolute top-1 left-2/4 w-6 h-6 rounded-full bg-green-500 text-white flex items-center justify-center -translate-x-3"
-            animate={{ y: [0, -5, 0] }}
-            transition={{ duration: 1, repeat: Infinity, delay: 0.2 }}
-          >
-            B
-          </motion.div>
-          <motion.div
-            className="absolute top-1 left-[67%] w-6 h-6 rounded-full bg-blue-500 text-white flex items-center justify-center -translate-x-3"
-            animate={{ y: [0, -5, 0] }}
-            transition={{ duration: 1, repeat: Infinity, delay: 0.4 }}
-          >
-            C
-          </motion.div>
-          <motion.div
-            className="absolute top-1 left-[88%] w-6 h-6 rounded-full bg-purple-500 text-white flex items-center justify-center -translate-x-3"
-            animate={{ y: [0, -5, 0] }}
-            transition={{ duration: 1, repeat: Infinity, delay: 0.6 }}
-          >
-            D
-          </motion.div>
-        </div>
-      </div>
-    );
+  // Reset the current level
+  const resetLevel = () => {
+    setUserConnections({});
+    setLines([]);
+    setSelectedFraction(null);
+    setSuccess(false);
+    setShowFeedback(null);
   };
 
-  if (gameComplete) {
-    return (
-      <GameLayout
-        title="Fractions on Number Line"
-        subtitle="Great job completing all the questions!"
-        currentQuestion={questions.length}
-        totalQuestions={questions.length}
-        score={score}
-        maxScore={questions.length}
-        showConfetti={true}
-        backgroundColor="bg-gradient-to-br from-blue-50 to-blue-100"
-        accentColor="blue"
-      >
+  // Restart game
+  const restartGame = () => {
+    setCurrentLevel(0);
+    setScore(0);
+    setGameComplete(false);
+    resetLevel();
+  };
+
+  // Render game content based on game state
+  const renderGameContent = () => {
+    if (gameComplete) {
+      return (
         <motion.div
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          className="bg-white p-8 rounded-2xl shadow-lg text-center"
+          className="bg-white p-8 rounded-2xl shadow-lg text-center w-full max-w-lg"
         >
-          <h2 className="text-2xl font-bold text-blue-600 mb-4">
-            Game Completed!
-          </h2>
-          <p className="text-lg mb-2">
-            Your final score:{" "}
-            <span className="font-bold text-blue-600">
-              {score}/{questions.length}
-            </span>
-          </p>
-          <p className="mb-6">
-            {score === questions.length
-              ? "Perfect score! You're a fraction master!"
-              : `You got ${score} out of ${questions.length} questions correct.`}
-          </p>
+          <div className="relative mb-8">
+            <div className="absolute -top-12 -left-8">
+              <CuteStar size={50} color="#FCD34D" />
+            </div>
+            <div className="absolute -top-12 -right-8">
+              <CuteHeart size={50} color="#3B82F6" />
+            </div>
+
+            <h2 className="text-3xl font-bold text-blue-600 mb-4">
+              Game Completed!
+            </h2>
+            <p className="text-lg mb-2">
+              Your final score:{" "}
+              <span className="font-bold text-blue-600">
+                {score}/{levels.length}
+              </span>
+            </p>
+            <p className="mb-6 text-gray-700">
+              {score === levels.length
+                ? "Perfect score! You're a fraction master!"
+                : score >= Math.floor(levels.length * 0.7)
+                ? "Great job! You understand equivalent fractions well!"
+                : "Good effort! Keep practicing to master equivalent fractions."}
+            </p>
+          </div>
 
           <div className="flex justify-center gap-4 flex-wrap">
             <AnimatedButton
-              onClick={() => {
-                setCurrentQuestion(0);
-                setScore(0);
-                setGameComplete(false);
-              }}
+              onClick={restartGame}
               color="green"
               hoverEffect="bounce"
               icon={<Icon type="play" />}
@@ -214,78 +302,173 @@ const Game3 = () => {
             </AnimatedButton>
           </div>
         </motion.div>
-      </GameLayout>
+      );
+    }
+
+    const currentLevelData = levels[currentLevel];
+
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="w-full max-w-2xl"
+      >
+        <Typography
+          variant="subtitle1"
+          color="primary"
+          className="text-center mb-4 text-lg"
+        >
+          Connect each fraction with its equivalent fraction
+        </Typography>
+
+        {/* Main game container */}
+        <div
+          ref={containerRef}
+          className="relative w-full h-64 bg-blue-100 bg-opacity-50 rounded-lg shadow-inner mb-6 overflow-hidden"
+        >
+          {/* SVG for drawing connection lines */}
+          <svg className="absolute inset-0 w-full h-full pointer-events-none">
+            {lines.map((line) => (
+              <motion.line
+                key={line.id}
+                x1={line.x1}
+                y1={line.y1}
+                x2={line.x2}
+                y2={line.y2}
+                stroke="#3B82F6"
+                strokeWidth="3"
+                strokeDasharray="5,5"
+                initial={{ pathLength: 0 }}
+                animate={{ pathLength: 1 }}
+                transition={{ duration: 0.5 }}
+              />
+            ))}
+          </svg>
+
+          {/* Left side fractions */}
+          <div className="absolute left-8 top-0 bottom-0 flex flex-col justify-around h-full">
+            {currentLevelData.leftSide.map((fraction) => (
+              <motion.div
+                key={fraction.id}
+                ref={(el) => (fractionRefs.current[fraction.id] = el)}
+                className={`w-16 h-12 ${
+                  fraction.color
+                } rounded flex items-center justify-center cursor-pointer shadow-md 
+                  ${
+                    selectedFraction && selectedFraction.id === fraction.id
+                      ? "ring-4 ring-yellow-400"
+                      : ""
+                  }`}
+                onClick={() => handleFractionClick("left", fraction.id)}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <span className="text-white font-bold">
+                  {fraction.fraction}
+                </span>
+              </motion.div>
+            ))}
+          </div>
+
+          {/* Center circles */}
+          <div className="absolute left-1/2 top-0 bottom-0 -translate-x-1/2 flex flex-col justify-around h-full">
+            {currentLevelData.leftSide.map((_, index) => (
+              <div key={index} className="w-6 h-6 bg-blue-900 rounded-full" />
+            ))}
+          </div>
+
+          {/* Right side fractions */}
+          <div className="absolute right-8 top-0 bottom-0 flex flex-col justify-around h-full">
+            {currentLevelData.rightSide.map((fraction) => (
+              <motion.div
+                key={fraction.id}
+                ref={(el) => (fractionRefs.current[fraction.id] = el)}
+                className={`w-16 h-12 ${
+                  fraction.color
+                } rounded flex items-center justify-center cursor-pointer shadow-md
+                  ${
+                    selectedFraction && selectedFraction.id === fraction.id
+                      ? "ring-4 ring-yellow-400"
+                      : ""
+                  }`}
+                onClick={() => handleFractionClick("right", fraction.id)}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <span className="text-white font-bold">
+                  {fraction.fraction}
+                </span>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+
+        {/* Control buttons */}
+        <div className="flex justify-center space-x-4">
+          <AnimatedButton
+            onClick={checkAnswers}
+            color="green"
+            hoverEffect="bounce"
+            icon={<Icon type="check" />}
+            disabled={Object.keys(userConnections).length === 0}
+          >
+            Check Answer
+          </AnimatedButton>
+          <AnimatedButton
+            onClick={resetLevel}
+            color="red"
+            hoverEffect="wobble"
+            icon={<Icon type="refresh" />}
+          >
+            Reset
+          </AnimatedButton>
+        </div>
+
+        {/* Level progress indicator */}
+        <div className="mt-6 flex justify-between items-center">
+          <Typography variant="body2" className="text-gray-600">
+            Level {currentLevel + 1} of {levels.length}
+          </Typography>
+          <div className="flex space-x-1">
+            {levels.map((_, index) => (
+              <div
+                key={index}
+                className={`w-3 h-3 rounded-full ${
+                  index <= currentLevel ? "bg-blue-500" : "bg-gray-300"
+                }`}
+              />
+            ))}
+          </div>
+          <Typography variant="body2" className="text-gray-600">
+            Score: {score}
+          </Typography>
+        </div>
+
+        {/* Feedback message */}
+        {showFeedback && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className={`mt-4 p-3 rounded-lg text-white text-center ${
+              showFeedback === "success" ? "bg-green-500" : "bg-red-500"
+            }`}
+          >
+            {showFeedback === "success"
+              ? "Correct! Great job matching equivalent fractions."
+              : "Not quite right. Try again!"}
+          </motion.div>
+        )}
+      </motion.div>
     );
-  }
+  };
 
   return (
-    <GameLayout
-      title="Fractions on Number Line"
-      subtitle="Identify fractions on the number line"
-      currentQuestion={currentQuestion}
-      totalQuestions={questions.length}
-      score={score}
-      maxScore={questions.length}
-      showConfetti={showConfetti}
-      showFeedback={showFeedback}
-      feedbackMessage={
-        showFeedback === "success"
-          ? "Correct! " + questions[currentQuestion].explanation
-          : showFeedback === "error"
-          ? "Not quite. " + questions[currentQuestion].explanation
-          : undefined
-      }
-      onFeedbackComplete={() => setShowFeedback(null)}
-      backgroundColor="bg-gradient-to-br from-blue-50 to-blue-100"
-      accentColor="blue"
-    >
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={currentQuestion}
-          initial={{ x: 100, opacity: 0 }}
-          animate={{ x: 0, opacity: 1 }}
-          exit={{ x: -100, opacity: 0 }}
-          transition={{ duration: 0.3 }}
-        >
-          {/* Display the number line visualization */}
-          {currentQuestion === 1 && <NumberLine />}
-
-          {/* If there's an image for the question, display it */}
-          {questions[currentQuestion].imageUrl && (
-            <div className="flex justify-center mb-6">
-              <motion.div
-                initial={{ scale: 0.8, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ delay: 0.2 }}
-              >
-                <Image
-                  src={questions[currentQuestion].imageUrl}
-                  alt="Number line illustration"
-                  width={400}
-                  height={100}
-                  className="object-contain rounded-lg border-4 border-blue-200 bg-white p-2"
-                />
-              </motion.div>
-            </div>
-          )}
-
-          {/* If question #0, 2, 3, 4 (which don't have the interactive visualization) */}
-          {(currentQuestion === 0 || currentQuestion >= 2) &&
-            !questions[currentQuestion].imageUrl && <NumberLine />}
-
-          <MultipleQuestion
-            question={questions[currentQuestion].question}
-            options={questions[currentQuestion].options}
-            correctAnswer={questions[currentQuestion].correctAnswer}
-            onSelect={checkAnswer}
-            questionColor="secondary"
-            colorVariation={true}
-            containerClassName="max-w-2xl mx-auto"
-          />
-        </motion.div>
-      </AnimatePresence>
+    <GameLayout title="Fraction Matching Game">
+      {renderGameContent()}
+      {showConfetti && <ConfettiEffect duration={2000} />}
     </GameLayout>
   );
 };
 
-export default Game3;
+export default FractionMatchingGame;
