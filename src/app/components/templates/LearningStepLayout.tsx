@@ -1,11 +1,9 @@
+"use client";
+
 import React from "react";
-import { motion } from "framer-motion";
 import Image from "next/image";
 import Typography from "../atoms/Typography";
 import NavigationButton from "../molecules/NavigationButton";
-import { CuteHeart, CuteStar } from "../atoms/CuteShapes";
-import CuteDecorationWrapper from "../organisms/CuteDecorationEffect";
-import SwipableContent from "../organisms/SwipableContent";
 
 interface LearningStepLayoutProps {
   title: string;
@@ -21,15 +19,14 @@ interface LearningStepLayoutProps {
   nextStepPath?: string;
   prevStepPath?: string;
   showNextPrevButtons?: boolean;
-  decorationTheme?: "random" | "hearts" | "stars" | "food" | "mixed";
-  decorationCount?: number;
   className?: string;
 }
 
 /**
- * A template for learning step pages with video, swipeable content, and navigation
+ * A clean and simple template for learning step pages with video, content, and navigation
  */
 const LearningStepLayout: React.FC<LearningStepLayoutProps> = ({
+  title,
   stepNumber,
   stepName,
   iconSrc,
@@ -42,8 +39,6 @@ const LearningStepLayout: React.FC<LearningStepLayoutProps> = ({
   nextStepPath,
   prevStepPath,
   showNextPrevButtons = false,
-  decorationTheme = "random",
-  decorationCount = 8,
   className = "",
 }) => {
   // Get accent color for different elements
@@ -60,180 +55,139 @@ const LearningStepLayout: React.FC<LearningStepLayoutProps> = ({
   const secondaryButtonColor = accentColor === "pink" ? "blue" : "pink";
 
   return (
-    <CuteDecorationWrapper
-      numItems={decorationCount}
-      theme={decorationTheme}
-      className="relative overflow-hidden"
-    >
-      <div
-        className={`flex flex-col items-center justify-center min-h-screen ${backgroundColor} p-8 ${className}`}
-      >
-        {/* Decorative background shapes */}
-        <motion.div
-          className="absolute -top-20 -right-20 w-40 h-40 bg-green-200 rounded-full opacity-50"
-          animate={{ scale: [1, 1.1, 1], rotate: [0, 5, 0] }}
-          transition={{ duration: 8, repeat: Infinity }}
-        />
-
-        <motion.div
-          className="absolute -bottom-20 -left-20 w-40 h-40 bg-yellow-200 rounded-full opacity-50"
-          animate={{ scale: [1, 1.2, 1], rotate: [0, -5, 0] }}
-          transition={{ duration: 10, repeat: Infinity }}
-        />
-
-        {/* Page heading with animated underline */}
-        <div className="relative mb-8">
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="text-center"
+    <div className={`${backgroundColor} min-h-screen w-full ${className}`}>
+      <div className="container mx-auto px-4 pt-8 pb-16 flex flex-col items-center">
+        {/* Header with Step Indicator */}
+        <div className="relative w-full mb-8 text-center">
+          <div className={`inline-block ${getColorClass("bg", 600)} w-12 h-12 rounded-full mb-4 text-white text-2xl font-bold flex items-center justify-center`}>
+            {stepNumber}
+          </div>
+          
+          <Typography 
+            variant="h1" 
+            color="primary" 
+            className={`text-2xl sm:text-3xl ${getColorClass("text", 700)}`}
           >
-            <Typography variant="h1" color="primary" className="text-center">
-              Step {stepNumber}: {stepName}
-            </Typography>
-          </motion.div>
-          <motion.div
-            className={`absolute -bottom-2 left-0 right-0 h-1 ${getColorClass(
-              "bg"
-            )} rounded-full`}
-            initial={{ width: 0, x: "50%" }}
-            animate={{ width: "100%", x: 0 }}
-            transition={{ duration: 0.8, delay: 0.3 }}
+            {title || `Step ${stepNumber}: ${stepName}`}
+          </Typography>
+          
+          <div
+            className="mx-auto mt-2 h-1 bg-gradient-to-r from-pink-400 via-yellow-400 to-purple-400 rounded-full"
+            style={{ width: "200px" }}
           />
         </div>
 
         {/* Step icon */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.5 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5 }}
-          className="mb-4"
-        >
-          <Image
-            src={iconSrc}
-            alt={`Step ${stepNumber} icon`}
-            width={80}
-            height={80}
-            className="drop-shadow-md"
-          />
-        </motion.div>
-
-        {/* Video with fancy frame (if provided) */}
-        {videoSrc && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="w-full max-w-2xl mb-6 relative"
-          >
-            <div
-              className={`absolute inset-0 bg-gradient-to-r ${getColorClass(
-                "from"
-              )}-400 ${getColorClass("to")}-600 rounded-xl -m-2 z-0`}
-            ></div>
-            <div className="absolute inset-0 bg-white rounded-lg m-1 z-10"></div>
-            <iframe
-              className="w-full h-64 rounded-lg shadow-lg relative z-20"
-              src={videoSrc}
-              allowFullScreen
-            ></iframe>
-          </motion.div>
-        )}
-
-        {/* Swipeable content with decorations */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.4 }}
-          className="w-full max-w-2xl mb-8 relative"
-        >
-          {/* Decorative elements on corners */}
-          <div className="absolute -top-2 -left-2 z-10">
-            <CuteHeart size={20} />
+        <div className="mb-6">
+          <div className={`p-4 rounded-xl ${getColorClass("bg", 100)} border ${getColorClass("border", 300)} shadow-md`}>
+            <Image
+              src={iconSrc}
+              alt={`Step ${stepNumber} icon`}
+              width={80}
+              height={80}
+              className="object-contain"
+            />
           </div>
-          <div className="absolute -top-2 -right-2 z-10">
-            <CuteStar size={20} />
-          </div>
-          <div className="absolute -bottom-2 -left-2 z-10">
-            <CuteStar size={20} />
-          </div>
-          <div className="absolute -bottom-2 -right-2 z-10">
-            <CuteHeart size={20} />
-          </div>
-
-          <SwipableContent
-            contents={contentSlides}
-            buttonColor={primaryButtonColor}
-            withDots={true}
-            withPagination={true}
-          />
-        </motion.div>
-
-        {/* Action buttons */}
-        <div className="flex flex-col sm:flex-row gap-4 items-center">
-          <NavigationButton
-            path={gamePath}
-            label="Play Game"
-            icon="play"
-            color={primaryButtonColor}
-            size="large"
-            hoverEffect="bounce"
-            placement="start"
-          />
-
-          <NavigationButton
-            path={menuPath}
-            label="Back to Menu"
-            icon="back"
-            color={secondaryButtonColor}
-            size="medium"
-            hoverEffect="wobble"
-            placement="start"
-          />
         </div>
 
-        {/* Next/Previous step navigation (if enabled) */}
-        {showNextPrevButtons && (
-          <div className="w-full max-w-2xl flex justify-between mt-8">
-            {prevStepPath ? (
-              <NavigationButton
-                path={prevStepPath}
-                label="Previous Step"
-                icon="chevron-left"
-                color="blue"
-                size="small"
-                placement="start"
-                hoverEffect="wobble"
-              />
-            ) : (
-              <div></div> // Empty div for spacing
-            )}
+        {/* Content container */}
+        <div className="w-full max-w-3xl space-y-6">
+          {/* Video (if provided) */}
+          {videoSrc && (
+            <div className={`${getColorClass("bg", 100)} border ${getColorClass("border", 300)} rounded-xl p-4 shadow-md`}>
+              <div className="flex justify-between mb-2 px-1">
+                {[1, 2, 3].map((n) => (
+                  <div 
+                    key={n} 
+                    className={`w-3 h-3 rounded-full ${n === 1 ? 'bg-red-500' : n === 2 ? 'bg-yellow-500' : 'bg-green-500'}`}
+                  />
+                ))}
+              </div>
+              <div className="relative overflow-hidden pt-[56.25%]">
+                <iframe
+                  className="absolute top-0 left-0 w-full h-full rounded"
+                  src={videoSrc}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  title="Learning video"
+                ></iframe>
+              </div>
+            </div>
+          )}
 
-            {nextStepPath && (
-              <NavigationButton
-                path={nextStepPath}
-                label="Next Step"
-                icon="chevron-right"
-                color="green"
-                size="small"
-                placement="end"
-                hoverEffect="wobble"
-              />
-            )}
+          {/* Content slides */}
+          <div className={`${getColorClass("bg", 100)} border ${getColorClass("border", 300)} rounded-xl p-4 shadow-md`}>
+            <div className="bg-white rounded p-4 min-h-[120px] flex items-center justify-center">
+              <p className="text-center text-gray-700">{contentSlides[0]}</p>
+              
+              {/* Navigation dots */}
+              <div className="absolute bottom-2 left-0 right-0 flex justify-center space-x-1">
+                {contentSlides.map((_, i) => (
+                  <div
+                    key={i}
+                    className={`w-2 h-2 rounded-full ${i === 0 ? getColorClass("bg", 500) : 'bg-gray-300'}`}
+                  />
+                ))}
+              </div>
+            </div>
           </div>
-        )}
 
-        {/* Cute footer element */}
-        <motion.div
-          className={`w-full max-w-md h-4 bg-gradient-to-r from-${accentColor}-400 via-transparent to-${accentColor}-400 rounded-full mt-8`}
-          animate={{
-            opacity: [0.5, 1, 0.5],
-          }}
-          transition={{ duration: 2, repeat: Infinity }}
-        />
+          {/* Buttons */}
+          <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
+            <NavigationButton
+              path={gamePath}
+              label="Play Game"
+              icon="play"
+              color={primaryButtonColor}
+              size="large"
+              hoverEffect="bounce"
+              placement="start"
+            />
+
+            <NavigationButton
+              path={menuPath}
+              label="Back to Menu"
+              icon="back"
+              color={secondaryButtonColor}
+              size="medium"
+              hoverEffect="wobble"
+              placement="start"
+            />
+          </div>
+
+          {/* Next/Previous step navigation (if enabled) */}
+          {showNextPrevButtons && (
+            <div className="w-full flex justify-between mt-4">
+              {prevStepPath ? (
+                <NavigationButton
+                  path={prevStepPath}
+                  label="Previous Step"
+                  icon="chevron-left"
+                  color="blue"
+                  size="small"
+                  placement="start"
+                  hoverEffect="wobble"
+                />
+              ) : (
+                <div></div> // Empty div for spacing
+              )}
+
+              {nextStepPath && (
+                <NavigationButton
+                  path={nextStepPath}
+                  label="Next Step"
+                  icon="chevron-right"
+                  color="green"
+                  size="small"
+                  placement="end"
+                  hoverEffect="wobble"
+                />
+              )}
+            </div>
+          )}
+        </div>
       </div>
-    </CuteDecorationWrapper>
+    </div>
   );
 };
 

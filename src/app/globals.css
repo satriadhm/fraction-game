@@ -18,13 +18,44 @@
 }
 
 @layer base {
+  html {
+    font-size: 16px; /* Set a base font size */
+  }
+  
+  /* Apply consistent font-family everywhere */
+  body {
+    font-family: var(--font-sans), system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Remove Comic Sans MS to ensure consistent fonts across devices */
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-sans), system-ui, sans-serif;
+    line-height: 1.2;
+  }
+
+  /* Responsive text sizes */
+  @media (max-width: 640px) {
+    html {
+      font-size: 14px; /* Slightly smaller base font on mobile */
+    }
+  }
+
   .text-outline-pink {
     -webkit-text-stroke: 2px #ec4899; /* Pink outline 2px */
   }
 }
 
-body {
-  font-family: 'Comic Sans MS', cursive, sans-serif;
+/* Touch optimizations for mobile */
+@media (max-width: 768px) {
+  button, 
+  [role="button"],
+  a {
+    min-height: 44px; /* Minimum touch target size */
+    min-width: 44px;
+  }
 }
 
 /* Updated background colors with a focus on pink */
@@ -97,4 +128,39 @@ body {
 
 .btn-bounce:active {
   transform: scale(0.95);
+}
+
+/* Responsive container padding */
+.container-padding {
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+@media (min-width: 640px) {
+  .container-padding {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container-padding {
+    padding-left: 4rem;
+    padding-right: 4rem;
+  }
+}
+
+/* Improve touch targets on mobile */
+.touch-target {
+  position: relative;
+}
+
+.touch-target::after {
+  content: '';
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  bottom: -10px;
+  left: -10px;
+  z-index: -1;
 }
