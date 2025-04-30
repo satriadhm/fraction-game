@@ -1,6 +1,7 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import GameLayout from "../../components/templates/GameLayout";
 import GameResults from "../../components/game/GameResult";
 import MultipleChoiceGame from "../../components/game/MultipleChoiceGame";
@@ -8,14 +9,13 @@ import { useGameState } from "@/app/hooks";
 import EquivalentFractionsGame from "@/app/components/game/EquivalenceFractions";
 
 const Game2 = () => {
-
   // Game state
   const game = useGameState({
     totalQuestions: 5,
     autoAdvanceDelay: 2000,
   });
 
-  // Equivalent fractions game questions - dibuat sesuai dengan format yang dibutuhkan
+  // Equivalent fractions game questions
   const equivalentFractionsQuestions = [
     {
       instruction:
@@ -43,7 +43,7 @@ const Game2 = () => {
     },
   ];
 
-  // Multiple choice questions - 4 opsi sesuai PDF
+  // Multiple choice questions
   const multipleChoiceQuestions = [
     {
       question: "Which fraction is equivalent to 1/2?",
@@ -73,29 +73,10 @@ const Game2 = () => {
     },
   ];
 
-  // Current question based on index
-  const getCurrentQuestion = () => {
-    if (game.currentQuestion === 0) {
-      // First question is the equivalent fractions game
-      return equivalentFractionsQuestions[0];
-    } else {
-      // Subsequent questions are multiple choice
-      return multipleChoiceQuestions[game.currentQuestion - 1];
-    }
-  };
-
-  // Handle answer for equivalent fractions game
-  const handleEquivalentFractionsAnswer = (score: number, total: number) => {
-    const isCorrect = score === total;
-    game.handleAnswer(isCorrect);
-  };
-
-  // Handle multiple choice answer
-  const handleMultipleChoiceAnswer = (selectedOption: string) => {
-    const currentQ = multipleChoiceQuestions[game.currentQuestion - 1];
-    const isCorrect = selectedOption === currentQ.correctAnswer;
-    game.handleAnswer(isCorrect);
-  };
+  // Track which type of game is currently active
+  const [gameType, setGameType] = useState<"equivalent" | "multiple">(
+    "equivalent"
+  );
 
   // Show results when game is complete
   if (game.gameComplete) {
@@ -103,16 +84,60 @@ const Game2 = () => {
       <GameResults
         score={game.score}
         totalQuestions={5} // Total questions: 1 equivalent fraction game + 4 multiple choice
-        onRestartGame={game.resetGame}
+        onRestartGame={() => {
+          game.resetGame();
+          setGameType("equivalent");
+        }}
       />
     );
   }
+
+  // Handle answer for equivalent fractions game
+  const handleEquivalentFractionsAnswer = (score: number, total: number) => {
+    const isCorrect = score === total;
+    game.handleAnswer(isCorrect);
+
+    // Transition to multiple choice questions after the equivalent fractions game
+    setTimeout(() => {
+      setGameType("multiple");
+    }, 2000);
+  };
+
+  // Handle multiple choice answer
+  const handleMultipleChoiceAnswer = (selectedOption: string) => {
+    const currentMultipleChoiceIndex = game.currentQuestion - 1;
+    // Make sure we don't go out of bounds
+    if (
+      currentMultipleChoiceIndex >= 0 &&
+      currentMultipleChoiceIndex < multipleChoiceQuestions.length
+    ) {
+      const currentQ = multipleChoiceQuestions[currentMultipleChoiceIndex];
+      const isCorrect = selectedOption === currentQ.correctAnswer;
+      game.handleAnswer(isCorrect);
+    }
+  };
+
+  // Get current question content
+  const getCurrentQuestion = () => {
+    if (gameType === "equivalent") {
+      return equivalentFractionsQuestions[0];
+    } else {
+      // Adjust index to account for the equivalent fractions game
+      const multipleChoiceIndex = Math.min(
+        game.currentQuestion - 1,
+        multipleChoiceQuestions.length - 1
+      );
+      return multipleChoiceQuestions[
+        multipleChoiceIndex >= 0 ? multipleChoiceIndex : 0
+      ];
+    }
+  };
 
   return (
     <GameLayout
       title="Equivalent Fractions"
       subtitle={
-        game.currentQuestion === 0
+        gameType === "equivalent"
           ? "Connect matching fractions"
           : "Find fractions with the same value"
       }
@@ -132,17 +157,17 @@ const Game2 = () => {
       accentColor="purple"
       backButtonPath="/step2"
     >
-      {game.currentQuestion === 0 ? (
+      {gameType === "equivalent" ? (
         // Equivalent fractions matching game
         <EquivalentFractionsGame
-          question={getCurrentQuestion()}
+          question={getCurrentQuestion() as any}
           onAnswer={handleEquivalentFractionsAnswer}
           disabled={!!game.showFeedback}
         />
       ) : (
         // Multiple choice questions
         <MultipleChoiceGame
-          question={getCurrentQuestion()}
+          question={getCurrentQuestion() as any}
           onAnswer={handleMultipleChoiceAnswer}
           disabled={!!game.showFeedback}
         />
