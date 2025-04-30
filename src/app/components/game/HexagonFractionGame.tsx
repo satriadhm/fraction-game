@@ -1,5 +1,3 @@
-"use client";
-
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import AnimatedButton from "../molecules/AnimatedButton";
@@ -21,6 +19,11 @@ interface HexagonFractionGameProps {
   disabled?: boolean;
 }
 
+interface HexagonPosition {
+  row: number;
+  col: number;
+}
+
 const HexagonFractionGame: React.FC<HexagonFractionGameProps> = ({
   question,
   onAnswer,
@@ -39,13 +42,11 @@ const HexagonFractionGame: React.FC<HexagonFractionGameProps> = ({
 
   const handleAnswerSelection = (answer: string) => {
     if (disabled) return;
-
     setSelectedAnswer(answer);
   };
 
   const checkAnswer = () => {
     if (!selectedAnswer) return;
-
     const correctAnswer = `${question.shadedHexagons}/${question.totalHexagons}`;
     const isCorrect = selectedAnswer === correctAnswer;
     onAnswer(isCorrect);
@@ -55,32 +56,43 @@ const HexagonFractionGame: React.FC<HexagonFractionGameProps> = ({
     setSelectedAnswer(null);
   };
 
-  // Render the hexagonal pattern exactly like the image
-  const renderHexagons = () => {
-    const size = 40; // Hexagon size
-    const svgWidth = 300;
-    const svgHeight = 320;
+  // Create a honeycomb-like hexagon pattern
+  const renderHoneycomb = () => {
+    const size = 35; // Hexagon size
+    const spacing = size * 1.75; // Spacing between hexagon centers
+    const verticalSpacing = size * 1.5; // Vertical spacing between rows
 
-    // Create a specific hexagon layout that matches the image
-    // This hardcoded layout perfectly matches the given example image
-    const points = [
-      // Top hexagon (center-top)
-      { x: 150, y: 50 },
-
-      // Middle row (left to right)
-      { x: 107, y: 85 }, // Left
-      { x: 150, y: 85 }, // Center
-      { x: 193, y: 85 }, // Right
-
-      // Bottom row (left to right)
-      { x: 107, y: 120 }, // Left
-      { x: 150, y: 120 }, // Center
-      { x: 193, y: 120 }, // Right
+    // Create a honeycomb layout
+    // This structure defines a perfect honeycomb grid
+    const honeycombLayout: HexagonPosition[][] = [
+      // Row 1 (top)
+      [
+        { row: 0, col: 1 },
+        { row: 0, col: 2 },
+      ],
+      // Row 2 (middle)
+      [
+        { row: 1, col: 0 },
+        { row: 1, col: 1 },
+        { row: 1, col: 2 },
+      ],
+      // Row 3 (bottom)
+      [
+        { row: 2, col: 1 },
+        { row: 2, col: 2 },
+      ],
     ];
 
-    // Define which hexagons are shaded (indices 2, 3, 5, 6 matching the image)
-    // These correspond to: center of middle row, right of middle row, center of bottom row, right of bottom row
-    const shadedHexagons = [2, 3, 5, 6];
+    // Flatten the layout to get all hexagons
+    const allHexagons = honeycombLayout.flat();
+
+    // Define the shaded hexagons (4 out of 7)
+    // For this example, we'll shade 4 specific hexagons to create an interesting pattern
+    const shadedIndices = [2, 3, 5, 6]; // Indices in the flattened array
+
+    // SVG dimensions
+    const svgWidth = 300;
+    const svgHeight = 280;
 
     return (
       <svg
@@ -89,40 +101,101 @@ const HexagonFractionGame: React.FC<HexagonFractionGameProps> = ({
         viewBox={`0 0 ${svgWidth} ${svgHeight}`}
         className="mx-auto"
       >
-        {points.map((point, index) => {
-          const isShaded = shadedHexagons.includes(index);
+        <g
+          transform={`translate(${svgWidth / 2 - spacing}, ${
+            svgHeight / 2 - verticalSpacing
+          })`}
+        >
+          {allHexagons.map((hex, index) => {
+            // Calculate position with offset for even/odd rows (honeycomb structure)
+            const xOffset = hex.row % 2 === 0 ? 0 : spacing / 2;
+            const x = hex.col * spacing + xOffset;
+            const y = hex.row * verticalSpacing;
 
-          return (
-            <g
-              key={index}
-              transform={`translate(${point.x - size / 2}, ${
-                point.y - size / 2
-              })`}
-            >
-              <polygon
-                points={getHexPoints(size)}
-                fill={isShaded ? "#FFDF00" : "white"}
-                stroke="black"
-                strokeWidth="2"
-              />
-            </g>
-          );
-        })}
+            const isShaded = shadedIndices.includes(index);
+
+            return (
+              <g key={index} transform={`translate(${x}, ${y})`}>
+                <motion.path
+                  d={createHexagonPath(size)}
+                  fill={isShaded ? "#FFDF00" : "white"}
+                  stroke="#8B4513"
+                  strokeWidth="2"
+                  initial={{ opacity: 0, scale: 0 }}
+                  animate={{
+                    opacity: 1,
+                    scale: 1,
+                    transition: { delay: index * 0.1 },
+                  }}
+                  whileHover={{ scale: 1.05 }}
+                />
+
+                {/* Honeycomb internal texture - subtle lines to create honey cell look */}
+                {isShaded && (
+                  <motion.path
+                    d={createHexagonPath(size * 0.8)}
+                    fill="none"
+                    stroke="#D4A017"
+                    strokeWidth="0.5"
+                    initial={{ opacity: 0 }}
+                    animate={{
+                      opacity: 0.6,
+                      transition: { delay: index * 0.1 + 0.2 },
+                    }}
+                  />
+                )}
+              </g>
+            );
+          })}
+        </g>
+
+        {/* Add a cute bee decoration */}
+        <motion.g
+          transform="translate(230, 60) scale(0.6)"
+          initial={{ x: -30, y: 0 }}
+          animate={{
+            x: 0,
+            y: [0, -5, 0, -3, 0],
+            transition: {
+              x: { duration: 2 },
+              y: { repeat: Infinity, duration: 1 },
+            },
+          }}
+        >
+          <ellipse cx="25" cy="20" rx="15" ry="10" fill="#FFC125" />
+          <ellipse cx="15" cy="20" rx="15" ry="10" fill="#FFC125" />
+          <path
+            d="M15,15 L15,25 M25,15 L25,25"
+            stroke="black"
+            strokeWidth="2"
+          />
+          <circle cx="8" cy="16" r="1.5" fill="black" /> {/* Eye */}
+          <path
+            d="M4,20 Q6,22 8,20"
+            stroke="black"
+            strokeWidth="1"
+            fill="none"
+          />{" "}
+          {/* Smile */}
+          <path d="M35,18 L30,15" stroke="black" strokeWidth="1" />{" "}
+          {/* Antenna */}
+          <circle cx="30" cy="15" r="1" fill="black" />
+        </motion.g>
       </svg>
     );
   };
 
-  // Generate points for a regular hexagon
-  const getHexPoints = (size: number) => {
-    const points = [];
+  // Create SVG path for a hexagon
+  const createHexagonPath = (size: number): string => {
+    const points: string[] = [];
     for (let i = 0; i < 6; i++) {
-      const angleDeg = 60 * i - 30; // -30 to point the hexagon upwards
+      const angleDeg = 60 * i;
       const angleRad = (Math.PI / 180) * angleDeg;
-      const x = size / 2 + (size / 2) * Math.cos(angleRad);
-      const y = size / 2 + (size / 2) * Math.sin(angleRad);
-      points.push(`${x},${y}`);
+      const x = size * Math.cos(angleRad);
+      const y = size * Math.sin(angleRad);
+      points.push(i === 0 ? `M ${x},${y}` : `L ${x},${y}`);
     }
-    return points.join(" ");
+    return points.join(" ") + " Z"; // Close the path
   };
 
   return (
@@ -137,7 +210,7 @@ const HexagonFractionGame: React.FC<HexagonFractionGameProps> = ({
         </motion.p>
       </div>
 
-      <div className="flex justify-center mb-6">{renderHexagons()}</div>
+      <div className="flex justify-center mb-6">{renderHoneycomb()}</div>
 
       <div className="w-full max-w-md grid grid-cols-2 gap-3 mb-6">
         {options.map((option, index) => (
@@ -203,8 +276,8 @@ const HexagonFractionGame: React.FC<HexagonFractionGameProps> = ({
           className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200 text-blue-800 max-w-md"
         >
           <p>
-            Count how many hexagons are shaded (yellow) and how many hexagons
-            there are in total.
+            Count how many hexagons are shaded yellow (like honey cells) and how
+            many hexagons there are in total.
           </p>
         </motion.div>
       )}
