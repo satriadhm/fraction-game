@@ -1,4 +1,3 @@
-// src/app/components/game/MultipleChoiceGame.tsx
 "use client";
 
 import React from "react";
@@ -23,15 +22,14 @@ const MultipleChoiceGame: React.FC<MultipleChoiceGameProps> = ({
   onAnswer,
   disabled = false,
 }) => {
-  // Define colors and effects for variety
+  // Define colors for variety
   const colors = ["pink", "purple", "blue", "green"] as const;
-  const effects = ["grow", "wobble", "bounce", "shake"] as const;
 
   // Use either image or imageUrl property, whichever is available
   const imageSource = question.image || question.imageUrl;
 
   return (
-    <div className="w-full">
+    <div className="w-full max-w-lg mx-auto">
       <div className="relative mb-6 px-4 py-3 bg-purple-100 rounded-xl border-2 border-purple-200">
         <motion.p
           initial={{ opacity: 0 }}
@@ -45,40 +43,73 @@ const MultipleChoiceGame: React.FC<MultipleChoiceGameProps> = ({
       {imageSource && (
         <div className="flex justify-center mb-6">
           <motion.div
-            initial={{ scale: 0.8, opacity: 0 }}
+            initial={{ scale: 0.95, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            transition={{ delay: 0.2 }}
+            transition={{ delay: 0.2, duration: 0.5 }}
+            className="p-2 bg-white border-4 border-pink-200 rounded-lg shadow-md"
           >
             <Image
               src={imageSource}
               alt="Question illustration"
               width={160}
               height={160}
-              className="object-contain rounded-lg border-4 border-pink-200 bg-white p-2"
+              className="object-contain rounded-lg"
             />
           </motion.div>
         </div>
       )}
 
-      <div className="grid grid-cols-1 gap-3 mt-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-6">
         {question.options.map((option, index) => (
-          <AnimatedButton
+          <motion.button
             key={index}
             onClick={() => onAnswer(option)}
-            color={colors[index % colors.length]}
-            hoverEffect={effects[index % effects.length]}
-            className="text-left flex items-center py-4"
+            className={`
+              flex items-center text-left py-4 px-4
+              bg-gradient-to-r ${getGradientColors(colors[index % colors.length])}
+              text-white rounded-xl shadow-md
+              hover:shadow-lg focus:outline-none transition-all duration-200
+              border-2 border-transparent hover:border-white
+              ${disabled ? "opacity-70 cursor-not-allowed" : "cursor-pointer"}
+            `}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ 
+              duration: 0.3, 
+              delay: 0.1 * index,
+              type: "spring",
+              stiffness: 100,
+              damping: 15
+            }}
             disabled={disabled}
           >
-            <span className="inline-flex items-center justify-center w-8 h-8 mr-3 rounded-full bg-white text-pink-600 font-bold">
+            <span className="inline-flex items-center justify-center w-8 h-8 mr-3 rounded-full bg-white text-pink-600 font-bold flex-shrink-0">
               {String.fromCharCode(65 + index)}
             </span>
-            {option}
-          </AnimatedButton>
+            <span className="font-medium">{option}</span>
+          </motion.button>
         ))}
       </div>
     </div>
   );
 };
+
+// Helper function to get gradient colors
+function getGradientColors(color: string): string {
+  switch (color) {
+    case "pink":
+      return "from-pink-500 to-pink-600";
+    case "purple":
+      return "from-purple-500 to-purple-600";
+    case "blue":
+      return "from-blue-500 to-blue-600";
+    case "green":
+      return "from-green-500 to-green-600";
+    default:
+      return "from-pink-500 to-pink-600";
+  }
+}
 
 export default MultipleChoiceGame;
