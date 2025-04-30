@@ -1,4 +1,3 @@
-// src/app/step1/game1/page.tsx
 "use client";
 
 import { motion } from "framer-motion";
@@ -124,7 +123,9 @@ const Game1 = () => {
             Fraction of Shape
           </h1>
           <p className="text-blue-700 font-medium">
-            Let&apos;s learn fractions with pizza!
+            {game.currentStage === "first" 
+              ? "Let's learn fractions with pizza!" 
+              : "Answer these multiple choice questions about fractions"}
           </p>
         </motion.div>
 
@@ -249,6 +250,7 @@ const Game1 = () => {
             size="small"
             hoverEffect="wobble"
             icon={<Icon type="back" />}
+            className="outline-none focus:outline-none"
           >
             Back to Menu
           </AnimatedButton>
