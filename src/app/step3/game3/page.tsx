@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import GameLayout from "../../components/templates/GameLayout";
@@ -8,9 +8,11 @@ import MultipleQuestion from "../../components/organisms/MultipleQuestion";
 import AnimatedButton from "../../components/molecules/AnimatedButton";
 import Icon from "../../components/atoms/Icon";
 import Image from "next/image";
+import { usePageLoader } from "@/app/context/PageLoaderContext";
 
 const Game3 = () => {
   const router = useRouter();
+  const { stopLoading } = usePageLoader();
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [score, setScore] = useState(0);
   const [showFeedback, setShowFeedback] = useState<
@@ -18,6 +20,11 @@ const Game3 = () => {
   >(null);
   const [showConfetti, setShowConfetti] = useState(false);
   const [gameComplete, setGameComplete] = useState(false);
+
+  // Hentikan loading ketika komponen dimuat
+  useEffect(() => {
+    stopLoading();
+  }, [stopLoading]);
 
   // Game questions about fractions on a number line
   const questions = [
