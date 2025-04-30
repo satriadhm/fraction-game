@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 import AnimatedButton from "../../components/molecules/AnimatedButton";
 import Icon from "../../components/atoms/Icon";
 import ConfettiEffect from "../../components/organisms/ConfettiEffect";
@@ -10,9 +11,16 @@ import PizzaSliceGame from "../../components/game/PizzaSliceGame";
 import CandyProgressBar from "../../components/game/CandyProgressBar";
 import MultipleChoiceGame from "../../components/game/MultipleChoiceGame";
 import { useTwoStageGame } from "@/app/hooks";
+import { usePageLoader } from "@/app/context/PageLoaderContext";
 
 const Game1 = () => {
   const router = useRouter();
+  const { stopLoading } = usePageLoader();
+
+  // Hentikan loading ketika komponen dimuat
+  useEffect(() => {
+    stopLoading();
+  }, [stopLoading]);
 
   // Define the pizza slice questions
   const pizzaQuestions = [
