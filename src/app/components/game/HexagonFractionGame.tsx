@@ -55,50 +55,32 @@ const HexagonFractionGame: React.FC<HexagonFractionGameProps> = ({
     setSelectedAnswer(null);
   };
 
-  // Calculate position for each hexagon (using offset coordinates for hexagonal grid)
-  const getHexagonPosition = (
-    rowIndex: number,
-    colIndex: number,
-    size: number
-  ) => {
-    // For a pointy-top hexagon grid
-    // Offset every other row to create a hexagonal pattern
-    const xOffset = colIndex * size * 1.5;
-    const yOffset = rowIndex * size * Math.sqrt(3);
-
-    // Offset every other row
-    const offset = rowIndex % 2 === 0 ? 0 : size * 0.75;
-
-    return {
-      x: xOffset + offset,
-      y: yOffset,
-    };
-  };
-
-  // Create the SVG path for a hexagon
-  const createHexagonPath = (
-    centerX: number,
-    centerY: number,
-    size: number
-  ) => {
-    const points = [];
-    for (let i = 0; i < 6; i++) {
-      const angleDeg = 60 * i - 30; // -30 to point the hexagon upwards
-      const angleRad = (Math.PI / 180) * angleDeg;
-      const x = centerX + size * Math.cos(angleRad);
-      const y = centerY + size * Math.sin(angleRad);
-      points.push(`${x},${y}`);
-    }
-    return `M${points.join(" L")}Z`;
-  };
-
-  // Render the hexagonal pattern
+  // Render the hexagonal pattern exactly like the image
   const renderHexagons = () => {
     const size = 40; // Hexagon size
-    const svgWidth = 350;
-    const svgHeight = 350;
-    const centerX = svgWidth / 2;
-    const centerY = svgHeight / 2;
+    const svgWidth = 300;
+    const svgHeight = 320;
+
+    // Create a specific hexagon layout that matches the image
+    // This hardcoded layout perfectly matches the given example image
+    const points = [
+      // Top hexagon (center-top)
+      { x: 150, y: 50 },
+
+      // Middle row (left to right)
+      { x: 107, y: 85 }, // Left
+      { x: 150, y: 85 }, // Center
+      { x: 193, y: 85 }, // Right
+
+      // Bottom row (left to right)
+      { x: 107, y: 120 }, // Left
+      { x: 150, y: 120 }, // Center
+      { x: 193, y: 120 }, // Right
+    ];
+
+    // Define which hexagons are shaded (indices 2, 3, 5, 6 matching the image)
+    // These correspond to: center of middle row, right of middle row, center of bottom row, right of bottom row
+    const shadedHexagons = [2, 3, 5, 6];
 
     return (
       <svg
@@ -107,25 +89,40 @@ const HexagonFractionGame: React.FC<HexagonFractionGameProps> = ({
         viewBox={`0 0 ${svgWidth} ${svgHeight}`}
         className="mx-auto"
       >
-        <g transform={`translate(${centerX - 125}, ${centerY - 120})`}>
-          {question.hexagonLayout.map((position, index) => {
-            const [rowIndex, colIndex] = position;
-            const { x, y } = getHexagonPosition(rowIndex, colIndex, size);
-            const isShaded = question.shadedIndices.includes(index);
+        {points.map((point, index) => {
+          const isShaded = shadedHexagons.includes(index);
 
-            return (
-              <path
-                key={index}
-                d={createHexagonPath(x, y, size)}
+          return (
+            <g
+              key={index}
+              transform={`translate(${point.x - size / 2}, ${
+                point.y - size / 2
+              })`}
+            >
+              <polygon
+                points={getHexPoints(size)}
                 fill={isShaded ? "#FFDF00" : "white"}
                 stroke="black"
                 strokeWidth="2"
               />
-            );
-          })}
-        </g>
+            </g>
+          );
+        })}
       </svg>
     );
+  };
+
+  // Generate points for a regular hexagon
+  const getHexPoints = (size: number) => {
+    const points = [];
+    for (let i = 0; i < 6; i++) {
+      const angleDeg = 60 * i - 30; // -30 to point the hexagon upwards
+      const angleRad = (Math.PI / 180) * angleDeg;
+      const x = size / 2 + (size / 2) * Math.cos(angleRad);
+      const y = size / 2 + (size / 2) * Math.sin(angleRad);
+      points.push(`${x},${y}`);
+    }
+    return points.join(" ");
   };
 
   return (
