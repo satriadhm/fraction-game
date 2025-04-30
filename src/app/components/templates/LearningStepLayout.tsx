@@ -50,48 +50,76 @@ const LearningStepLayout: React.FC<LearningStepLayoutProps> = ({
   return (
     <CuteDecorationEffect theme="mixed" numItems={10}>
       <div className={`${backgroundColor} min-h-screen w-full ${className}`}>
-        <div className="container mx-auto px-4 pt-8 pb-16 flex flex-col items-center">
+        <div className="container mx-auto px-4 py-12 flex flex-col items-center">
           {/* Title & Step */}
-          <div className="text-center mb-6">
-            <motion.div
-              initial={{ y: -20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ duration: 0.5 }}
+          <motion.div
+            initial={{ y: -20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.5 }}
+            className="text-center mb-8"
+          >
+            <div
+              className={`inline-flex items-center justify-center w-16 h-16 rounded-full text-white text-2xl font-bold ${getColorClass(
+                "bg",
+                600
+              )} mb-3 shadow-md`}
             >
-              <div
-                className={`inline-flex items-center justify-center w-14 h-14 rounded-full text-white text-2xl font-bold ${getColorClass(
-                  "bg",
-                  600
-                )}`}
-              >
-                {stepNumber}
-              </div>
-              <Typography
-                variant="h1"
-                color="primary"
-                className={`text-2xl sm:text-3xl mt-2 ${getColorClass(
-                  "text",
-                  700
-                )}`}
-              >
-                {title || `Step ${stepNumber}: ${stepName}`}
-              </Typography>
-              <div className="mx-auto mt-2 h-1 bg-gradient-to-r from-pink-400 via-yellow-400 to-purple-400 rounded-full w-52" />
+              {stepNumber}
+            </div>
+            <Typography
+              variant="h1"
+              color="primary"
+              className={`text-2xl sm:text-3xl mt-2 ${getColorClass(
+                "text",
+                700
+              )}`}
+            >
+              {title || `Step ${stepNumber}: ${stepName}`}
+            </Typography>
+            <div className="mx-auto mt-3 h-1.5 bg-gradient-to-r from-pink-400 via-yellow-400 to-purple-400 rounded-full w-52 shadow-sm" />
+          </motion.div>
+
+          {/* Icon and Content Container */}
+          <div className="w-full max-w-4xl grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+            {/* Icon */}
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className={`p-6 rounded-xl ${getColorClass(
+                "bg",
+                100
+              )} border-2 ${getColorClass("border", 300)} shadow-md flex items-center justify-center md:col-span-1`}
+            >
+              <Image 
+                src={iconSrc} 
+                alt="Step Icon" 
+                width={120} 
+                height={120} 
+                className="drop-shadow-md"
+              />
+            </motion.div>
+
+            {/* Content */}
+            <motion.div
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ duration: 0.5, delay: 0.4 }}
+              className="w-full md:col-span-2"
+            >
+              <SwipableContent
+                contents={contentSlides}
+                buttonColor={accentColor as ButtonColor}
+                backgroundColor={`${getColorClass("bg", 100)}`}
+                height={200}
+                withDots={true}
+                withPagination={true}
+                className="border-2 border-opacity-50 shadow-md"
+                autoPlay={true}
+                autoPlayInterval={8000}
+              />
             </motion.div>
           </div>
-
-          {/* Icon */}
-          <motion.div
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className={`p-4 rounded-xl ${getColorClass(
-              "bg",
-              100
-            )} border ${getColorClass("border", 300)} shadow-md mb-6`}
-          >
-            <Image src={iconSrc} alt="Step Icon" width={80} height={80} />
-          </motion.div>
 
           {/* Video */}
           {videoSrc && (
@@ -99,12 +127,12 @@ const LearningStepLayout: React.FC<LearningStepLayoutProps> = ({
               initial={{ y: 30, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ duration: 0.5, delay: 0.3 }}
-              className={`${getColorClass("bg", 100)} border ${getColorClass(
+              className={`${getColorClass("bg", 100)} border-2 ${getColorClass(
                 "border",
                 300
-              )} rounded-xl p-4 shadow-md w-full max-w-3xl mb-6`}
+              )} rounded-xl p-4 shadow-md w-full max-w-3xl mb-8`}
             >
-              <div className="relative overflow-hidden pt-[56.25%]">
+              <div className="relative overflow-hidden pt-[56.25%] rounded-lg">
                 <iframe
                   className="absolute top-0 left-0 w-full h-full rounded"
                   src={videoSrc}
@@ -116,25 +144,13 @@ const LearningStepLayout: React.FC<LearningStepLayoutProps> = ({
             </motion.div>
           )}
 
-          {/* Content */}
-          <motion.div
+          {/* Action Buttons */}
+          <motion.div 
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.4 }}
-            className="w-full max-w-3xl mb-6"
+            transition={{ duration: 0.5, delay: 0.6 }}
+            className="flex flex-col sm:flex-row gap-4 justify-center mt-4 mb-8"
           >
-            <SwipableContent
-              contents={contentSlides}
-              buttonColor={accentColor as ButtonColor}
-              backgroundColor={`${getColorClass("bg", 100)}`}
-              height={200}
-              withDots={true}
-              withPagination={true}
-            />
-          </motion.div>
-
-          {/* Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mt-4">
             <NavigationButton
               path={gamePath}
               label="Play Game"
@@ -151,11 +167,11 @@ const LearningStepLayout: React.FC<LearningStepLayoutProps> = ({
               size="medium"
               hoverEffect="wobble"
             />
-          </div>
+          </motion.div>
 
           {/* Step Navigation */}
           {showNextPrevButtons && (
-            <div className="w-full flex justify-between mt-6">
+            <div className="w-full max-w-3xl flex justify-between mt-6">
               {prevStepPath ? (
                 <NavigationButton
                   path={prevStepPath}
@@ -164,6 +180,7 @@ const LearningStepLayout: React.FC<LearningStepLayoutProps> = ({
                   color="blue"
                   size="small"
                   hoverEffect="wobble"
+                  placement="start"
                 />
               ) : (
                 <div />
@@ -176,6 +193,7 @@ const LearningStepLayout: React.FC<LearningStepLayoutProps> = ({
                   color="green"
                   size="small"
                   hoverEffect="wobble"
+                  placement="end"
                 />
               )}
             </div>
@@ -183,7 +201,7 @@ const LearningStepLayout: React.FC<LearningStepLayoutProps> = ({
 
           {/* Footer */}
           <motion.div
-            className="w-full max-w-md h-3 bg-gradient-to-r from-purple-400 via-pink-400 to-yellow-400 rounded-full mt-12"
+            className="w-full max-w-md h-3 bg-gradient-to-r from-purple-400 via-pink-400 to-yellow-400 rounded-full mt-8"
             animate={{ opacity: [0.6, 1, 0.6], scale: [1, 1.03, 1] }}
             transition={{ duration: 2, repeat: Infinity }}
           />
