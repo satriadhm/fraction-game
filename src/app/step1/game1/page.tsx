@@ -61,8 +61,8 @@ const Game1 = () => {
     },
     {
       question: "You have 10 slices of pizza.\n You want to share them with four friends.\n How many slices would each of you get??",
-      options: ["2/8", "6/8", "3/4", "1/4"],
-      correctAnswer: "6/8",
+      options: ["2", "5", "4", "3"],
+      correctAnswer: "2",
     },
     {
       question: "Which fraction is equivalent to 1/2?",
