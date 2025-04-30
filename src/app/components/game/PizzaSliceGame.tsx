@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import AnimatedButton from "../molecules/AnimatedButton";
+import Icon from "../atoms/Icon";
 
 interface PizzaSliceGameProps {
   question: {
@@ -42,13 +43,28 @@ const PizzaSliceGame: React.FC<PizzaSliceGameProps> = ({
     setSelectedSlices([]);
   };
 
-  // Render the pizza slices
+  // Render the pizza slices - improved to match PDF design with more circular shape
   const renderPizzaSlices = () => {
     const slices = [];
     const radius = 120; // Size of the pizza
     const centerX = radius;
     const centerY = radius;
+    const strokeWidth = 2;
+    
+    // Pizza crust (outer circle)
+    slices.push(
+      <circle 
+        key="crust" 
+        cx={centerX} 
+        cy={centerY} 
+        r={radius-strokeWidth} 
+        fill="#E3C097" 
+        stroke="#8B4513" 
+        strokeWidth={strokeWidth} 
+      />
+    );
 
+    // Pizza slices (segments)
     for (let i = 0; i < question.totalSlices; i++) {
       const startAngle = (i * 360) / question.totalSlices;
       const endAngle = ((i + 1) * 360) / question.totalSlices;
@@ -56,26 +72,40 @@ const PizzaSliceGame: React.FC<PizzaSliceGameProps> = ({
       const startRad = (startAngle * Math.PI) / 180;
       const endRad = (endAngle * Math.PI) / 180;
 
-      const x1 = centerX + radius * Math.cos(startRad);
-      const y1 = centerY + radius * Math.sin(startRad);
-      const x2 = centerX + radius * Math.cos(endRad);
-      const y2 = centerY + radius * Math.sin(endRad);
+      const x1 = centerX + (radius-strokeWidth) * Math.cos(startRad);
+      const y1 = centerY + (radius-strokeWidth) * Math.sin(startRad);
+      const x2 = centerX + (radius-strokeWidth) * Math.cos(endRad);
+      const y2 = centerY + (radius-strokeWidth) * Math.sin(endRad);
 
       const largeArcFlag = endAngle - startAngle <= 180 ? "0" : "1";
 
-      const pathData = `M ${centerX} ${centerY} L ${x1} ${y1} A ${radius} ${radius} 0 ${largeArcFlag} 1 ${x2} ${y2} Z`;
+      // Draw the dividing lines for pizza slices
+      slices.push(
+        <line
+          key={`line-${i}`}
+          x1={centerX}
+          y1={centerY}
+          x2={x1}
+          y2={y1}
+          stroke="#8B4513"
+          strokeWidth={strokeWidth}
+        />
+      );
+
+      // For the click area, create a separate path for each slice
+      const pathData = `M ${centerX} ${centerY} L ${x1} ${y1} A ${radius-strokeWidth} ${radius-strokeWidth} 0 ${largeArcFlag} 1 ${x2} ${y2} Z`;
 
       slices.push(
         <motion.path
-          key={i}
+          key={`slice-${i}`}
           d={pathData}
-          fill={selectedSlices.includes(i) ? "#FFA500" : "#F5DEB3"}
-          stroke="#8B4513"
-          strokeWidth="2"
+          fill={selectedSlices.includes(i) ? "#FFA500" : "transparent"}
+          fillOpacity={selectedSlices.includes(i) ? 0.6 : 0}
+          stroke="none"
           onClick={() => togglePizzaSlice(i)}
           className="pizza-slice cursor-pointer"
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
         />
       );
     }
@@ -84,8 +114,8 @@ const PizzaSliceGame: React.FC<PizzaSliceGameProps> = ({
   };
 
   return (
-    <div className="w-full">
-      <div className="relative mb-6 px-4 py-2 bg-yellow-100 rounded-xl border-2 border-yellow-200">
+    <div className="w-full flex flex-col items-center">
+      <div className="relative mb-6 px-4 py-3 bg-yellow-100 rounded-xl border-2 border-yellow-200 text-center w-full max-w-md mx-auto">
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -97,20 +127,17 @@ const PizzaSliceGame: React.FC<PizzaSliceGameProps> = ({
 
       <div className="flex justify-center mb-6">
         <motion.svg
-          width="240"
-          height="240"
+          width="250"
+          height="250"
           viewBox="0 0 240 240"
           className="drop-shadow-lg"
           whileHover={{ scale: 1.02 }}
         >
-          {/* Pizza base circle */}
-          <circle cx="120" cy="120" r="120" fill="#8B4513" opacity="0.2" />
-          {/* Render pizza slices */}
           {renderPizzaSlices()}
         </motion.svg>
       </div>
 
-      <div className="text-center mb-4">
+      <div className="text-center mb-4 p-3 bg-white rounded-lg shadow-sm">
         <p className="text-gray-600">
           Selected slices: {selectedSlices.length} out of {question.totalSlices}
         </p>
@@ -119,28 +146,13 @@ const PizzaSliceGame: React.FC<PizzaSliceGameProps> = ({
         </p>
       </div>
 
-      <div className="flex gap-2 justify-center">
+      <div className="flex gap-3 justify-center">
         <AnimatedButton
           onClick={checkAnswer}
           color="orange"
           size="large"
           hoverEffect="bounce"
-          icon={
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-6 w-6"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
-          }
+          icon={<Icon type="check" />}
           disabled={disabled}
         >
           Check Answer

@@ -79,28 +79,27 @@ const LearningStepLayout: React.FC<LearningStepLayoutProps> = ({
             <div className="mx-auto mt-3 h-1.5 bg-gradient-to-r from-pink-400 via-yellow-400 to-purple-400 rounded-full w-52 shadow-sm" />
           </motion.div>
 
-          {/* Icon and Content Container */}
+          {/* Main content area with icon and swipable content */}
           <div className="w-full max-w-4xl grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-            {/* Icon */}
+            {/* Icon in circular container */}
             <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ duration: 0.5, delay: 0.2 }}
-              className={`p-6 rounded-xl ${getColorClass(
-                "bg",
-                100
-              )} border-2 ${getColorClass("border", 300)} shadow-md flex items-center justify-center md:col-span-1`}
+              className="flex items-center justify-center md:col-span-1"
             >
-              <Image 
-                src={iconSrc} 
-                alt="Step Icon" 
-                width={120} 
-                height={120} 
-                className="drop-shadow-md"
-              />
+              <div className={`p-4 w-36 h-36 rounded-full ${getColorClass("bg", 100)} border-2 ${getColorClass("border", 300)} shadow-md flex items-center justify-center`}>
+                <Image 
+                  src={iconSrc} 
+                  alt="Step Icon" 
+                  width={80} 
+                  height={80} 
+                  className="drop-shadow-md"
+                />
+              </div>
             </motion.div>
 
-            {/* Content */}
+            {/* Swipable content - widened for better readability */}
             <motion.div
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
@@ -117,6 +116,8 @@ const LearningStepLayout: React.FC<LearningStepLayoutProps> = ({
                 className="border-2 border-opacity-50 shadow-md"
                 autoPlay={true}
                 autoPlayInterval={8000}
+                // Removed textSize prop as it is not defined in SwipableContentProps
+                padding="p-8" // Increased padding for better layout
               />
             </motion.div>
           </div>

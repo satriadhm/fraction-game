@@ -29,6 +29,8 @@ interface SwipableContentProps {
   autoPlay?: boolean;
   autoPlayInterval?: number;
   onIndexChange?: (index: number) => void;
+  textSize?: "base" | "lg" | "xl" | "2xl"; // Added text size option
+  padding?: string; // Added padding option
 }
 
 /**
@@ -46,6 +48,8 @@ const SwipableContent: React.FC<SwipableContentProps> = ({
   autoPlay = false,
   autoPlayInterval = 5000,
   onIndexChange,
+  textSize = "lg",
+  padding = "p-6",
 }) => {
   const [index, setIndex] = useState(0);
   const [direction, setDirection] = useState(0);
@@ -104,6 +108,14 @@ const SwipableContent: React.FC<SwipableContentProps> = ({
   const buttonHoverAnimation = { scale: 1.1 };
   const buttonTapAnimation = { scale: 0.9 };
 
+  // Text size classes
+  const textSizeClass = {
+    base: "text-base",
+    lg: "text-lg",
+    xl: "text-xl",
+    "2xl": "text-2xl",
+  }[textSize];
+
   return (
     <div
       className={`relative w-full max-w-2xl overflow-hidden rounded-lg shadow-lg ${backgroundColor} ${className}`}
@@ -123,9 +135,12 @@ const SwipableContent: React.FC<SwipableContentProps> = ({
               x: { type: "spring", stiffness: 300, damping: 30 },
               opacity: { duration: 0.2 },
             }}
-            className={`absolute w-full h-full flex items-center justify-center p-6 text-center ${textColor}`}
+            className={`absolute w-full h-full flex items-center justify-center ${padding} text-center ${textColor}`}
           >
-            <Typography variant="body1" className="text-xl font-bold">
+            <Typography
+              variant="body1"
+              className={`${textSizeClass} font-medium leading-relaxed px-8 max-w-xl`}
+            >
               {contents[index]}
             </Typography>
           </motion.div>
