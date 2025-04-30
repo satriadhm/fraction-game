@@ -33,7 +33,7 @@ const Game2 = () => {
   const equivalentFractionsQuestions = [
     {
       instruction:
-        "Connect the equivalent fractions by clicking on the matching pairs, then click Submit Answer when done",
+        "Connect the equivalent fractions by clicking on matching pairs, then click Submit Answer when done",
       pairs: [
         {
           id: 1,
@@ -167,21 +167,23 @@ const Game2 = () => {
       accentColor="purple"
       backButtonPath="/step2"
     >
-      {gameType === "equivalent" ? (
-        // Equivalent fractions matching game
-        <EquivalentFractionsGame
-          question={getCurrentQuestion() as any}
-          onAnswer={handleEquivalentFractionsAnswer}
-          disabled={!!game.showFeedback}
-        />
-      ) : (
-        // Multiple choice questions
-        <MultipleChoiceGame
-          question={getCurrentQuestion() as any}
-          onAnswer={handleMultipleChoiceAnswer}
-          disabled={!!game.showFeedback}
-        />
-      )}
+      <div className="mx-auto max-w-xl w-full">
+        {gameType === "equivalent" ? (
+          // Equivalent fractions matching game
+          <EquivalentFractionsGame
+            question={getCurrentQuestion() as any}
+            onAnswer={handleEquivalentFractionsAnswer}
+            disabled={!!game.showFeedback}
+          />
+        ) : (
+          // Multiple choice questions
+          <MultipleChoiceGame
+            question={getCurrentQuestion() as any}
+            onAnswer={handleMultipleChoiceAnswer}
+            disabled={!!game.showFeedback}
+          />
+        )}
+      </div>
     </GameLayout>
   );
 };
