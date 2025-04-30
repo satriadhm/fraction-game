@@ -11,6 +11,7 @@ import {
   CuteStar,
   CuteIceCream,
 } from "../components/atoms/CuteShapes";
+import { usePageLoader } from "../context/PageLoaderContext";
 
 const Particles = () => {
   const [particles, setParticles] = useState<
@@ -131,16 +132,27 @@ const JourneyPath = () => {
 const Menu = () => {
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
+  const { startLoading, stopLoading } = usePageLoader();
 
   useEffect(() => {
     // Mark that the component has been mounted on the client side
     setMounted(true);
 
+    // Stop any loading animation when the menu is fully loaded
+    stopLoading();
+
     const isAuthenticated = localStorage.getItem("isAuthenticated");
     if (!isAuthenticated) {
       router.push("/login");
     }
-  }, [router]);
+  }, [router, stopLoading]);
+
+  const handleNavigation = (path: string, message: string) => {
+    startLoading(message);
+    setTimeout(() => {
+      router.push(path);
+    }, 1200);
+  };
 
   return (
     <CuteDecorationWrapper
@@ -191,8 +203,10 @@ const Menu = () => {
         <div className="relative z-10 flex flex-col md:flex-row items-center justify-between w-full max-w-5xl gap-6">
           {/* Step 1 */}
           <div
-            onClick={() => router.push("/step1")}
-            className="relative z-10 flex flex-col items-center cursor-pointer bg-white p-4 rounded-2xl shadow-xl border-2 border-blue-200 hover:border-blue-400 transition-colors max-w-xs"
+            onClick={() =>
+              handleNavigation("/step1", "Preparing Step 1 content...")
+            }
+            className="relative z-10 flex flex-col items-center cursor-pointer bg-white p-4 rounded-2xl shadow-xl border-2 border-blue-200 hover:border-blue-400 transition-colors max-w-xs group"
           >
             <motion.div
               initial={{ opacity: 0, y: 50 }}
@@ -206,7 +220,7 @@ const Menu = () => {
                   alt="Step 1"
                   width={100}
                   height={100}
-                  className="drop-shadow-md"
+                  className="drop-shadow-md group-hover:scale-110 transition-transform duration-300"
                 />
                 <motion.div
                   className="absolute -top-2 -right-2 w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center"
@@ -221,8 +235,10 @@ const Menu = () => {
               </div>
 
               <div className="text-center mt-2">
-                <h2 className="text-3xl font-bold text-blue-500">Step 1</h2>
-                <span className="inline-block mt-2 px-4 py-2 rounded-full bg-blue-100 text-blue-700 text-sm font-semibold">
+                <h2 className="text-3xl font-bold text-blue-500 group-hover:text-blue-600 transition-colors">
+                  Step 1
+                </h2>
+                <span className="inline-block mt-2 px-4 py-2 rounded-full bg-blue-100 text-blue-700 text-sm font-semibold group-hover:bg-blue-200 transition-colors">
                   Fraction of Shape
                 </span>
               </div>
@@ -239,8 +255,10 @@ const Menu = () => {
 
           {/* Step 2 */}
           <div
-            onClick={() => router.push("/step2")}
-            className="relative z-10 flex flex-col items-center cursor-pointer bg-white p-4 rounded-2xl shadow-xl border-2 border-pink-200 hover:border-pink-400 transition-colors max-w-xs"
+            onClick={() =>
+              handleNavigation("/step2", "Preparing Step 2 content...")
+            }
+            className="relative z-10 flex flex-col items-center cursor-pointer bg-white p-4 rounded-2xl shadow-xl border-2 border-pink-200 hover:border-pink-400 transition-colors max-w-xs group"
           >
             <motion.div
               initial={{ opacity: 0, y: 50 }}
@@ -254,7 +272,7 @@ const Menu = () => {
                   alt="Step 2"
                   width={100}
                   height={100}
-                  className="drop-shadow-md"
+                  className="drop-shadow-md group-hover:scale-110 transition-transform duration-300"
                 />
                 <motion.div
                   className="absolute -top-2 -right-2 w-8 h-8 bg-pink-100 rounded-full flex items-center justify-center"
@@ -269,8 +287,10 @@ const Menu = () => {
               </div>
 
               <div className="text-center mt-2">
-                <h2 className="text-3xl font-bold text-pink-500">Step 2</h2>
-                <span className="inline-block mt-2 px-4 py-2 rounded-full bg-pink-100 text-pink-700 text-sm font-semibold">
+                <h2 className="text-3xl font-bold text-pink-500 group-hover:text-pink-600 transition-colors">
+                  Step 2
+                </h2>
+                <span className="inline-block mt-2 px-4 py-2 rounded-full bg-pink-100 text-pink-700 text-sm font-semibold group-hover:bg-pink-200 transition-colors">
                   Equivalent Fraction
                 </span>
               </div>
@@ -287,8 +307,10 @@ const Menu = () => {
 
           {/* Step 3 */}
           <div
-            onClick={() => router.push("/step3")}
-            className="relative z-10 flex flex-col items-center cursor-pointer bg-white p-4 rounded-2xl shadow-xl border-2 border-blue-200 hover:border-blue-400 transition-colors max-w-xs"
+            onClick={() =>
+              handleNavigation("/step3", "Preparing Step 3 content...")
+            }
+            className="relative z-10 flex flex-col items-center cursor-pointer bg-white p-4 rounded-2xl shadow-xl border-2 border-blue-200 hover:border-blue-400 transition-colors max-w-xs group"
           >
             <motion.div
               initial={{ opacity: 0, y: 50 }}
@@ -302,7 +324,7 @@ const Menu = () => {
                   alt="Step 3"
                   width={100}
                   height={100}
-                  className="drop-shadow-md"
+                  className="drop-shadow-md group-hover:scale-110 transition-transform duration-300"
                 />
                 <motion.div
                   className="absolute -top-2 -right-2 w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center"
@@ -317,8 +339,10 @@ const Menu = () => {
               </div>
 
               <div className="text-center mt-2">
-                <h2 className="text-3xl font-bold text-blue-500">Step 3</h2>
-                <span className="inline-block mt-2 px-4 py-2 rounded-full bg-blue-100 text-blue-700 text-sm font-semibold">
+                <h2 className="text-3xl font-bold text-blue-500 group-hover:text-blue-600 transition-colors">
+                  Step 3
+                </h2>
+                <span className="inline-block mt-2 px-4 py-2 rounded-full bg-blue-100 text-blue-700 text-sm font-semibold group-hover:bg-blue-200 transition-colors">
                   Fraction in Number Line
                 </span>
               </div>
@@ -342,7 +366,7 @@ const Menu = () => {
           transition={{ delay: 1, duration: 0.5 }}
         >
           <AnimatedButton
-            onClick={() => router.push("/")}
+            onClick={() => handleNavigation("/", "Returning to home...")}
             color="pink"
             size="small"
             hoverEffect="wobble"

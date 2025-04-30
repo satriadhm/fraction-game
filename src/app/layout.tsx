@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import PageLoaderProvider from "./context/PageLoaderContext";
 
 // Configure Geist font with proper subsets and display settings
 const geistSans = Geist({
@@ -37,12 +38,16 @@ export default function RootLayout({
       <head>
         {/* Add preconnect for Google Fonts to improve performance */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin=""
+        />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased font-sans text-base`}
       >
-        {children}
+        <PageLoaderProvider>{children}</PageLoaderProvider>
       </body>
     </html>
   );

@@ -1,25 +1,39 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import GameLayout from "../../components/templates/GameLayout";
 import GameResults from "../../components/game/GameResult";
 import MultipleChoiceGame from "../../components/game/MultipleChoiceGame";
 import { useGameState } from "@/app/hooks";
 import EquivalentFractionsGame from "@/app/components/game/EquivalenceFractions";
+import { usePageLoader } from "@/app/context/PageLoaderContext";
 
 const Game2 = () => {
+  // Access page loader
+  const { stopLoading } = usePageLoader();
+
   // Game state
   const game = useGameState({
     totalQuestions: 5,
     autoAdvanceDelay: 2000,
   });
 
+  // Track which type of game is currently active
+  const [gameType, setGameType] = useState<"equivalent" | "multiple">(
+    "equivalent"
+  );
+
+  // Stop loading when component mounts
+  useEffect(() => {
+    stopLoading();
+  }, [stopLoading]);
+
   // Equivalent fractions game questions
   const equivalentFractionsQuestions = [
     {
       instruction:
-        "Connect the equivalent fractions by clicking on the matching pairs",
+        "Connect the equivalent fractions by clicking on the matching pairs, then click Submit Answer when done",
       pairs: [
         {
           id: 1,
@@ -73,11 +87,6 @@ const Game2 = () => {
     },
   ];
 
-  // Track which type of game is currently active
-  const [gameType, setGameType] = useState<"equivalent" | "multiple">(
-    "equivalent"
-  );
-
   // Show results when game is complete
   if (game.gameComplete) {
     return (
@@ -98,6 +107,7 @@ const Game2 = () => {
     game.handleAnswer(isCorrect);
 
     // Transition to multiple choice questions after the equivalent fractions game
+    // with a slightly longer delay to show feedback
     setTimeout(() => {
       setGameType("multiple");
     }, 2000);
@@ -138,7 +148,7 @@ const Game2 = () => {
       title="Equivalent Fractions"
       subtitle={
         gameType === "equivalent"
-          ? "Connect matching fractions"
+          ? "Connect matching fractions and submit your answer when ready"
           : "Find fractions with the same value"
       }
       currentQuestion={game.currentQuestion}

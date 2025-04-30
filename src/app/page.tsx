@@ -10,6 +10,8 @@ import {
   CuteStrawberry,
   CuteIceCream,
 } from "./components/atoms/CuteShapes";
+import EnhancedButton from "./components/molecules/EnhancedButton";
+import LoadingScreen from "./components/molecules/LoadingBar";
 
 // Floating decoration component
 const FloatingDecoration = ({
@@ -74,31 +76,6 @@ const AnimatedTitle = ({ children }: { children: string }) => {
   );
 };
 
-// Button with hover animation
-const AnimatedButton = ({
-  children,
-  onClick,
-}: {
-  children: React.ReactNode;
-  onClick: () => void;
-}) => (
-  <motion.button
-    onClick={onClick}
-    className="rounded-full font-bold text-lg shadow-lg transition-all px-8 py-5 bg-gradient-to-r from-pink-500 to-purple-600 text-white"
-    whileHover={{
-      scale: 1.05,
-      boxShadow:
-        "0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
-    }}
-    whileTap={{ scale: 0.98 }}
-    initial={{ opacity: 0, y: 50 }}
-    animate={{ opacity: 1, y: 0 }}
-    transition={{ delay: 0.5, type: "spring" }}
-  >
-    {children}
-  </motion.button>
-);
-
 // Background bubble component
 const Bubble = ({
   size,
@@ -140,13 +117,29 @@ const Bubble = ({
 export default function LandingPage() {
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
+  const handleStartLearning = () => {
+    setIsLoading(true);
+
+    // Simulating loading delay before navigation
+    setTimeout(() => {
+      router.push("/menu");
+    }, 1500);
+  };
+
   return (
     <main className="w-full min-h-screen flex flex-col bg-gradient-to-br from-pink-50 to-purple-100 overflow-hidden">
+      {/* Loading Screen */}
+      <LoadingScreen
+        isLoading={isLoading}
+        message="Preparing your learning journey"
+      />
+
       {/* Background bubbles */}
       {mounted && (
         <>
@@ -278,9 +271,9 @@ export default function LandingPage() {
           </motion.p>
 
           <div className="w-full sm:w-auto">
-            <AnimatedButton onClick={() => router.push("/menu")}>
+            <EnhancedButton onClick={handleStartLearning} size="large">
               Start Learning
-            </AnimatedButton>
+            </EnhancedButton>
           </div>
         </motion.div>
 
