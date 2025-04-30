@@ -8,22 +8,46 @@ import Icon from "../../components/atoms/Icon";
 import ConfettiEffect from "../../components/organisms/ConfettiEffect";
 import GameResults from "../../components/game/GameResult";
 import PizzaSliceGame from "../../components/game/PizzaSliceGame";
+import StripFractionGame, {
+  StripFractionQuestion,
+} from "../../components/game/StripFractionGame";
+import ConditionalStripGame, {
+  ConditionalStripQuestion,
+} from "../../components/game/ConditionalStripGame";
+import HexagonFractionGame, {
+  HexagonFractionQuestion,
+} from "../../components/game/HexagonFractionGame";
 import CandyProgressBar from "../../components/game/CandyProgressBar";
 import MultipleChoiceGame from "../../components/game/MultipleChoiceGame";
 import { useTwoStageGame } from "@/app/hooks";
 import { usePageLoader } from "@/app/context/PageLoaderContext";
 
+// Define types
+interface PizzaQuestion {
+  type?: "pizza"; // Optional since it's the default
+  instruction: string;
+  totalSlices: number;
+  correctSlices: number;
+}
+
+// Union type for all first stage questions
+type FirstStageQuestion =
+  | PizzaQuestion
+  | StripFractionQuestion
+  | ConditionalStripQuestion
+  | HexagonFractionQuestion;
+
 const Game1 = () => {
   const router = useRouter();
   const { stopLoading } = usePageLoader();
 
-  // Hentikan loading ketika komponen dimuat
+  // Stop loading when component mounts
   useEffect(() => {
     stopLoading();
   }, [stopLoading]);
 
-  // Define the pizza slice questions
-  const pizzaQuestions = [
+  // Define the questions with proper type annotations
+  const pizzaQuestions: FirstStageQuestion[] = [
     {
       instruction: "Shade 3 out of 4 of the pizza",
       totalSlices: 4,
@@ -34,33 +58,60 @@ const Game1 = () => {
       totalSlices: 8,
       correctSlices: 2,
     },
+    // Question 3: Strip question
     {
-      instruction: "Shade 1 out of 2 of the pizza",
-      totalSlices: 2,
-      correctSlices: 1,
+      type: "strip",
+      instruction:
+        "What fraction of the whole strip is shaded? Shade 3 out of 10 sections.",
+      totalSections: 10,
+      correctSections: 3,
+      rows: 2, // Make it a 2x5 grid for better UI
     },
+    // Question 4: Conditional Strip question
     {
-      instruction: "Shade 5 out of 6 of the pizza",
-      totalSlices: 6,
-      correctSlices: 5,
+      type: "conditional-strip",
+      instruction: "If I shaded 2 more boxes, how much is shaded now?",
+      initialShadedSections: [0], // The first section is already shaded
+      additionalSections: 2, // The student needs to shade 2 more
+      totalSections: 10, // Total of 10 sections in the strip
+      rows: 2, // 2x5 grid
+      explanation:
+        "1 was already shaded, plus 2 more would make 3 out of 10 shaded.",
     },
+    // Question 5: Hexagon fraction pattern
     {
-      instruction: "Shade 4 out of 8 of the pizza",
-      totalSlices: 8,
-      correctSlices: 4,
+      type: "hexagon-fraction",
+      instruction: "What fraction of the shape is shaded?",
+      totalHexagons: 7,
+      shadedHexagons: 4,
+      presetPattern: true,
+      // Define the hexagon layout pattern as [row, column] coordinates
+      hexagonLayout: [
+        [0, 0], // Top hexagon
+        [1, 0],
+        [1, 1],
+        [1, 2], // Second row
+        [2, 0],
+        [2, 1],
+        [2, 2], // Third row
+      ],
+      // Indices of the hexagons that are shaded (0-based index from the hexagonLayout array)
+      shadedIndices: [2, 3, 5, 6], // 4 out of 7 hexagons are shaded
     },
   ];
 
   // Define the multiple choice questions
   const multipleChoiceQuestions = [
     {
-      question: "Ms. Intan bought a pizza and cut it into 4 equal parts. She ate 1 part of the pizza.\nWhat fraction of the pizza is left?",
-      image: "/pizza-3-4.png", // Use consistent 'image' property
+      question:
+        "Ms. Intan bought a pizza and cut it into 4 equal parts. She ate 1 part of the pizza.\nWhat fraction of the pizza is left?",
+      image: "/pizza-3-4.png",
       options: ["1/4", "2/4", "3/4", "1/2"],
       correctAnswer: "3/4",
     },
     {
-      question: "You have 10 slices of pizza.\n You want to share them with four friends.\n How many slices would each of you get??",
+      question:
+        "You have 10 slices of pizza.\n You want to share them with four friends.\n How many slices would each of you get??",
       options: ["2", "5", "4", "3"],
       correctAnswer: "2",
     },
@@ -100,6 +151,99 @@ const Game1 = () => {
     );
   }
 
+  // Determine which game component to render based on the current question
+  const renderGameComponent = () => {
+    if (game.currentStage === "first") {
+      const currentQuestion = pizzaQuestions[game.currentQuestion];
+
+      // Handle different question types
+      if (currentQuestion.type === "strip") {
+        return (
+          <StripFractionGame
+            question={currentQuestion as StripFractionQuestion}
+            onAnswer={game.currentGameState.handleAnswer}
+            disabled={!!game.currentGameState.showFeedback}
+          />
+        );
+      } else if (currentQuestion.type === "conditional-strip") {
+        return (
+          <ConditionalStripGame
+            question={currentQuestion as ConditionalStripQuestion}
+            onAnswer={game.currentGameState.handleAnswer}
+            disabled={!!game.currentGameState.showFeedback}
+          />
+        );
+      } else if (currentQuestion.type === "hexagon-fraction") {
+        return (
+          <HexagonFractionGame
+            question={currentQuestion as HexagonFractionQuestion}
+            onAnswer={game.currentGameState.handleAnswer}
+            disabled={!!game.currentGameState.showFeedback}
+          />
+        );
+      } else {
+        // Regular pizza question
+        return (
+          <PizzaSliceGame
+            question={currentQuestion as PizzaQuestion}
+            onAnswer={game.currentGameState.handleAnswer}
+            disabled={!!game.currentGameState.showFeedback}
+          />
+        );
+      }
+    } else {
+      // Multiple choice questions for second stage
+      return (
+        <MultipleChoiceGame
+          question={multipleChoiceQuestions[game.currentQuestion]}
+          onAnswer={(selectedOption) => {
+            // Create an adapter that converts string to boolean
+            const isCorrect =
+              selectedOption ===
+              multipleChoiceQuestions[game.currentQuestion].correctAnswer;
+            game.currentGameState.handleAnswer(isCorrect);
+          }}
+          disabled={!!game.currentGameState.showFeedback}
+        />
+      );
+    }
+  };
+
+  // Get feedback message based on the current question
+  const getFeedbackMessage = () => {
+    if (game.currentStage === "first") {
+      const currentQuestion = pizzaQuestions[game.currentQuestion];
+      if (game.currentGameState.showFeedback === "success") {
+        if (
+          currentQuestion.type === "conditional-strip" &&
+          (currentQuestion as ConditionalStripQuestion).explanation
+        ) {
+          return `Great job! ${
+            (currentQuestion as ConditionalStripQuestion).explanation
+          }`;
+        } else if (currentQuestion.type === "hexagon-fraction") {
+          return "Correct! There are 4 shaded hexagons out of 7 total hexagons, which is 4/7.";
+        }
+        return "Great job! Your answer is correct.";
+      } else {
+        if (
+          currentQuestion.type === "conditional-strip" &&
+          (currentQuestion as ConditionalStripQuestion).explanation
+        ) {
+          return `Not quite. ${
+            (currentQuestion as ConditionalStripQuestion).explanation
+          }`;
+        } else if (currentQuestion.type === "hexagon-fraction") {
+          return "Not quite. Count the total number of hexagons and how many are shaded yellow.";
+        }
+        return "Not quite. Try again!";
+      }
+    }
+    return game.currentGameState.showFeedback === "success"
+      ? "Great job! Your answer is correct."
+      : "Not quite. Try again!";
+  };
+
   return (
     <div className="relative flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 p-5 md:p-8 overflow-hidden">
       {/* Cute background elements */}
@@ -131,8 +275,8 @@ const Game1 = () => {
             Fraction of Shape
           </h1>
           <p className="text-blue-700 font-medium">
-            {game.currentStage === "first" 
-              ? "Let's learn fractions with pizza!" 
+            {game.currentStage === "first"
+              ? "Let's learn fractions with various shapes!"
               : "Answer these multiple choice questions about fractions"}
           </p>
         </motion.div>
@@ -178,11 +322,11 @@ const Game1 = () => {
               }`}
             >
               <div
-                className={`p-6 rounded-full ${
+                className={`p-6 rounded-xl ${
                   game.currentGameState.showFeedback === "success"
                     ? "bg-green-500"
                     : "bg-red-500"
-                }`}
+                } max-w-xs text-center`}
               >
                 <motion.div
                   animate={
@@ -191,6 +335,7 @@ const Game1 = () => {
                       : { x: [0, -10, 10, -10, 10, 0] }
                   }
                   transition={{ duration: 0.5 }}
+                  className="flex justify-center"
                 >
                   {game.currentGameState.showFeedback === "success" ? (
                     <svg
@@ -224,30 +369,15 @@ const Game1 = () => {
                     </svg>
                   )}
                 </motion.div>
+                <p className="text-white text-center mt-2 font-medium">
+                  {getFeedbackMessage()}
+                </p>
               </div>
             </motion.div>
           )}
 
-          {/* Render appropriate game type based on current stage */}
-          {game.currentStage === "first" ? (
-            <PizzaSliceGame
-              question={pizzaQuestions[game.currentQuestion]}
-              onAnswer={game.currentGameState.handleAnswer}
-              disabled={!!game.currentGameState.showFeedback}
-            />
-          ) : (
-            <MultipleChoiceGame
-              question={multipleChoiceQuestions[game.currentQuestion]}
-              onAnswer={(selectedOption) => {
-                // Create an adapter that converts string to boolean
-                const isCorrect =
-                  selectedOption ===
-                  multipleChoiceQuestions[game.currentQuestion].correctAnswer;
-                game.currentGameState.handleAnswer(isCorrect);
-              }}
-              disabled={!!game.currentGameState.showFeedback}
-            />
-          )}
+          {/* Render the appropriate game component */}
+          {renderGameComponent()}
         </motion.div>
 
         {/* Back button */}
