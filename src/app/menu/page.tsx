@@ -140,12 +140,10 @@ const Menu = () => {
 
     // Stop any loading animation when the menu is fully loaded
     stopLoading();
-
-    const isAuthenticated = localStorage.getItem("isAuthenticated");
-    if (!isAuthenticated) {
-      router.push("/login");
-    }
-  }, [router, stopLoading]);
+    
+    // Remove the authentication check that's causing redirection to /login
+    // since there is no login page in the application
+  }, [stopLoading]);
 
   const handleNavigation = (path: string, message: string) => {
     startLoading(message);
