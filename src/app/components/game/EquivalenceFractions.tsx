@@ -38,60 +38,89 @@ const EquivalentFractionsGame: React.FC<EquivalentFractionsGameProps> = ({
   const [message, setMessage] = useState<string | null>(null);
   const [gameComplete, setGameComplete] = useState(false);
   const [shouldValidate, setShouldValidate] = useState(false);
+  const [attemptedPairs, setAttemptedPairs] = useState<{left: number, right: number}[]>([]);
   
   const containerRef = useRef<HTMLDivElement>(null);
   
-  // Reset any temporary selection when making a new connection attempt
+  // Process selections when both left and right sides are selected
   useEffect(() => {
     if (selectedLeft !== null && selectedRight !== null) {
-      // Find the pair for the selected left item
-      const leftPair = question.pairs.find(p => p.id === selectedLeft);
-      // Find the pair for the selected right item
-      const rightPair = question.pairs.find(p => p.id === selectedRight);
+      // Check if this pair is already attempted
+      const alreadyAttempted = attemptedPairs.some(
+        p => p.left === selectedLeft && p.right === selectedRight
+      );
       
-      if (leftPair && rightPair) {
-        // Calculate the fractions
-        const leftFraction = leftPair.leftSide.colored / leftPair.leftSide.total;
-        const rightFraction = rightPair.rightSide.colored / rightPair.rightSide.total;
-        
-        const isMatch = Math.abs(leftFraction - rightFraction) < 0.001; // Account for floating point errors
-        
-        // Check if either point is already connected
-        const leftAlreadyConnected = connections.some(c => c.left === selectedLeft);
-        const rightAlreadyConnected = connections.some(c => c.right === selectedRight);
-        
-        if (isMatch && !leftAlreadyConnected && !rightAlreadyConnected) {
-          // Make connection
-          setConnections([...connections, {left: selectedLeft, right: selectedRight}]);
-          setMessage("Good match!");
-        } else {
-          setMessage("Not a match. Try again!");
-        }
+      if (!alreadyAttempted) {
+        // Add to attempted pairs
+        setAttemptedPairs([...attemptedPairs, {left: selectedLeft, right: selectedRight}]);
+      }
+      
+      // Check if either point is already connected
+      const leftAlreadyConnected = connections.some(c => c.left === selectedLeft);
+      const rightAlreadyConnected = connections.some(c => c.right === selectedRight);
+      
+      if (!leftAlreadyConnected && !rightAlreadyConnected) {
+        // Make tentative connection without validating yet
+        setConnections([...connections, {left: selectedLeft, right: selectedRight}]);
       }
       
       // Reset selections after a short delay
       setTimeout(() => {
         setSelectedLeft(null);
         setSelectedRight(null);
-        setMessage(null);
-      }, 1500);
+      }, 300);
     }
-  }, [selectedLeft, selectedRight, connections, question.pairs]);
+  }, [selectedLeft, selectedRight, connections, attemptedPairs]);
   
-  // Check if game is complete and show validation
+  // Check if game is complete
   useEffect(() => {
     // Count how many equivalent pairs there are in total
     const equivalentPairCount = question.pairs.filter(p => p.isEquivalent).length;
     
-    // Show "submit answer" button when all pairs are matched
+    // Show "submit answer" button when enough pairs are connected
     if (connections.length >= equivalentPairCount && connections.length > 0) {
       setGameComplete(true);
+    } else {
+      setGameComplete(false);
     }
     
     // Only validate when explicitly requested (via Submit Answer button)
     if (shouldValidate) {
-      onAnswer(connections.length, equivalentPairCount);
-      setShouldValidate(false);
+      // Validate all connections
+      const correctConnections = connections.filter(conn => {
+        // Find the pair for the connected left item
+        const leftPair = question.pairs.find(p => p.id === conn.left);
+        // Find the pair for the connected right item
+        const rightPair = question.pairs.find(p => p.id === conn.right);
+        
+        if (leftPair && rightPair) {
+          // Calculate the fractions
+          const leftFraction = leftPair.leftSide.colored / leftPair.leftSide.total;
+          const rightFraction = rightPair.rightSide.colored / rightPair.rightSide.total;
+          
+          // Check if equivalent
+          return Math.abs(leftFraction - rightFraction) < 0.001; // Account for floating point errors
+        }
+        return false;
+      });
+      
+      // If not all connections are correct, show error message
+      if (correctConnections.length < connections.length) {
+        setMessage("Some matches are incorrect. Try again!");
+        
+        // Delay to show the message before resetting
+        setTimeout(() => {
+          setMessage(null);
+          setConnections(correctConnections); // Keep only correct connections
+        }, 2000);
+      } else {
+        setMessage("Good matches!");
+        // Pass the score to parent component after delay
+        setTimeout(() => {
+          onAnswer(correctConnections.length, equivalentPairCount);
+          setShouldValidate(false);
+        }, 1500);
+      }
     }
   }, [connections, question.pairs, onAnswer, shouldValidate]);
   
@@ -153,6 +182,7 @@ const EquivalentFractionsGame: React.FC<EquivalentFractionsGameProps> = ({
     setSelectedRight(null);
     setMessage(null);
     setGameComplete(false);
+    setAttemptedPairs([]);
   };
 
   // Submit answer and validate
