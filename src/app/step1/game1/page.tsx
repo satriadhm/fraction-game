@@ -54,13 +54,13 @@ const Game1 = () => {
   // Define the multiple choice questions
   const multipleChoiceQuestions = [
     {
-      question: "What fraction of the pizza is shaded?",
+      question: "Ms. Intan bought a pizza and cut it into 4 equal parts. She ate 1 part of the pizza.\nWhat fraction of the pizza is left?",
       image: "/pizza-3-4.png", // Use consistent 'image' property
       options: ["1/4", "2/4", "3/4", "1/2"],
       correctAnswer: "3/4",
     },
     {
-      question: "If 2 slices out of 8 are eaten, what fraction remains?",
+      question: "You have 10 slices of pizza.\n You want to share them with four friends.\n How many slices would each of you get??",
       options: ["2/8", "6/8", "3/4", "1/4"],
       correctAnswer: "6/8",
     },
