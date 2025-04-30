@@ -58,7 +58,7 @@ const NavigationButton: React.FC<NavigationButtonProps> = ({
       color={color}
       size={size}
       hoverEffect={hoverEffect}
-      className={className}
+      className={`outline-none focus:outline-none ${className}`}
       icon={icon && placement === "start" ? <Icon type={icon} /> : undefined}
     >
       {label}
