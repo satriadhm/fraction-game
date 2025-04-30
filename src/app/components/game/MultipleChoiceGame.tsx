@@ -3,7 +3,6 @@
 import React from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
-import AnimatedButton from "../molecules/AnimatedButton";
 
 interface MultipleChoiceGameProps {
   question: {
