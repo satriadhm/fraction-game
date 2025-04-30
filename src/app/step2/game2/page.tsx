@@ -26,6 +26,7 @@ const Game2 = () => {
 
   // Stop loading when component mounts
   useEffect(() => {
+    // Pastikan loading dihentikan segera setelah komponen dimuat
     stopLoading();
   }, [stopLoading]);
 
