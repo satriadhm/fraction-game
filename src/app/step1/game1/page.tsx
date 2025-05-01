@@ -116,9 +116,9 @@ const Game1 = () => {
       correctAnswer: "2",
     },
     {
-      question: "Which fraction is equivalent to 1/2?",
-      options: ["2/4", "3/6", "4/8", "All of the above"],
-      correctAnswer: "All of the above",
+      question: "If you color 3 slices of a pizza with 6 equal slices, what fraction of the pizza is colored?",
+      options: ["1/2", "3/6", "2/6", "4/6"],
+      correctAnswer: "1/2",
     },
     {
       question:
