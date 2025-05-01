@@ -62,7 +62,7 @@ const Game1 = () => {
     {
       type: "strip",
       instruction:
-        "What fraction of the whole strip is shaded? Shade 3 out of 10 sections.",
+        "Shade 3 out of 10 sections.",
       totalSections: 10,
       correctSections: 3,
       rows: 2, // Make it a 2x5 grid for better UI
@@ -70,7 +70,7 @@ const Game1 = () => {
     // Question 4: Conditional Strip question
     {
       type: "conditional-strip",
-      instruction: "If I shaded 2 more boxes, how much is shaded now?",
+      instruction: "Shade 5 out of 10",
       initialShadedSections: [0], // The first section is already shaded
       additionalSections: 2, // The student needs to shade 2 more
       totalSections: 10, // Total of 10 sections in the strip
