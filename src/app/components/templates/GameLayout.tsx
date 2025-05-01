@@ -1,4 +1,4 @@
-import React, { ReactNode } from "react";
+import React, { ReactNode, useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import Typography from "../atoms/Typography";
@@ -63,6 +63,14 @@ const GameLayout: React.FC<GameLayoutProps> = ({
 }) => {
   const router = useRouter();
 
+  // Local state to control confetti rendering
+  const [displayConfetti, setDisplayConfetti] = useState(false);
+
+  // Control confetti display with proper useEffect dependencies
+  useEffect(() => {
+    setDisplayConfetti(showConfetti);
+  }, [showConfetti]);
+
   // Map feedback type to FeedbackPopup type
   const feedbackTypeMap = {
     success: "success",
@@ -82,7 +90,7 @@ const GameLayout: React.FC<GameLayoutProps> = ({
       >
         {/* Show confetti effect when triggered */}
         <ConfettiEffect
-          show={showConfetti}
+          show={displayConfetti}
           duration={3}
           pieces={50}
           origin="top"

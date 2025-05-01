@@ -89,8 +89,19 @@ const ConfettiEffect: React.FC<ConfettiEffectProps> = ({
       }, duration * 1000 + 500); // Extra time to ensure all animations complete
 
       return () => clearTimeout(timer);
+    } else if (!show && confetti.length > 0) {
+      // Add this condition to clear confetti when show becomes false
+      setConfetti([]);
+      setIsComplete(false);
     }
-  }, [show, duration, onComplete, isComplete, generateConfetti]);
+  }, [
+    show,
+    duration,
+    onComplete,
+    generateConfetti,
+    isComplete,
+    confetti.length,
+  ]);
 
   // Calculate starting position based on origin
   const getStartPosition = (origin: ConfettiOrigin) => {

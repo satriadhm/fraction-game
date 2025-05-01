@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import GameLayout from "../../components/templates/GameLayout";
 import GameResults from "../../components/game/GameResult";
@@ -33,12 +33,26 @@ const Game2 = () => {
   const { stopLoading } = usePageLoader();
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const [showExplanation, setShowExplanation] = useState(false);
+  // Control confetti locally to prevent render loops
+  const [shouldShowConfetti, setShouldShowConfetti] = useState(false);
 
   // Game state
   const game = useGameState({
     totalQuestions: 10,
     autoAdvanceDelay: 2000,
   });
+
+  // Handle the confetti state properly
+  useEffect(() => {
+    setShouldShowConfetti(game.showConfetti);
+
+    if (game.showConfetti) {
+      const timer = setTimeout(() => {
+        setShouldShowConfetti(false);
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [game.showConfetti]);
 
   // Stop loading when component mounts
   useEffect(() => {
@@ -242,76 +256,101 @@ const Game2 = () => {
     { type: "decimal-matching", id: 10, content: decimalMatchingQuestions[0] },
   ];
 
+  // Get current question - moved this outside conditional rendering
+  const currentQuestion = allQuestions[game.currentQuestion];
+
+  // Define all handler functions outside conditional rendering to follow React Hooks rules
+
+  // Handle answer for equivalent fractions matching game
+  const handleEquivalentFractionsAnswer = useCallback(
+    (score: number, total: number) => {
+      const isCorrect = score === total;
+      game.handleAnswer(isCorrect);
+    },
+    [game]
+  );
+
+  // Handle multiple choice or true/false answer
+  const handleChoiceAnswer = useCallback(
+    (selectedOption: string) => {
+      const correctAnswer = currentQuestion?.content?.correctAnswer;
+      const isCorrect = selectedOption === correctAnswer;
+      setSelectedAnswer(selectedOption);
+
+      // Short delay to show the explanation
+      setTimeout(() => {
+        setShowExplanation(true);
+
+        // Auto advance after showing explanation
+        setTimeout(() => {
+          game.handleAnswer(isCorrect);
+          setSelectedAnswer(null);
+          setShowExplanation(false);
+        }, 2500);
+      }, 500);
+    },
+    [currentQuestion, game]
+  );
+
+  // Handle visual selection answer
+  const handleVisualSelectionAnswer = useCallback(
+    (selectedLabel: string) => {
+      const correctAnswer = currentQuestion?.content?.correctAnswer;
+      const isCorrect = selectedLabel === correctAnswer;
+      setSelectedAnswer(selectedLabel);
+
+      setTimeout(() => {
+        setShowExplanation(true);
+
+        setTimeout(() => {
+          game.handleAnswer(isCorrect);
+          setSelectedAnswer(null);
+          setShowExplanation(false);
+        }, 2500);
+      }, 500);
+    },
+    [currentQuestion, game]
+  );
+
+  // Handle fraction recipe answer
+  const handleFractionRecipeAnswer = useCallback(
+    (isCorrect: boolean) => {
+      game.handleAnswer(isCorrect);
+    },
+    [game]
+  );
+
+  // Handle decimal matching answer
+  const handleDecimalMatchingAnswer = useCallback(
+    (isCorrect: boolean) => {
+      game.handleAnswer(isCorrect);
+    },
+    [game]
+  );
+
+  // Reset game function
+  const resetGameHandler = useCallback(() => {
+    game.resetGame();
+    setSelectedAnswer(null);
+    setShowExplanation(false);
+    setShouldShowConfetti(false);
+  }, [game]);
+
   // Show results when game is complete
   if (game.gameComplete) {
     return (
       <GameResults
         score={game.score}
         totalQuestions={allQuestions.length}
-        onRestartGame={() => {
-          game.resetGame();
-          setSelectedAnswer(null);
-          setShowExplanation(false);
-        }}
+        onRestartGame={resetGameHandler}
       />
     );
   }
 
-  // Get current question
-  const currentQuestion = allQuestions[game.currentQuestion];
-
-  // Handle answer for equivalent fractions matching game
-  const handleEquivalentFractionsAnswer = (score: number, total: number) => {
-    const isCorrect = score === total;
-    game.handleAnswer(isCorrect);
-  };
-
-  // Handle multiple choice or true/false answer
-  const handleChoiceAnswer = (selectedOption: string) => {
-    const isCorrect = selectedOption === currentQuestion.content.correctAnswer;
-    setSelectedAnswer(selectedOption);
-
-    // Short delay to show the explanation
-    setTimeout(() => {
-      setShowExplanation(true);
-
-      // Auto advance after showing explanation
-      setTimeout(() => {
-        game.handleAnswer(isCorrect);
-        setSelectedAnswer(null);
-        setShowExplanation(false);
-      }, 2500);
-    }, 500);
-  };
-
-  // Handle visual selection answer
-  const handleVisualSelectionAnswer = (selectedLabel: string) => {
-    const isCorrect = selectedLabel === currentQuestion.content.correctAnswer;
-    setSelectedAnswer(selectedLabel);
-
-    setTimeout(() => {
-      setShowExplanation(true);
-
-      setTimeout(() => {
-        game.handleAnswer(isCorrect);
-        setSelectedAnswer(null);
-        setShowExplanation(false);
-      }, 2500);
-    }, 500);
-  };
-
-  // Handle fraction recipe answer
-  const handleFractionRecipeAnswer = (isCorrect: boolean) => {
-    game.handleAnswer(isCorrect);
-  };
-
-  // Handle decimal matching answer
-  const handleDecimalMatchingAnswer = (isCorrect: boolean) => {
-    game.handleAnswer(isCorrect);
-  };
-
   // Render the appropriate game component based on question type
   const renderQuestionComponent = () => {
+    if (!currentQuestion) return null;
+
     switch (currentQuestion.type) {
       case "equivalent-matching":
         return (
@@ -383,7 +422,7 @@ const Game2 = () => {
       currentQuestion={game.currentQuestion}
       totalQuestions={allQuestions.length}
       score={game.score}
-      showConfetti={game.showConfetti}
+      showConfetti={shouldShowConfetti} // Using the local state to control confetti
       showFeedback={game.showFeedback}
       feedbackMessage={
         game.showFeedback === "success"
@@ -397,7 +436,7 @@ const Game2 = () => {
       backButtonPath="/step2"
     >
       <motion.div
-        key={currentQuestion.id}
+        key={currentQuestion?.id}
         initial={{ opacity: 0, x: 20 }}
         animate={{ opacity: 1, x: 0 }}
         exit={{ opacity: 0, x: -20 }}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { useGameState } from "./useStateGame";
 
 interface UseTwoStageGameProps {
@@ -17,6 +17,7 @@ export function useTwoStageGame({
   autoAdvanceDelay = 1500,
 }: UseTwoStageGameProps) {
   const [currentStage, setCurrentStage] = useState<"first" | "second">("first");
+  const stageChangeRef = useRef(false);
 
   // First stage game state
   const firstStage = useGameState({
@@ -30,11 +31,24 @@ export function useTwoStageGame({
     autoAdvanceDelay,
   });
 
-  // When first stage is complete, move to second stage
-  if (firstStage.gameComplete && currentStage === "first") {
-    setCurrentStage("second");
-    firstStage.resetGame(); // Reset first stage for potential replay
-  }
+  // Handle stage change with useEffect to avoid infinite loops
+  useEffect(() => {
+    // Only change stage if first stage is complete and we're still in first stage
+    if (
+      firstStage.gameComplete &&
+      currentStage === "first" &&
+      !stageChangeRef.current
+    ) {
+      stageChangeRef.current = true; // Set flag to prevent multiple stage changes
+
+      // Use setTimeout to delay the stage change slightly to avoid render conflicts
+      setTimeout(() => {
+        setCurrentStage("second");
+        firstStage.resetGame(); // Reset first stage for potential replay
+        stageChangeRef.current = false; // Reset flag
+      }, 100);
+    }
+  }, [firstStage.gameComplete, currentStage, firstStage]);
 
   // Calculate total score across both stages
   const totalScore = firstStage.score + secondStage.score;
@@ -53,6 +67,7 @@ export function useTwoStageGame({
     firstStage.resetGame();
     secondStage.resetGame();
     setCurrentStage("first");
+    stageChangeRef.current = false;
   }, [firstStage, secondStage]);
 
   return {
