@@ -1,298 +1,399 @@
+// src/app/step3/game3/page.tsx
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
 import GameLayout from "../../components/templates/GameLayout";
-import MultipleQuestion from "../../components/organisms/MultipleQuestion";
 import AnimatedButton from "../../components/molecules/AnimatedButton";
 import Icon from "../../components/atoms/Icon";
-import Image from "next/image";
+import GameResults from "../../components/game/GameResult";
 import { usePageLoader } from "@/app/context/PageLoaderContext";
+import FractionCutterGame from "@/app/components/game/FractionCutterGame";
+import { GAME_LEVELS } from "@/app/data/gameLevel";
 
-const Game3 = () => {
+const Game3Page = () => {
   const router = useRouter();
   const { stopLoading } = usePageLoader();
-  const [currentQuestion, setCurrentQuestion] = useState(0);
+
+  // Game state
+  const [currentLevel, setCurrentLevel] = useState(0);
   const [score, setScore] = useState(0);
+  const [lives, setLives] = useState(3);
   const [showFeedback, setShowFeedback] = useState<
     "success" | "error" | "warning" | "info" | null
   >(null);
   const [showConfetti, setShowConfetti] = useState(false);
   const [gameComplete, setGameComplete] = useState(false);
+  const [gameStarted, setGameStarted] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(20); // seconds per level
+  const [isPaused, setIsPaused] = useState(false);
+  const [timeBonusEarned, setTimeBonusEarned] = useState(0);
+  const [scoreAnimation, setScoreAnimation] = useState(false);
+  // Removed unused totalScore state
 
-  // Hentikan loading ketika komponen dimuat
-  useEffect(() => {
-    stopLoading();
-  }, [stopLoading]);
+  // Handle level failure function - define first
+  const handleLevelFailed = () => {
+    setLives((prev) => prev - 1);
+    setShowFeedback("error");
 
-  // Game questions about fractions on a number line
-  const questions = [
-    {
-      question: "Which fraction is located at point A on the number line?",
-      imageUrl: "/number-line-1.png", // This would be a number line with point A at 1/4
-      options: ["1/4", "1/2", "3/4", "1"],
-      correctAnswer: "1/4",
-      explanation:
-        "Point A is located at 1/4 of the way between 0 and 1 on the number line.",
-    },
-    {
-      question: "Which point on the number line represents the fraction 2/3?",
-      options: ["Point A", "Point B", "Point C", "Point D"],
-      correctAnswer: "Point C",
-      explanation:
-        "Point C is located at 2/3 of the way between 0 and 1 on the number line.",
-    },
-    {
-      question:
-        "If a fraction is greater than 1, where is it located on the number line?",
-      options: [
-        "To the left of 0",
-        "Between 0 and 1",
-        "At exactly 1",
-        "To the right of 1",
-      ],
-      correctAnswer: "To the right of 1",
-      explanation:
-        "Fractions greater than 1 (like 5/4 or 3/2) are located to the right of 1 on the number line.",
-    },
-    {
-      question: "Which fraction is halfway between 0 and 1 on the number line?",
-      options: ["1/4", "1/3", "1/2", "2/3"],
-      correctAnswer: "1/2",
-      explanation:
-        "1/2 is located exactly halfway between 0 and 1 on the number line.",
-    },
-    {
-      question:
-        "Which of these fractions would be placed furthest to the right on a number line?",
-      options: ["3/4", "5/8", "7/10", "2/3"],
-      correctAnswer: "3/4",
-      explanation:
-        "3/4 = 0.75, which is greater than 5/8 (0.625), 7/10 (0.7), and 2/3 (0.667).",
-    },
-  ];
-
-  const checkAnswer = (selectedOption: string) => {
-    const currentQ = questions[currentQuestion];
-    const isCorrect = selectedOption === currentQ.correctAnswer;
-
-    if (isCorrect) {
-      setScore(score + 1);
-      setShowFeedback("success");
-      setShowConfetti(true);
-    } else {
-      setShowFeedback("error");
-    }
-
-    // Move to next question after feedback
     setTimeout(() => {
       setShowFeedback(null);
-      setShowConfetti(false);
 
-      if (currentQuestion < questions.length - 1) {
-        setCurrentQuestion(currentQuestion + 1);
-      } else {
+      // Game over if no lives left
+      if (lives <= 1) {
         setGameComplete(true);
+      } else {
+        // Retry level
+        setTimeLeft(Math.max(15, 20 - currentLevel));
       }
     }, 2000);
   };
 
-  // Number line visualization component
-  const NumberLine = () => {
-    return (
-      <div className="w-full flex flex-col items-center justify-center mb-6">
-        <div className="relative w-full max-w-md h-16">
-          {/* Main line */}
-          <div className="absolute top-8 left-0 right-0 h-1 bg-blue-600"></div>
+  // Timer logic - fixed dependency array
+  useEffect(() => {
+    if (!gameStarted || gameComplete || isPaused || showFeedback) return;
 
-          {/* Tick marks */}
-          <div className="absolute top-4 left-0 w-1 h-8 bg-blue-600"></div>
-          <div className="absolute top-4 left-1/4 w-1 h-8 bg-blue-600"></div>
-          <div className="absolute top-4 left-1/2 w-1 h-8 bg-blue-600"></div>
-          <div className="absolute top-4 left-3/4 w-1 h-8 bg-blue-600"></div>
-          <div className="absolute top-4 right-0 w-1 h-8 bg-blue-600"></div>
+    // Set timer
+    const timer = setTimeout(() => {
+      if (timeLeft > 0) {
+        setTimeLeft((prev) => prev - 1);
+      } else {
+        // Time's up!
+        handleLevelFailed();
+      }
+    }, 1000);
 
-          {/* Labels */}
-          <div className="absolute top-14 left-0 text-sm font-bold -translate-x-1">
-            0
-          </div>
-          <div className="absolute top-14 left-1/4 text-sm font-bold -translate-x-1">
-            1/4
-          </div>
-          <div className="absolute top-14 left-1/2 text-sm font-bold -translate-x-1">
-            1/2
-          </div>
-          <div className="absolute top-14 left-3/4 text-sm font-bold -translate-x-1">
-            3/4
-          </div>
-          <div className="absolute top-14 right-0 text-sm font-bold -translate-x-1">
-            1
-          </div>
+    return () => clearTimeout(timer);
+  }, [
+    timeLeft,
+    gameStarted,
+    gameComplete,
+    isPaused,
+    showFeedback,
+    lives,
+    currentLevel,
+  ]);
 
-          {/* Point markers - these would change based on the question */}
-          <motion.div
-            className="absolute top-1 left-1/4 w-6 h-6 rounded-full bg-red-500 text-white flex items-center justify-center -translate-x-3"
-            animate={{ y: [0, -5, 0] }}
-            transition={{ duration: 1, repeat: Infinity }}
-          >
-            A
-          </motion.div>
-          <motion.div
-            className="absolute top-1 left-2/4 w-6 h-6 rounded-full bg-green-500 text-white flex items-center justify-center -translate-x-3"
-            animate={{ y: [0, -5, 0] }}
-            transition={{ duration: 1, repeat: Infinity, delay: 0.2 }}
-          >
-            B
-          </motion.div>
-          <motion.div
-            className="absolute top-1 left-[67%] w-6 h-6 rounded-full bg-blue-500 text-white flex items-center justify-center -translate-x-3"
-            animate={{ y: [0, -5, 0] }}
-            transition={{ duration: 1, repeat: Infinity, delay: 0.4 }}
-          >
-            C
-          </motion.div>
-          <motion.div
-            className="absolute top-1 left-[88%] w-6 h-6 rounded-full bg-purple-500 text-white flex items-center justify-center -translate-x-3"
-            animate={{ y: [0, -5, 0] }}
-            transition={{ duration: 1, repeat: Infinity, delay: 0.6 }}
-          >
-            D
-          </motion.div>
-        </div>
-      </div>
-    );
+  // Stop loading when component mounts
+  useEffect(() => {
+    stopLoading();
+  }, [stopLoading]);
+
+  // Handle level completion
+  const handleLevelComplete = (
+    accuracyPercentage: number,
+    timeBonus: number
+  ) => {
+    // Calculate score based on accuracy and time
+    const levelScore = Math.floor(50 + accuracyPercentage * 50 + timeBonus);
+
+    setTimeBonusEarned(timeBonus);
+    setScore((prev) => prev + levelScore);
+    setScoreAnimation(true);
+    setShowFeedback("success");
+    setShowConfetti(true);
+
+    // Short pause to show feedback
+    setTimeout(() => {
+      setShowFeedback(null);
+      setShowConfetti(false);
+      setScoreAnimation(false);
+
+      // Move to next level or complete game
+      if (currentLevel < GAME_LEVELS.length - 1) {
+        setCurrentLevel((prev) => prev + 1);
+        // Reset timer for next level
+        setTimeLeft(Math.max(15, 20 - currentLevel)); // Gradually decrease time limits
+      } else {
+        setGameComplete(true);
+      }
+    }, 2500);
   };
 
+  // Start game with animation sequence
+  const startGame = () => {
+    setGameStarted(true);
+    setTimeLeft(20);
+  };
+
+  // If game is complete, show results
   if (gameComplete) {
     return (
-      <GameLayout
-        title="Fractions on Number Line"
-        subtitle="Great job completing all the questions!"
-        currentQuestion={questions.length}
-        totalQuestions={questions.length}
+      <GameResults
         score={score}
-        maxScore={questions.length}
-        showConfetti={true}
-        backgroundColor="bg-gradient-to-br from-blue-50 to-blue-100"
+        totalQuestions={GAME_LEVELS.length}
+        onRestartGame={() => {
+          setCurrentLevel(0);
+          setScore(0);
+          setLives(3);
+          setGameComplete(false);
+          setGameStarted(false);
+          setTimeLeft(20);
+        }}
+      />
+    );
+  }
+
+  // Show intro screen if game not started
+  if (!gameStarted) {
+    return (
+      <GameLayout
+        title="Fraction Ninja"
+        subtitle="Cut the line at the exact fraction position!"
+        currentQuestion={0}
+        totalQuestions={GAME_LEVELS.length}
+        score={0}
+        maxScore={GAME_LEVELS.length}
+        backgroundColor="bg-gradient-to-br from-blue-50 to-indigo-100"
         accentColor="blue"
       >
         <motion.div
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          className="bg-white p-8 rounded-2xl shadow-lg text-center"
+          className="bg-white p-8 rounded-2xl shadow-lg text-center max-w-xl mx-auto"
         >
-          <h2 className="text-2xl font-bold text-blue-600 mb-4">
-            Game Completed!
+          <h2 className="text-3xl font-bold text-blue-600 mb-4">
+            Welcome to Fraction Ninja!
           </h2>
-          <p className="text-lg mb-2">
-            Your final score:{" "}
-            <span className="font-bold text-blue-600">
-              {score}/{questions.length}
-            </span>
-          </p>
-          <p className="mb-6">
-            {score === questions.length
-              ? "Perfect score! You're a fraction master!"
-              : `You got ${score} out of ${questions.length} questions correct.`}
-          </p>
 
-          <div className="flex justify-center gap-4 flex-wrap">
-            <AnimatedButton
-              onClick={() => {
-                setCurrentQuestion(0);
-                setScore(0);
-                setGameComplete(false);
-              }}
-              color="green"
-              hoverEffect="bounce"
-              icon={<Icon type="play" />}
-            >
-              Play Again
-            </AnimatedButton>
+          <div className="mb-8">
+            <div className="relative w-40 h-40 mx-auto mb-4">
+              <motion.div
+                animate={{
+                  y: [0, -20, 0],
+                  rotate: [0, 5, 0, -5, 0],
+                }}
+                transition={{
+                  duration: 2,
+                  repeat: Infinity,
+                  repeatType: "reverse",
+                }}
+              >
+                {/* Ninja Character */}
+                <div className="relative">
+                  <svg
+                    width="160"
+                    height="160"
+                    viewBox="0 0 160 160"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    {/* Ninja body with sword */}
+                    <circle cx="80" cy="60" r="30" fill="#333" />
+                    <rect
+                      x="50"
+                      y="60"
+                      width="60"
+                      height="60"
+                      rx="5"
+                      fill="#333"
+                    />
+                    <path d="M80 50 L90 35 L95 40 Z" fill="white" />
+                    <ellipse cx="70" cy="50" rx="5" ry="8" fill="white" />
+                    <ellipse cx="90" cy="50" rx="5" ry="8" fill="white" />
+                    <circle cx="70" cy="50" r="3" fill="#333" />
+                    <circle cx="90" cy="50" r="3" fill="#333" />
 
-            <AnimatedButton
-              onClick={() => router.push("/menu")}
-              color="blue"
-              hoverEffect="wobble"
-              icon={<Icon type="home" />}
-            >
-              Return to Menu
-            </AnimatedButton>
+                    {/* Sword */}
+                    <rect
+                      x="110"
+                      y="80"
+                      width="40"
+                      height="8"
+                      rx="2"
+                      fill="#888"
+                    />
+                    <rect
+                      x="110"
+                      y="80"
+                      width="10"
+                      height="8"
+                      rx="2"
+                      fill="#654321"
+                    />
+                    <path d="M145 80 L160 65 L150 80 Z" fill="#4285F4" />
+                  </svg>
+                </div>
+              </motion.div>
+            </div>
+
+            <p className="text-lg mb-4">
+              Test your fraction skills by cutting lines at the exact positions!
+            </p>
+
+            <div className="bg-blue-50 p-4 rounded-lg mb-4 text-left">
+              <h3 className="font-bold text-blue-700 mb-2">How to Play:</h3>
+              <ul className="list-disc pl-5 space-y-1 text-blue-800">
+                <li>
+                  Move the ninja with{" "}
+                  <span className="font-bold">arrow keys</span> or by{" "}
+                  <span className="font-bold">touch</span>
+                </li>
+                <li>
+                  Cut the line with <span className="font-bold">spacebar</span>{" "}
+                  or by <span className="font-bold">tapping</span>
+                </li>
+                <li>Be as precise as possible to earn maximum points</li>
+                <li>Complete cuts faster to earn time bonuses</li>
+                <li>You have 3 lives - use them wisely!</li>
+              </ul>
+            </div>
           </div>
+
+          <AnimatedButton
+            onClick={startGame}
+            color="blue"
+            size="large"
+            hoverEffect="bounce"
+            icon={<Icon type="play" />}
+          >
+            Start Game
+          </AnimatedButton>
         </motion.div>
       </GameLayout>
     );
   }
 
+  // Main game view
   return (
     <GameLayout
-      title="Fractions on Number Line"
-      subtitle="Identify fractions on the number line"
-      currentQuestion={currentQuestion}
-      totalQuestions={questions.length}
+      title="Fraction Ninja"
+      subtitle={`Level ${currentLevel + 1}: ${
+        GAME_LEVELS[currentLevel]?.name || "Challenge"
+      }`}
+      currentQuestion={currentLevel}
+      totalQuestions={GAME_LEVELS.length}
       score={score}
-      maxScore={questions.length}
       showConfetti={showConfetti}
       showFeedback={showFeedback}
       feedbackMessage={
         showFeedback === "success"
-          ? "Correct! " + questions[currentQuestion].explanation
+          ? `Perfect cut! ${
+              timeBonusEarned > 0
+                ? `Time bonus: +${timeBonusEarned} points!`
+                : ""
+            }`
           : showFeedback === "error"
-          ? "Not quite. " + questions[currentQuestion].explanation
+          ? `Oops! Not quite at ${
+              GAME_LEVELS[currentLevel]?.fraction || "the target"
+            }.`
           : undefined
       }
       onFeedbackComplete={() => setShowFeedback(null)}
-      backgroundColor="bg-gradient-to-br from-blue-50 to-blue-100"
+      backgroundColor="bg-gradient-to-br from-blue-50 to-indigo-100"
       accentColor="blue"
     >
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={currentQuestion}
-          initial={{ x: 100, opacity: 0 }}
-          animate={{ x: 0, opacity: 1 }}
-          exit={{ x: -100, opacity: 0 }}
-          transition={{ duration: 0.3 }}
-        >
-          {/* Display the number line visualization */}
-          {currentQuestion === 1 && <NumberLine />}
-
-          {/* If there's an image for the question, display it */}
-          {questions[currentQuestion].imageUrl && (
-            <div className="flex justify-center mb-6">
-              <motion.div
-                initial={{ scale: 0.8, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ delay: 0.2 }}
-              >
-                <Image
-                  src={questions[currentQuestion].imageUrl}
-                  alt="Number line illustration"
-                  width={400}
-                  height={100}
-                  className="object-contain rounded-lg border-4 border-blue-200 bg-white p-2"
-                />
-              </motion.div>
+      <div className="max-w-xl mx-auto">
+        {/* Stats Bar */}
+        <div className="flex justify-between items-center mb-4 bg-white p-3 rounded-lg shadow-md">
+          <div className="flex space-x-2">
+            {/* Lives */}
+            <div className="flex items-center">
+              {Array.from({ length: lives }).map((_, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ scale: 1 }}
+                  animate={{ scale: [1, 1.2, 1] }}
+                  transition={{ duration: 0.5, delay: i * 0.1 }}
+                >
+                  <svg
+                    className="w-6 h-6 text-red-500 fill-current"
+                    viewBox="0 0 24 24"
+                  >
+                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+                  </svg>
+                </motion.div>
+              ))}
             </div>
-          )}
+          </div>
 
-          {/* If question #0, 2, 3, 4 (which don't have the interactive visualization) */}
-          {(currentQuestion === 0 || currentQuestion >= 2) &&
-            !questions[currentQuestion].imageUrl && <NumberLine />}
+          {/* Timer */}
+          <div className="text-center">
+            <div className="flex items-center justify-center space-x-1">
+              <svg
+                className="w-5 h-5 text-blue-500"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+              <div
+                className={`font-bold text-lg ${
+                  timeLeft <= 5 ? "text-red-500 animate-pulse" : "text-blue-600"
+                }`}
+              >
+                {timeLeft}s
+              </div>
+            </div>
+            <div className="w-full bg-gray-200 h-1 rounded-full overflow-hidden">
+              <motion.div
+                className="h-full bg-blue-600"
+                initial={{ width: "100%" }}
+                animate={{ width: `${(timeLeft / 20) * 100}%` }}
+                transition={{ type: "tween" }}
+              />
+            </div>
+          </div>
 
-          <MultipleQuestion
-            question={questions[currentQuestion].question}
-            options={questions[currentQuestion].options}
-            correctAnswer={questions[currentQuestion].correctAnswer}
-            onSelect={checkAnswer}
-            questionColor="secondary"
-            colorVariation={true}
-            containerClassName="max-w-2xl mx-auto"
+          {/* Score with animation */}
+          <div className="relative">
+            <div className="font-bold text-lg text-purple-700">{score} pts</div>
+            {scoreAnimation && (
+              <motion.div
+                initial={{ opacity: 1, y: 0 }}
+                animate={{ opacity: 0, y: -20 }}
+                exit={{ opacity: 0 }}
+                className="absolute -top-8 right-0 text-green-500 font-bold whitespace-nowrap"
+              >
+                +{timeBonusEarned + 50} pts
+              </motion.div>
+            )}
+          </div>
+        </div>
+
+        {/* Main Game Component */}
+        {GAME_LEVELS[currentLevel] && (
+          <FractionCutterGame
+            level={GAME_LEVELS[currentLevel]}
+            onSuccess={handleLevelComplete}
+            onFailure={handleLevelFailed}
+            isPaused={isPaused || !!showFeedback}
+            timeLeft={timeLeft}
           />
-        </motion.div>
-      </AnimatePresence>
+        )}
+
+        {/* Controls and Options */}
+        <div className="flex justify-between mt-4">
+          <AnimatedButton
+            onClick={() => setIsPaused(!isPaused)}
+            color="purple"
+            size="small"
+            hoverEffect="wobble"
+            icon={<Icon type={isPaused ? "play" : "pause"} />}
+          >
+            {isPaused ? "Resume" : "Pause"}
+          </AnimatedButton>
+
+          <AnimatedButton
+            onClick={() => router.push("/menu")}
+            color="blue"
+            size="small"
+            hoverEffect="wobble"
+            icon={<Icon type="home" />}
+          >
+            Menu
+          </AnimatedButton>
+        </div>
+      </div>
     </GameLayout>
   );
 };
 
-export default Game3;
+export default Game3Page;
