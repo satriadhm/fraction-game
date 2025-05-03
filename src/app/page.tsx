@@ -273,11 +273,10 @@ export default function LandingPage() {
                 <Image
                   src="/logo.png"
                   alt="Logo"
-                  width={50}
-                  height={50}
+                  width={300}
+                  height={300}
                   className="object-contain"
                 />
-                <span className="font-bold text-xl">INTAN</span>
               </div>
               <p className="text-pink-100">
                 Making fraction learning fun and interactive for everyone.
@@ -296,8 +295,8 @@ export default function LandingPage() {
             <div>
               <h4 className="font-bold text-lg mb-4">Contact Us</h4>
               <p className="text-pink-100">
-                Email: support@intan.edu<br />
-                Phone: (123) 456-7890
+                Email: intansilvia531@gmail.com<br />
+                Phone: (+62)82241389340
               </p>
             </div>
           </div>
