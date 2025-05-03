@@ -128,18 +128,18 @@ const Menu = () => {
         </motion.div>
 
         {/* Step Cards */}
-        <div className="relative z-10 flex flex-col md:flex-row items-center justify-between w-full max-w-5xl gap-6">
+        <div className="relative z-10 flex flex-col md:flex-row items-center justify-center w-full max-w-5xl gap-6">
           {/* Step 1 */}
           <motion.div
             onClick={() =>
               handleNavigation("/step1", "Preparing Step 1 content...")
             }
-            className="relative z-10 flex flex-col items-center cursor-pointer bg-white p-6 rounded-2xl shadow-xl border-2 border-blue-200 hover:border-blue-400 transition-colors max-w-xs group w-full"
+            className="relative flex flex-col items-center cursor-pointer bg-white p-6 rounded-2xl shadow-xl border-2 border-blue-200 hover:border-blue-400 transition-colors w-full max-w-xs group"
             initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
           >
-            <div className="absolute -top-3 -right-3 bg-blue-500 text-white rounded-full w-10 h-10 flex items-center justify-center font-bold">
+            <div className="absolute -top-4 -right-4 bg-blue-500 text-white rounded-full w-10 h-10 flex items-center justify-center font-bold text-lg">
               {step1Status.attempts > 0
                 ? step1Status.completed
                   ? "✓"
@@ -147,7 +147,7 @@ const Menu = () => {
                 : "1"}
             </div>
 
-            <div className="relative mb-4">
+            <div className="relative mb-6 h-[120px] flex items-center justify-center">
               <Image
                 src="/pizza-store.png"
                 alt="Step 1"
@@ -167,11 +167,11 @@ const Menu = () => {
               </motion.div>
             </div>
 
-            <div className="text-center mt-2">
-              <h2 className="text-3xl font-bold text-blue-500 group-hover:text-blue-600 transition-colors">
+            <div className="text-center">
+              <h2 className="text-3xl font-bold text-blue-500 group-hover:text-blue-600 transition-colors mb-2">
                 Step 1
               </h2>
-              <span className="inline-block mt-2 px-4 py-2 rounded-full bg-blue-100 text-blue-700 text-sm font-semibold group-hover:bg-blue-200 transition-colors">
+              <span className="inline-block px-4 py-2 rounded-full bg-blue-100 text-blue-700 text-sm font-semibold group-hover:bg-blue-200 transition-colors">
                 Fraction of Shape
               </span>
             </div>
@@ -196,12 +196,12 @@ const Menu = () => {
             onClick={() =>
               handleNavigation("/step2", "Preparing Step 2 content...")
             }
-            className="relative z-10 flex flex-col items-center cursor-pointer bg-white p-6 rounded-2xl shadow-xl border-2 border-pink-200 hover:border-pink-400 transition-colors max-w-xs group w-full"
+            className="relative flex flex-col items-center cursor-pointer bg-white p-6 rounded-2xl shadow-xl border-2 border-pink-200 hover:border-pink-400 transition-colors w-full max-w-xs group"
             initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.4 }}
           >
-            <div className="absolute -top-3 -right-3 bg-pink-500 text-white rounded-full w-10 h-10 flex items-center justify-center font-bold">
+            <div className="absolute -top-4 -right-4 bg-pink-500 text-white rounded-full w-10 h-10 flex items-center justify-center font-bold text-lg">
               {step2Status.attempts > 0
                 ? step2Status.completed
                   ? "✓"
@@ -209,7 +209,7 @@ const Menu = () => {
                 : "2"}
             </div>
 
-            <div className="relative mb-4">
+            <div className="relative mb-6 h-[120px] flex items-center justify-center">
               <Image
                 src="/bakery.png"
                 alt="Step 2"
@@ -229,11 +229,11 @@ const Menu = () => {
               </motion.div>
             </div>
 
-            <div className="text-center mt-2">
-              <h2 className="text-3xl font-bold text-pink-500 group-hover:text-pink-600 transition-colors">
+            <div className="text-center">
+              <h2 className="text-3xl font-bold text-pink-500 group-hover:text-pink-600 transition-colors mb-2">
                 Step 2
               </h2>
-              <span className="inline-block mt-2 px-4 py-2 rounded-full bg-pink-100 text-pink-700 text-sm font-semibold group-hover:bg-pink-200 transition-colors">
+              <span className="inline-block px-4 py-2 rounded-full bg-pink-100 text-pink-700 text-sm font-semibold group-hover:bg-pink-200 transition-colors">
                 Equivalent Fraction
               </span>
             </div>
@@ -258,12 +258,12 @@ const Menu = () => {
             onClick={() =>
               handleNavigation("/step3", "Preparing Step 3 content...")
             }
-            className="relative z-10 flex flex-col items-center cursor-pointer bg-white p-6 rounded-2xl shadow-xl border-2 border-blue-200 hover:border-blue-400 transition-colors max-w-xs group w-full"
+            className="relative flex flex-col items-center cursor-pointer bg-white p-6 rounded-2xl shadow-xl border-2 border-blue-200 hover:border-blue-400 transition-colors w-full max-w-xs group"
             initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.6 }}
           >
-            <div className="absolute -top-3 -right-3 bg-blue-500 text-white rounded-full w-10 h-10 flex items-center justify-center font-bold">
+            <div className="absolute -top-4 -right-4 bg-blue-500 text-white rounded-full w-10 h-10 flex items-center justify-center font-bold text-lg">
               {step3Status.attempts > 0
                 ? step3Status.completed
                   ? "✓"
@@ -271,7 +271,7 @@ const Menu = () => {
                 : "3"}
             </div>
 
-            <div className="relative mb-4">
+            <div className="relative mb-6 h-[120px] flex items-center justify-center">
               <Image
                 src="/stationery.png"
                 alt="Step 3"
@@ -291,11 +291,11 @@ const Menu = () => {
               </motion.div>
             </div>
 
-            <div className="text-center mt-2">
-              <h2 className="text-3xl font-bold text-blue-500 group-hover:text-blue-600 transition-colors">
+            <div className="text-center">
+              <h2 className="text-3xl font-bold text-blue-500 group-hover:text-blue-600 transition-colors mb-2">
                 Step 3
               </h2>
-              <span className="inline-block mt-2 px-4 py-2 rounded-full bg-blue-100 text-blue-700 text-sm font-semibold group-hover:bg-blue-200 transition-colors">
+              <span className="inline-block px-4 py-2 rounded-full bg-blue-100 text-blue-700 text-sm font-semibold group-hover:bg-blue-200 transition-colors">
                 Fraction in Number Line
               </span>
             </div>
