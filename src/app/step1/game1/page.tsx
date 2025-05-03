@@ -68,18 +68,16 @@ const Game1 = () => {
       correctSections: 3,
       rows: 2, // Make it a 2x5 grid for better UI
     },
-    // Question 4: Conditional Strip question
     {
       type: "conditional-strip",
       instruction: "Shade 5 out of 10",
-      initialShadedSections: [0], // The first section is already shaded
-      additionalSections: 2, // The student needs to shade 2 more
-      totalSections: 10, // Total of 10 sections in the strip
-      rows: 2, // 2x5 grid
+      initialShadedSections: [0],
+      additionalSections: 2,
+      totalSections: 10, 
+      rows: 2, 
       explanation:
         "1 was already shaded, plus 2 more would make 3 out of 10 shaded.",
     },
-    // Question 5: Hexagon fraction pattern
     {
       type: "hexagon-fraction",
       instruction: "What fraction of the shape is shaded?",
