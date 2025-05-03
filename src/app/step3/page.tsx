@@ -1,9 +1,11 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import { LearningStepLayout } from "../components";
+import { usePageLoader } from "../context/PageLoaderContext";
 
 const Step3Page = () => {
+  const { stopLoading } = usePageLoader();
   const contentSlides = [
     "Fractions can be represented on a number line, showing their relative position between whole numbers.",
     "A number line helps visualize the size and relationship between different fractions.",
@@ -11,6 +13,10 @@ const Step3Page = () => {
     "Mixed numbers (like 1½) are placed between the whole numbers they fall between.",
     "The number line helps us compare fractions and understand their values better.",
   ];
+
+  useEffect(() => {
+    stopLoading();
+  }, [stopLoading]);
 
   const videoSrc =
     process.env.NEXT_PUBLIC_YOUTUBE_STEP3 ||

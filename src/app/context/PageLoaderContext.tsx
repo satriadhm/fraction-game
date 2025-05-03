@@ -24,7 +24,9 @@ interface PageLoaderProviderProps {
   children: ReactNode;
 }
 
-export const PageLoaderProvider: React.FC<PageLoaderProviderProps> = ({ children }) => {
+export const PageLoaderProvider: React.FC<PageLoaderProviderProps> = ({
+  children,
+}) => {
   const [isLoading, setIsLoading] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState<string>("Loading...");
 
@@ -34,7 +36,10 @@ export const PageLoaderProvider: React.FC<PageLoaderProviderProps> = ({ children
   };
 
   const stopLoading = () => {
-    setIsLoading(false);
+    // Add a small delay to ensure smooth transition
+    setTimeout(() => {
+      setIsLoading(false);
+    }, 1500);
   };
 
   return (

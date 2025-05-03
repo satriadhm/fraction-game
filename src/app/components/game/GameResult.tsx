@@ -8,6 +8,7 @@ import AnimatedButton from "../molecules/AnimatedButton";
 import { CuteStar } from "../atoms/CuteShapes";
 import CuteDecorationEffect from "../organisms/CuteDecorationEffect";
 import { UserStorage } from "@/app/utils/userStorage"; // Add this import
+import { usePageLoader } from "@/app/context/PageLoaderContext";
 
 interface GameResultsProps {
   score: number;
@@ -21,15 +22,13 @@ const GameResults: React.FC<GameResultsProps> = ({
   onRestartGame,
 }) => {
   const router = useRouter();
+  const { startLoading } = usePageLoader();
 
-  // Get current progress
   const progress = UserStorage.getProgress();
   const profile = UserStorage.getProfile();
 
-  // Calculate performance percentage
   const percentage = Math.round((score / totalQuestions) * 100);
 
-  // Determine feedback message based on performance
   const getFeedbackMessage = () => {
     if (percentage >= 90) return "Outstanding! You're a fraction master!";
     if (percentage >= 75)
@@ -148,7 +147,10 @@ const GameResults: React.FC<GameResultsProps> = ({
             </AnimatedButton>
 
             <AnimatedButton
-              onClick={() => router.push("/menu")}
+              onClick={() => {
+                startLoading("Loading Menu...");
+                router.push("/menu");
+              }}
               color="pink"
               hoverEffect="wobble"
               icon={

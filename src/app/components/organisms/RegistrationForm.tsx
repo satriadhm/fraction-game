@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import AnimatedButton from "../molecules/AnimatedButton";
 import { UserStorage } from "@/app/utils/userStorage";
 import { CuteStar, CuteHeart } from "../atoms/CuteShapes";
+import { usePageLoader } from "@/app/context/PageLoaderContext";
 
 interface RegistrationFormProps {
   onComplete?: () => void;
@@ -14,6 +15,7 @@ interface RegistrationFormProps {
 
 const RegistrationForm: React.FC<RegistrationFormProps> = ({ onComplete }) => {
   const router = useRouter();
+  const { startLoading } = usePageLoader();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -67,6 +69,7 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ onComplete }) => {
     if (onComplete) {
       onComplete();
     } else {
+      startLoading("Loading menu...");
       router.push("/menu");
     }
   };

@@ -41,7 +41,7 @@ type FirstStageQuestion =
 
 const Game1 = () => {
   const router = useRouter();
-  const { stopLoading } = usePageLoader();
+  const { stopLoading, startLoading } = usePageLoader();
 
   // Stop loading when component mounts
   useEffect(() => {
@@ -73,8 +73,8 @@ const Game1 = () => {
       instruction: "Shade 5 out of 10",
       initialShadedSections: [0],
       additionalSections: 2,
-      totalSections: 10, 
-      rows: 2, 
+      totalSections: 10,
+      rows: 2,
       explanation:
         "1 was already shaded, plus 2 more would make 3 out of 10 shaded.",
     },
@@ -385,7 +385,10 @@ const Game1 = () => {
         {/* Back button */}
         <div className="mt-6 text-center">
           <AnimatedButton
-            onClick={() => router.push("/menu")}
+            onClick={() => {
+              startLoading("Loading Menu...");
+              router.push("/menu");
+            }}
             color="blue"
             size="small"
             hoverEffect="wobble"

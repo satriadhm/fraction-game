@@ -7,12 +7,14 @@ import { UserStorage } from "@/app/utils/userStorage";
 import AnimatedButton from "../molecules/AnimatedButton";
 import ProgressBar from "../molecules/ProgressBar";
 import { CuteStar, CuteHeart } from "../atoms/CuteShapes";
+import { usePageLoader } from "@/app/context/PageLoaderContext";
 
 interface ProfileCardProps {
   onLogout: () => void;
 }
 
 const ProfileCard: React.FC<ProfileCardProps> = ({ onLogout }) => {
+  const { startLoading } = usePageLoader();
   interface Profile {
     name: string;
     grade: string;
@@ -31,7 +33,10 @@ const ProfileCard: React.FC<ProfileCardProps> = ({ onLogout }) => {
 
   const [progress, setProgress] = useState<Progress | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-
+  const handleLogout = () => {
+    startLoading("Logging out..."); // Tambahkan ini
+    onLogout();
+  };
   useEffect(() => {
     const userProfile = UserStorage.getProfile();
     const userProgress = UserStorage.getProgress();
@@ -211,7 +216,7 @@ const ProfileCard: React.FC<ProfileCardProps> = ({ onLogout }) => {
           Last active: {new Date(progress.lastActive).toLocaleDateString()}
         </p>
         <AnimatedButton
-          onClick={onLogout}
+          onClick={handleLogout}
           color="blue"
           size="small"
           hoverEffect="wobble"

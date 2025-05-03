@@ -1,10 +1,11 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import { LearningStepLayout } from "../components";
+import { usePageLoader } from "../context/PageLoaderContext";
 
 const Step1Page = () => {
-  // Content slides for the step
+  const { stopLoading } = usePageLoader();
   const contentSlides = [
     "Fractions represent parts of a whole. The denominator (bottom number) tells how many equal parts the whole is divided into.",
     "The numerator (top number) tells how many parts we're talking about.",
@@ -13,8 +14,11 @@ const Step1Page = () => {
     "Addition of fractions must have the same denominator.",
   ];
 
-  // YouTube video URL from environment variable or default placeholder
-  const videoSrc = 
+  useEffect(() => {
+    stopLoading();
+  }, [stopLoading]);
+
+  const videoSrc =
     process.env.NEXT_PUBLIC_YOUTUBE_STEP1 ||
     "https://www.youtube.com/embed/placeholder";
 

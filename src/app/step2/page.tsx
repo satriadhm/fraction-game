@@ -1,9 +1,11 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import { LearningStepLayout } from "../components";
+import { usePageLoader } from "../context/PageLoaderContext";
 
 const Step2Page = () => {
+  const { stopLoading } = usePageLoader();
   const contentSlides = [
     "Equivalent fractions represent the same value, even though they may look different.",
     "To find equivalent fractions, multiply or divide both the numerator and denominator by the same number.",
@@ -11,6 +13,10 @@ const Step2Page = () => {
     "Multiplication of fractions is done by multiplying the numerator and denominator.",
     "Division of fractions is done by multiplying by the reciprocal.",
   ];
+
+  useEffect(() => {
+    stopLoading();
+  }, [stopLoading]);
 
   const videoSrc =
     process.env.NEXT_PUBLIC_YOUTUBE_STEP2 ||

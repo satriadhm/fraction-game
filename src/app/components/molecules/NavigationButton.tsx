@@ -43,13 +43,13 @@ const NavigationButton: React.FC<NavigationButtonProps> = ({
   const handleClick = () => {
     if (onClick) onClick();
 
-    // Show loading indicator
+    // Show loading indicator immediately
     startLoading(loadingMessage);
 
-    // Navigate with a small delay for better user experience
+    // Navigate after a very short delay to ensure loading shows
     setTimeout(() => {
       router.push(path);
-    }, 800);
+    }, 100);
   };
 
   return (
@@ -66,5 +66,4 @@ const NavigationButton: React.FC<NavigationButtonProps> = ({
     </AnimatedButton>
   );
 };
-
 export default NavigationButton;

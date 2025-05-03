@@ -1,4 +1,3 @@
-// src/app/page.tsx
 "use client";
 
 import Image from "next/image";
@@ -9,22 +8,23 @@ import EnhancedButton from "./components/molecules/EnhancedButton";
 import LoadingScreen from "./components/molecules/LoadingBar";
 import RegistrationForm from "./components/organisms/RegistrationForm";
 import { UserStorage } from "./utils/userStorage";
-
-// ... (keep existing FloatingDecoration, AnimatedTitle, and Bubble components)
+import { usePageLoader } from "./context/PageLoaderContext";
 
 export default function LandingPage() {
   const router = useRouter();
   const [, setMounted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [showRegistration, setShowRegistration] = useState(false);
+  const { startLoading, stopLoading } = usePageLoader();
 
   useEffect(() => {
     setMounted(true);
+    stopLoading();
     // Check if user is already logged in
     if (UserStorage.isLoggedIn()) {
-      router.push('/menu');
+      router.push("/menu");
     }
-  }, [router]);
+  }, [router, stopLoading]);
 
   const handleStartLearning = () => {
     setShowRegistration(true);
@@ -32,8 +32,9 @@ export default function LandingPage() {
 
   const handleRegistrationComplete = () => {
     setIsLoading(true);
+    startLoading("Setting up your learning space...");
     setTimeout(() => {
-      router.push('/menu');
+      router.push("/menu");
     }, 1500);
   };
 
@@ -96,13 +97,16 @@ export default function LandingPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.7 }}
           >
-            Join <span className="font-bold text-pink-600">INTAN</span> - 
-            <span className="italic"> Innovative Numerical Training for Advancing Fraction </span>
-            where learning math becomes an exciting adventure with interactive games,
-            visual aids, and step-by-step guidance.
+            Join <span className="font-bold text-pink-600">INTAN</span> -
+            <span className="italic">
+              {" "}
+              Innovative Numerical Training for Advancing Fraction{" "}
+            </span>
+            where learning math becomes an exciting adventure with interactive
+            games, visual aids, and step-by-step guidance.
           </motion.p>
 
-          <motion.div 
+          <motion.div
             className="flex gap-4 items-center"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -111,8 +115,8 @@ export default function LandingPage() {
             <EnhancedButton onClick={handleStartLearning} size="large">
               Start Learning Now
             </EnhancedButton>
-            <a 
-              href="#features" 
+            <a
+              href="#features"
               className="text-purple-600 font-semibold hover:text-purple-700 transition-colors"
             >
               Learn More →
@@ -120,7 +124,7 @@ export default function LandingPage() {
           </motion.div>
 
           {/* Stats */}
-          <motion.div 
+          <motion.div
             className="flex gap-8 pt-8"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -142,7 +146,7 @@ export default function LandingPage() {
         </motion.div>
 
         {/* Hero Image - Enhanced */}
-        <motion.div 
+        <motion.div
           className="flex-1 flex justify-center mt-12 md:mt-0 z-20"
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -173,20 +177,20 @@ export default function LandingPage() {
       </section>
 
       {/* FEATURES SECTION - Enhanced */}
-      <section 
+      <section
         id="features"
         className="px-6 md:px-16 py-20 bg-white bg-opacity-95 relative overflow-hidden"
       >
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-pink-50/50 to-transparent" />
-        
-        <motion.div 
+
+        <motion.div
           className="relative z-10"
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
         >
           <div className="text-center mb-16">
-            <motion.h2 
+            <motion.h2
               className="text-4xl font-bold mb-4"
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -196,14 +200,15 @@ export default function LandingPage() {
                 Learning Features
               </span>
             </motion.h2>
-            <motion.p 
+            <motion.p
               className="text-gray-600 text-lg max-w-2xl mx-auto"
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.2 }}
             >
-              Discover our carefully designed learning modules that make fractions easy and fun to understand
+              Discover our carefully designed learning modules that make
+              fractions easy and fun to understand
             </motion.p>
           </div>
 
@@ -212,28 +217,31 @@ export default function LandingPage() {
             {[
               {
                 title: "Fraction of Shape",
-                description: "Learn to visualize fractions with engaging shapes and interactive models",
+                description:
+                  "Learn to visualize fractions with engaging shapes and interactive models",
                 icon: "/pizza-store.png",
                 color: "from-pink-500 to-red-500",
                 borderColor: "border-pink-200",
-                delay: 0.2
+                delay: 0.2,
               },
               {
                 title: "Equivalent Fractions",
-                description: "Understand equivalent fractions through fun interactive activities",
+                description:
+                  "Understand equivalent fractions through fun interactive activities",
                 icon: "/bakery.png",
                 color: "from-purple-500 to-pink-500",
                 borderColor: "border-purple-200",
-                delay: 0.4
+                delay: 0.4,
               },
               {
                 title: "Number Line",
-                description: "Place fractions on a number line and compare their values",
+                description:
+                  "Place fractions on a number line and compare their values",
                 icon: "/stationery.png",
                 color: "from-blue-500 to-cyan-500",
                 borderColor: "border-blue-200",
-                delay: 0.6
-              }
+                delay: 0.6,
+              },
             ].map((feature, index) => (
               <motion.div
                 key={index}
@@ -244,12 +252,14 @@ export default function LandingPage() {
                 transition={{ delay: feature.delay }}
                 whileHover={{ y: -10 }}
               >
-                <div className={`bg-gradient-to-br ${feature.color} p-4 rounded-2xl w-20 h-20 flex items-center justify-center mb-6 shadow-lg`}>
+                <div
+                  className={`bg-gradient-to-br ${feature.color} p-4 rounded-2xl w-20 h-20 flex items-center justify-center mb-6 shadow-lg`}
+                >
                   <Image
                     src={feature.icon}
                     alt={feature.title}
-                    width={50}
-                    height={50}
+                    width={100}
+                    height={100}
                   />
                 </div>
                 <h3 className="text-2xl font-bold mb-3 bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
@@ -282,29 +292,42 @@ export default function LandingPage() {
                 Making fraction learning fun and interactive for everyone.
               </p>
             </div>
-            
+
             <div>
               <h4 className="font-bold text-lg mb-4">Quick Links</h4>
               <ul className="space-y-2 text-pink-100">
-                <li><a href="#" className="hover:text-white transition-colors">About Us</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Contact</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Privacy Policy</a></li>
+                <li>
+                  <a href="#" className="hover:text-white transition-colors">
+                    About Us
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="hover:text-white transition-colors">
+                    Contact
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="hover:text-white transition-colors">
+                    Privacy Policy
+                  </a>
+                </li>
               </ul>
             </div>
-            
+
             <div>
               <h4 className="font-bold text-lg mb-4">Contact Us</h4>
               <p className="text-pink-100">
-                Email: intansilvia531@gmail.com<br />
+                Email: intansilvia531@gmail.com
+                <br />
                 Phone: (+62)82241389340
               </p>
             </div>
           </div>
-         <div className="border-t border-pink-400 mt-12 pt-8 text-center text-pink-100">
-           <p>© 2025 INTAN. All rights reserved.</p>
-         </div>
-       </div>
-     </footer>
-   </main>
- );
+          <div className="border-t border-pink-400 mt-12 pt-8 text-center text-pink-100">
+            <p>© 2025 INTAN. All rights reserved.</p>
+          </div>
+        </div>
+      </footer>
+    </main>
+  );
 }
