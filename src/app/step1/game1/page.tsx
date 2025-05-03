@@ -21,6 +21,8 @@ import CandyProgressBar from "../../components/game/CandyProgressBar";
 import MultipleChoiceGame from "../../components/game/MultipleChoiceGame";
 import { useTwoStageGame } from "@/app/hooks";
 import { usePageLoader } from "@/app/context/PageLoaderContext";
+import { UserStorage } from "@/app/utils/userStorage";
+import GameStats from "@/app/components/game/GameStats";
 
 // Define types
 interface PizzaQuestion {
@@ -61,8 +63,7 @@ const Game1 = () => {
     // Question 3: Strip question
     {
       type: "strip",
-      instruction:
-        "Shade 3 out of 10 sections.",
+      instruction: "Shade 3 out of 10 sections.",
       totalSections: 10,
       correctSections: 3,
       rows: 2, // Make it a 2x5 grid for better UI
@@ -116,7 +117,8 @@ const Game1 = () => {
       correctAnswer: "2",
     },
     {
-      question: "If you color 3 slices of a pizza with 6 equal slices, what fraction of the pizza is colored?",
+      question:
+        "If you color 3 slices of a pizza with 6 equal slices, what fraction of the pizza is colored?",
       options: ["1/2", "3/6", "2/6", "4/6"],
       correctAnswer: "1/2",
     },
@@ -142,6 +144,7 @@ const Game1 = () => {
 
   // If game is complete, show results
   if (game.gameComplete) {
+    UserStorage.updateStepProgress("step1", game.totalScore, true);
     return (
       <GameResults
         score={game.totalScore}
@@ -280,6 +283,7 @@ const Game1 = () => {
               : "Answer these multiple choice questions about fractions"}
           </p>
         </motion.div>
+        <GameStats currentStep="step1" />
 
         {/* Game progress tracker */}
         <div className="mb-6">

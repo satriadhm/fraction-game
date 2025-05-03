@@ -12,6 +12,8 @@ import { usePageLoader } from "@/app/context/PageLoaderContext";
 import SVGVisualSelectionGame from "@/app/components/game/SVGVisualSelectionGame";
 import FractionRecipeGame from "@/app/components/game/FractionRecipe";
 import DecimalMatchingGame from "@/app/components/game/DecimalMatchingGame";
+import { UserStorage } from "@/app/utils/userStorage";
+import GameStats from "@/app/components/game/GameStats";
 
 // Define different question types
 type QuestionType =
@@ -338,6 +340,7 @@ const Game2 = () => {
 
   // Show results when game is complete
   if (game.gameComplete) {
+    UserStorage.updateStepProgress("step2", game.score, true);
     return (
       <GameResults
         score={game.score}
@@ -435,6 +438,7 @@ const Game2 = () => {
       accentColor="purple"
       backButtonPath="/step2"
     >
+      <GameStats currentStep="step2" />
       <motion.div
         key={currentQuestion?.id}
         initial={{ opacity: 0, x: 20 }}

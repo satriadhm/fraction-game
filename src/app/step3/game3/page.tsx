@@ -11,6 +11,8 @@ import GameResults from "../../components/game/GameResult";
 import { usePageLoader } from "@/app/context/PageLoaderContext";
 import FractionCutterGame from "@/app/components/game/FractionCutterGame";
 import { GAME_LEVELS } from "@/app/data/gameLevel";
+import { UserStorage } from "@/app/utils/userStorage";
+import GameStats from "@/app/components/game/GameStats";
 
 const Game3Page = () => {
   const router = useRouter();
@@ -119,6 +121,8 @@ const Game3Page = () => {
 
   // If game is complete, show results
   if (gameComplete) {
+    UserStorage.updateStepProgress("step3", score, true);
+
     return (
       <GameResults
         score={score}
@@ -285,6 +289,7 @@ const Game3Page = () => {
       accentColor="blue"
     >
       <div className="max-w-xl mx-auto">
+        <GameStats currentStep="step3" />
         {/* Stats Bar */}
         <div className="flex justify-between items-center mb-4 bg-white p-3 rounded-lg shadow-md">
           <div className="flex space-x-2">

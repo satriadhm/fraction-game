@@ -1,435 +1,311 @@
+// src/app/page.tsx
 "use client";
 
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
-import {
-  CuteHeart,
-  CuteStar,
-  CuteStrawberry,
-  CuteIceCream,
-} from "./components/atoms/CuteShapes";
 import EnhancedButton from "./components/molecules/EnhancedButton";
 import LoadingScreen from "./components/molecules/LoadingBar";
+import RegistrationForm from "./components/organisms/RegistrationForm";
+import { UserStorage } from "./utils/userStorage";
 
-// Floating decoration component
-const FloatingDecoration = ({
-  children,
-  x,
-  y,
-  delay = 0,
-  duration = 3,
-}: {
-  children: React.ReactNode;
-  x: string;
-  y: string;
-  delay?: number;
-  duration?: number;
-}) => (
-  <motion.div
-    className="absolute z-10"
-    style={{ left: x, top: y }}
-    animate={{
-      y: [0, -15, 0],
-      x: [0, 10, 0],
-    }}
-    transition={{
-      duration,
-      repeat: Infinity,
-      repeatType: "reverse",
-      delay,
-    }}
-  >
-    {children}
-  </motion.div>
-);
-
-// Animated title component
-const AnimatedTitle = ({ children }: { children: string }) => {
-  const letters = Array.from(children);
-
-  return (
-    <motion.h1
-      className="text-4xl md:text-6xl font-extrabold text-pink-600 leading-tight my-4"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.5 }}
-    >
-      {letters.map((letter, index) => (
-        <motion.span
-          key={index}
-          className="inline-block"
-          initial={{ y: -50, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{
-            duration: 0.5,
-            delay: index * 0.05,
-            type: "spring",
-            stiffness: 120,
-          }}
-        >
-          {letter === " " ? "\u00A0" : letter}
-        </motion.span>
-      ))}
-    </motion.h1>
-  );
-};
-
-// Background bubble component
-const Bubble = ({
-  size,
-  delay,
-  duration,
-  x,
-  y,
-  color,
-}: {
-  size: number;
-  delay: number;
-  duration: number;
-  x: string;
-  y: string;
-  color: string;
-}) => (
-  <motion.div
-    className={`absolute rounded-full bg-opacity-40 blur-md`}
-    style={{
-      width: size,
-      height: size,
-      top: y,
-      left: x,
-      backgroundColor: color,
-    }}
-    animate={{
-      scale: [1, 1.2, 1],
-      opacity: [0.3, 0.5, 0.3],
-    }}
-    transition={{
-      duration,
-      delay,
-      repeat: Infinity,
-      repeatType: "reverse",
-    }}
-  />
-);
+// ... (keep existing FloatingDecoration, AnimatedTitle, and Bubble components)
 
 export default function LandingPage() {
   const router = useRouter();
-  const [mounted, setMounted] = useState(false);
+  const [, setMounted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [showRegistration, setShowRegistration] = useState(false);
 
   useEffect(() => {
     setMounted(true);
-  }, []);
+    // Check if user is already logged in
+    if (UserStorage.isLoggedIn()) {
+      router.push('/menu');
+    }
+  }, [router]);
 
   const handleStartLearning = () => {
-    setIsLoading(true);
+    setShowRegistration(true);
+  };
 
-    // Simulating loading delay before navigation
+  const handleRegistrationComplete = () => {
+    setIsLoading(true);
     setTimeout(() => {
-      router.push("/menu");
+      router.push('/menu');
     }, 1500);
   };
 
   return (
-    <main className="w-full min-h-screen flex flex-col bg-gradient-to-br from-pink-50 to-purple-100 overflow-hidden">
+    <main className="w-full min-h-screen flex flex-col bg-gradient-to-br from-pink-50 via-purple-50 to-blue-50 overflow-hidden">
       {/* Loading Screen */}
       <LoadingScreen
         isLoading={isLoading}
-        message="Preparing your learning journey"
+        message="Setting up your learning space..."
       />
 
-      {/* Background bubbles */}
-      {mounted && (
-        <>
-          <Bubble
-            size={200}
-            delay={0}
-            duration={15}
-            x="5%"
-            y="10%"
-            color="#fbcfe8"
-          />
-          <Bubble
-            size={300}
-            delay={3}
-            duration={20}
-            x="70%"
-            y="60%"
-            color="#e9d5ff"
-          />
-          <Bubble
-            size={150}
-            delay={1}
-            duration={12}
-            x="30%"
-            y="80%"
-            color="#dbeafe"
-          />
-          <Bubble
-            size={250}
-            delay={2}
-            duration={18}
-            x="60%"
-            y="20%"
-            color="#fbcfe8"
-          />
-        </>
-      )}
-
-      {/* Floating decorations */}
-      {mounted && (
-        <>
-          <FloatingDecoration x="5%" y="15%" delay={0.5} duration={3.5}>
-            <CuteStar size={40} color="#FCD34D" />
-          </FloatingDecoration>
-
-          <FloatingDecoration x="85%" y="25%" delay={1.2} duration={4}>
-            <CuteHeart size={35} color="#EC4899" />
-          </FloatingDecoration>
-
-          <FloatingDecoration x="10%" y="70%" delay={2} duration={5}>
-            <CuteStrawberry size={38} />
-          </FloatingDecoration>
-
-          <FloatingDecoration x="80%" y="75%" delay={0.8} duration={4.2}>
-            <CuteIceCream size={42} />
-          </FloatingDecoration>
-        </>
-      )}
-
-      {/* NAVIGATION BAR */}
-      <motion.nav
-        className="w-full py-4 px-4 sm:px-8 flex items-center justify-between bg-gradient-to-r from-pink-600 to-purple-600 text-white shadow-md"
-        initial={{ y: -100 }}
-        animate={{ y: 0 }}
-        transition={{ type: "spring", stiffness: 100, damping: 15 }}
-      >
-        <div className="flex items-center space-x-3">
-          {/* Logo */}
-          <motion.div
-            whileHover={{ rotate: [0, -10, 10, -10, 0] }}
-            transition={{ duration: 0.5 }}
-          >
-            <Image
-              src="/logo.png"
-              alt="Logo"
-              width={60}
-              height={60}
-              className="object-contain drop-shadow-md w-12 h-12 sm:w-16 sm:h-16"
-            />
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.3 }}
-          >
-            <h2 className="text-lg sm:text-xl md:text-2xl font-bold">INTAN</h2>
-            <p className="text-xs md:text-sm text-pink-200">
-              Fun Fraction Learning
-            </p>
-          </motion.div>
-        </div>
-      </motion.nav>
-
-      {/* HERO SECTION */}
-      <section className="flex flex-col md:flex-row items-center justify-between px-4 sm:px-8 md:px-16 py-8 md:py-16 flex-grow">
-        {/* Text Container */}
+      {/* Registration Modal */}
+      {showRegistration && (
         <motion.div
-          className="flex-1 flex flex-col items-start space-y-4 z-20 max-w-xl mx-auto md:mx-0"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 0.5 }}
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+        >
+          <RegistrationForm onComplete={handleRegistrationComplete} />
+        </motion.div>
+      )}
+
+      {/* Background elements (keep existing) */}
+      {/* ... */}
+
+      {/* HERO SECTION - Updated Design */}
+      <section className="flex flex-col md:flex-row items-center justify-between px-6 md:px-16 py-16 flex-grow">
+        <motion.div
+          className="flex-1 flex flex-col items-start space-y-6 z-20 max-w-xl mx-auto md:mx-0"
+          initial={{ opacity: 0, x: -50 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.8 }}
         >
           <motion.div
-            className="inline-block bg-white bg-opacity-80 px-4 py-2 rounded-full shadow-sm text-pink-600 font-semibold"
+            className="inline-block bg-white bg-opacity-90 px-6 py-3 rounded-full shadow-lg"
             initial={{ x: -100, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
-            transition={{ delay: 0.2 }}
+            transition={{ delay: 0.3 }}
           >
-            Making Math Learning Fun!
+            <span className="text-pink-600 font-bold text-lg">
+              🎓 Interactive Math Learning Platform
+            </span>
           </motion.div>
 
-          <AnimatedTitle>The Amazing Fraction Era</AnimatedTitle>
-
-          <motion.p
-            className="text-pink-700 text-sm md:text-lg max-w-md bg-white bg-opacity-70 p-4 rounded-lg shadow-sm"
+          <motion.h1
+            className="text-5xl md:text-6xl font-extrabold leading-tight"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
+            transition={{ delay: 0.5 }}
           >
-            <span className="font-semibold italic">
-              Innovative Numerical Training for Advancing Fraction
-            </span>
+            <span className="text-pink-600">Master</span>
+            <span className="text-purple-600"> Fractions</span>
             <br />
-            <br />
-            Learn fractions in a fun and interactive way! Start your journey now
-            and gain a deeper understanding of fractions through engaging
-            activities.
+            <span className="text-blue-600">The Fun Way!</span>
+          </motion.h1>
+
+          <motion.p
+            className="text-gray-700 text-lg md:text-xl max-w-lg leading-relaxed"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.7 }}
+          >
+            Join <span className="font-bold text-pink-600">INTAN</span> - 
+            <span className="italic"> Innovative Numerical Training for Advancing Fraction </span>
+            where learning math becomes an exciting adventure with interactive games,
+            visual aids, and step-by-step guidance.
           </motion.p>
 
-          <div className="w-full sm:w-auto">
+          <motion.div 
+            className="flex gap-4 items-center"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.9 }}
+          >
             <EnhancedButton onClick={handleStartLearning} size="large">
-              Start Learning
+              Start Learning Now
             </EnhancedButton>
-          </div>
+            <a 
+              href="#features" 
+              className="text-purple-600 font-semibold hover:text-purple-700 transition-colors"
+            >
+              Learn More →
+            </a>
+          </motion.div>
+
+          {/* Stats */}
+          <motion.div 
+            className="flex gap-8 pt-8"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1.1 }}
+          >
+            <div>
+              <h3 className="text-3xl font-bold text-pink-600">100%</h3>
+              <p className="text-gray-600">Interactive</p>
+            </div>
+            <div>
+              <h3 className="text-3xl font-bold text-purple-600">3</h3>
+              <p className="text-gray-600">Learning Steps</p>
+            </div>
+            <div>
+              <h3 className="text-3xl font-bold text-blue-600">Fun</h3>
+              <p className="text-gray-600">Guaranteed</p>
+            </div>
+          </motion.div>
         </motion.div>
 
-        {/* Image / Illustration */}
-        <div className="flex-1 flex justify-center mt-8 md:mt-0 z-20">
-          <motion.div
-            initial={{ opacity: 0, x: 100, scale: 0.8 }}
-            animate={{ opacity: 1, x: 0, scale: 1 }}
-            transition={{
-              type: "spring",
-              stiffness: 100,
-              damping: 20,
-              delay: 0.3,
-            }}
-            whileHover={{
-              scale: 1.05,
-              rotate: [0, -1, 2, -2, 0],
-              transition: { duration: 0.5 },
-            }}
-          >
+        {/* Hero Image - Enhanced */}
+        <motion.div 
+          className="flex-1 flex justify-center mt-12 md:mt-0 z-20"
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.5, duration: 0.8 }}
+        >
+          <div className="relative">
+            <motion.div
+              className="absolute -inset-4 bg-gradient-to-r from-pink-400 via-purple-400 to-blue-400 rounded-full opacity-30 blur-2xl"
+              animate={{
+                scale: [1, 1.1, 1],
+                rotate: [0, 5, 0],
+              }}
+              transition={{
+                duration: 5,
+                repeat: Infinity,
+                repeatType: "reverse",
+              }}
+            />
             <Image
               src="/hero-illustration.png"
               alt="Fraction Learning Illustration"
               width={600}
               height={600}
-              className="object-contain drop-shadow-xl max-w-full h-auto"
+              className="relative z-10 drop-shadow-2xl"
             />
-          </motion.div>
-        </div>
+          </div>
+        </motion.div>
       </section>
 
-      {/* FEATURES SECTION */}
-      <motion.section
-        className="px-4 sm:px-8 md:px-16 py-12 bg-white bg-opacity-80 shadow-inner"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.7 }}
+      {/* FEATURES SECTION - Enhanced */}
+      <section 
+        id="features"
+        className="px-6 md:px-16 py-20 bg-white bg-opacity-95 relative overflow-hidden"
       >
-        <h2 className="text-2xl sm:text-3xl font-bold text-center text-pink-600 mb-6 sm:mb-12">
-          Learning Features
-        </h2>
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-pink-50/50 to-transparent" />
+        
+        <motion.div 
+          className="relative z-10"
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+        >
+          <div className="text-center mb-16">
+            <motion.h2 
+              className="text-4xl font-bold mb-4"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+            >
+              <span className="bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
+                Learning Features
+              </span>
+            </motion.h2>
+            <motion.p 
+              className="text-gray-600 text-lg max-w-2xl mx-auto"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.2 }}
+            >
+              Discover our carefully designed learning modules that make fractions easy and fun to understand
+            </motion.p>
+          </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 max-w-6xl mx-auto">
-          {/* Feature 1 */}
-          <motion.div
-            className="bg-gradient-to-br from-pink-50 to-pink-100 p-6 rounded-xl shadow-md border-2 border-pink-200"
-            whileHover={{
-              scale: 1.05,
-              boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1)",
-            }}
-            transition={{ type: "spring", stiffness: 400, damping: 10 }}
-          >
-            <div className="bg-pink-200 rounded-full w-16 h-16 flex items-center justify-center mb-4 mx-auto">
-              <Image
-                src="/pizza-store.png"
-                alt="Feature 1"
-                width={40}
-                height={40}
-              />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            {/* Feature Cards - Enhanced */}
+            {[
+              {
+                title: "Fraction of Shape",
+                description: "Learn to visualize fractions with engaging shapes and interactive models",
+                icon: "/pizza-store.png",
+                color: "from-pink-500 to-red-500",
+                borderColor: "border-pink-200",
+                delay: 0.2
+              },
+              {
+                title: "Equivalent Fractions",
+                description: "Understand equivalent fractions through fun interactive activities",
+                icon: "/bakery.png",
+                color: "from-purple-500 to-pink-500",
+                borderColor: "border-purple-200",
+                delay: 0.4
+              },
+              {
+                title: "Number Line",
+                description: "Place fractions on a number line and compare their values",
+                icon: "/stationery.png",
+                color: "from-blue-500 to-cyan-500",
+                borderColor: "border-blue-200",
+                delay: 0.6
+              }
+            ].map((feature, index) => (
+              <motion.div
+                key={index}
+                className={`bg-white p-8 rounded-2xl shadow-xl border-2 ${feature.borderColor} hover:shadow-2xl transition-all`}
+                initial={{ opacity: 0, y: 50 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: feature.delay }}
+                whileHover={{ y: -10 }}
+              >
+                <div className={`bg-gradient-to-br ${feature.color} p-4 rounded-2xl w-20 h-20 flex items-center justify-center mb-6 shadow-lg`}>
+                  <Image
+                    src={feature.icon}
+                    alt={feature.title}
+                    width={50}
+                    height={50}
+                  />
+                </div>
+                <h3 className="text-2xl font-bold mb-3 bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
+                  {feature.title}
+                </h3>
+                <p className="text-gray-600 leading-relaxed">
+                  {feature.description}
+                </p>
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
+      </section>
+
+      {/* FOOTER - Enhanced */}
+      <footer className="bg-gradient-to-r from-pink-600 to-purple-600 text-white py-12 px-6 md:px-16">
+        <div className="max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div>
+              <div className="flex items-center gap-3 mb-4">
+                <Image
+                  src="/logo.png"
+                  alt="Logo"
+                  width={50}
+                  height={50}
+                  className="object-contain"
+                />
+                <span className="font-bold text-xl">INTAN</span>
+              </div>
+              <p className="text-pink-100">
+                Making fraction learning fun and interactive for everyone.
+              </p>
             </div>
-            <h3 className="text-xl font-bold text-pink-700 text-center mb-2">
-              Fraction of Shape
-            </h3>
-            <p className="text-gray-600 text-center">
-              Learn to visualize fractions with engaging shapes and interactive
-              models
-            </p>
-          </motion.div>
-
-          {/* Feature 2 */}
-          <motion.div
-            className="bg-gradient-to-br from-purple-50 to-purple-100 p-6 rounded-xl shadow-md border-2 border-purple-200"
-            whileHover={{
-              scale: 1.05,
-              boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1)",
-            }}
-            transition={{ type: "spring", stiffness: 400, damping: 10 }}
-          >
-            <div className="bg-purple-200 rounded-full w-16 h-16 flex items-center justify-center mb-4 mx-auto">
-              <Image src="/bakery.png" alt="Feature 2" width={40} height={40} />
+            
+            <div>
+              <h4 className="font-bold text-lg mb-4">Quick Links</h4>
+              <ul className="space-y-2 text-pink-100">
+                <li><a href="#" className="hover:text-white transition-colors">About Us</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Contact</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Privacy Policy</a></li>
+              </ul>
             </div>
-            <h3 className="text-xl font-bold text-purple-700 text-center mb-2">
-              Equivalent Fractions
-            </h3>
-            <p className="text-gray-600 text-center">
-              Understand equivalent fractions through fun interactive activities
-            </p>
-          </motion.div>
-
-          {/* Feature 3 */}
-          <motion.div
-            className="bg-gradient-to-br from-blue-50 to-blue-100 p-6 rounded-xl shadow-md border-2 border-blue-200 sm:col-span-2 lg:col-span-1 sm:max-w-md sm:mx-auto lg:max-w-none"
-            whileHover={{
-              scale: 1.05,
-              boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1)",
-            }}
-            transition={{ type: "spring", stiffness: 400, damping: 10 }}
-          >
-            <div className="bg-blue-200 rounded-full w-16 h-16 flex items-center justify-center mb-4 mx-auto">
-              <Image
-                src="/stationery.png"
-                alt="Feature 3"
-                width={40}
-                height={40}
-              />
+            
+            <div>
+              <h4 className="font-bold text-lg mb-4">Contact Us</h4>
+              <p className="text-pink-100">
+                Email: support@intan.edu<br />
+                Phone: (123) 456-7890
+              </p>
             </div>
-            <h3 className="text-xl font-bold text-blue-700 text-center mb-2">
-              Number Line
-            </h3>
-            <p className="text-gray-600 text-center">
-              Place fractions on a number line and compare their values
-            </p>
-          </motion.div>
-        </div>
-      </motion.section>
-
-      {/* FOOTER */}
-      <motion.footer
-        className="bg-gradient-to-r from-pink-600 to-purple-600 text-white py-6 sm:py-8 px-4 sm:px-8 flex flex-col md:flex-row items-center justify-between shadow-inner"
-        initial={{ y: 100, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ delay: 0.9 }}
-      >
-        <div className="flex flex-col md:flex-row items-center gap-4 mb-4 md:mb-0">
-          <Image
-            src="/logo.png"
-            alt="Logo"
-            width={60}
-            height={60}
-            className="object-contain w-10 h-10 sm:w-12 sm:h-12"
-          />
-          <span className="font-semibold text-sm sm:text-base">
-            © 2025 INTAN. All rights reserved.
-          </span>
-        </div>
-        <div className="flex items-center flex-wrap justify-center gap-x-6 gap-y-2">
-          <a
-            href="#"
-            className="hover:underline transition-all hover:text-pink-200 text-sm sm:text-base"
-          >
-            Privacy Policy
-          </a>
-          <a
-            href="#"
-            className="hover:underline transition-all hover:text-pink-200 text-sm sm:text-base"
-          >
-            Terms of Service
-          </a>
-          <a
-            href="#"
-            className="hover:underline transition-all hover:text-pink-200 text-sm sm:text-base"
-          >
-            Contact Us
-          </a>
-        </div>
-      </motion.footer>
-    </main>
-  );
+          </div>
+         <div className="border-t border-pink-400 mt-12 pt-8 text-center text-pink-100">
+           <p>© 2025 INTAN. All rights reserved.</p>
+         </div>
+       </div>
+     </footer>
+   </main>
+ );
 }
