@@ -1,12 +1,11 @@
-// src/app/step3/game3/components/FractionCutterGame.tsx
+// src/app/components/game/FractionCutterGame.tsx
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import StickmanNinja from "./StickmanNinja";
 import InstructionModal from "./InstructionModal";
 import { GameLevel } from "@/app/types/gameTypes";
-import { calculateAccuracyScore } from "@/app/utils/gameHelpers";
 
 interface FractionCutterGameProps {
   level: GameLevel;
@@ -75,8 +74,8 @@ const FractionCutterGame: React.FC<FractionCutterGameProps> = ({
     }
   }, [level]);
 
-  // Perform cutting action - define this before useEffect that depends on it
-  const performCut = () => {
+  // Perform cutting action
+  const performCut = useCallback(() => {
     if (isCutting || isPaused) return;
 
     setIsCutting(true);
@@ -92,23 +91,40 @@ const FractionCutterGame: React.FC<FractionCutterGameProps> = ({
         ? 100 - stickmanPosition
         : stickmanPosition;
 
+      // Calculate the exact target position as a fraction
+      const targetPosition = (level.numerator / level.denominator) * 100;
+
       // Check if cut is close enough to the correct position
-      const positionDifference = Math.abs(actualPosition - TARGET_POSITION);
-      const isCorrect = positionDifference <= ACCURACY_THRESHOLD;
+      const positionDifference = Math.abs(actualPosition - targetPosition);
+      const isWithinThreshold = positionDifference <= ACCURACY_THRESHOLD;
 
-      // Calculate accuracy score (0-100%)
-      const accuracyScore = calculateAccuracyScore(
-        positionDifference,
-        ACCURACY_THRESHOLD
-      );
+      // Calculate accuracy percentage (100% at perfect, 0% at threshold)
+      let accuracyPercentage = 0;
+      if (positionDifference === 0) {
+        accuracyPercentage = 100;
+      } else if (positionDifference <= ACCURACY_THRESHOLD) {
+        // Linear scale from 100% to 60% based on distance from target
+        accuracyPercentage =
+          100 - (positionDifference / ACCURACY_THRESHOLD) * 40;
+      } else {
+        // Outside threshold, scale down based on how far off
+        accuracyPercentage = Math.max(
+          0,
+          60 - (positionDifference - ACCURACY_THRESHOLD) * 2
+        );
+      }
 
-      // Calculate time bonus (more time left = bigger bonus)
+      // Calculate time bonus
       const timeBonus = Math.floor(timeLeft * (level.timeBonusMultiplier || 1));
 
-      if (isCorrect) {
-        onSuccess(accuracyScore, timeBonus);
+      if (isWithinThreshold) {
+        onSuccess(accuracyPercentage, timeBonus);
       } else {
-        onFailure(`Cut was off by ${positionDifference.toFixed(1)}%`);
+        onFailure(
+          `Cut was off by ${positionDifference.toFixed(
+            1
+          )}%. Target was ${targetPosition.toFixed(1)}%`
+        );
       }
 
       // Reset cutting animation
@@ -117,7 +133,19 @@ const FractionCutterGame: React.FC<FractionCutterGameProps> = ({
         setPlaySound(false);
       }, 500);
     }, 500);
-  };
+  }, [
+    isCutting,
+    isPaused,
+    reversedLine,
+    stickmanPosition,
+    level.numerator,
+    level.denominator,
+    ACCURACY_THRESHOLD,
+    timeLeft,
+    level.timeBonusMultiplier,
+    onSuccess,
+    onFailure,
+  ]);
 
   // Handle keyboard controls
   useEffect(() => {
@@ -147,13 +175,7 @@ const FractionCutterGame: React.FC<FractionCutterGameProps> = ({
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [
-    isPaused,
-    isCutting,
-    showInstructions,
-    STICKMAN_MOVE_STEP,
-    // Removed dependency on performCut which caused circular dependency
-  ]);
+  }, [isPaused, isCutting, showInstructions, STICKMAN_MOVE_STEP, performCut]);
 
   // Handle touch screen movement
   const handleTouchMove = (e: React.TouchEvent) => {
@@ -221,12 +243,9 @@ const FractionCutterGame: React.FC<FractionCutterGameProps> = ({
   const SoundEffect = () => {
     useEffect(() => {
       try {
-        // This is a client-side only operation, so wrap in try/catch
-        // and make sure window is defined (we're in the browser)
         if (typeof window !== "undefined") {
           const audio = new Audio("/sword-cut.mp3");
           audio.volume = 0.5;
-          // Play can fail if user hasn't interacted with the page yet
           audio
             .play()
             .catch((err) => console.error("Error playing sound:", err));
@@ -234,7 +253,6 @@ const FractionCutterGame: React.FC<FractionCutterGameProps> = ({
       } catch (error) {
         console.error("Error with audio:", error);
       }
-      // No cleanup needed since we're not storing the audio instance
     }, []);
 
     return null;

@@ -187,9 +187,7 @@ const RegistrationForm: React.FC<RegistrationFormProps> = ({ onComplete }) => {
             size="large"
             className="w-full mt-8"
             hoverEffect="grow"
-            onClick={function (): void {
-              throw new Error("Function not implemented.");
-            }}
+            onClick={() => {}} // Empty function to prevent error
           >
             Start Learning
           </AnimatedButton>

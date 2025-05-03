@@ -1,4 +1,4 @@
-// src/app/step3/game3/utils/gameHelpers.ts
+// src/app/utils/gameHelpers.ts
 
 /**
  * Calculate accuracy score based on position difference
@@ -13,12 +13,23 @@ export const calculateAccuracyScore = (
   // If position difference is 0, accuracy is perfect
   if (positionDifference === 0) return 1;
 
-  // If position difference is exactly at the threshold, score is 0.6 (60%)
-  // If position difference is 0, score is 1 (100%)
-  // Linear scale between these values
-  const accuracyScore = Math.max(0, 1 - (positionDifference / threshold) * 0.4);
+  // If within threshold, scale from 1 to 0.6 based on distance
+  if (positionDifference <= threshold) {
+    // Linear interpolation from 1 (at 0 difference) to 0.6 (at threshold)
+    return 1 - (positionDifference / threshold) * 0.4;
+  }
 
-  return accuracyScore;
+  // If outside threshold, continue degrading but more slowly
+  // From 0.6 at threshold to 0 at 2*threshold
+  const beyondThreshold = positionDifference - threshold;
+  const degradationRange = threshold; // Same range as within threshold
+
+  if (beyondThreshold < degradationRange) {
+    return 0.6 - (beyondThreshold / degradationRange) * 0.6;
+  }
+
+  // If very far off (more than 2x threshold), return 0
+  return 0;
 };
 
 /**
@@ -30,4 +41,72 @@ export const formatTime = (seconds: number): string => {
   const minutes = Math.floor(seconds / 60);
   const remainingSeconds = Math.floor(seconds % 60);
   return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
+};
+
+/**
+ * Calculate the score based on accuracy and time remaining
+ * @param accuracy Accuracy from 0-1
+ * @param timeRemaining Time left in seconds
+ * @param baseScore Base score value
+ * @param timeWeight Weight for time component (0-1)
+ * @param accuracyWeight Weight for accuracy component (0-1)
+ * @returns Calculated score
+ */
+export const calculateScore = (
+  accuracy: number,
+  timeRemaining: number,
+  baseScore: number = 100,
+  timeWeight: number = 0.4,
+  accuracyWeight: number = 0.6
+): { total: number; accuracyComponent: number; timeComponent: number } => {
+  // Ensure weights sum to 1
+  const totalWeight = timeWeight + accuracyWeight;
+  const normalizedTimeWeight = timeWeight / totalWeight;
+  const normalizedAccuracyWeight = accuracyWeight / totalWeight;
+
+  // Calculate accuracy component
+  const accuracyComponent = accuracy * baseScore * normalizedAccuracyWeight;
+
+  // Calculate time component (normalized to 0-1 based on max time of 30 seconds)
+  const maxTime = 30;
+  const normalizedTime = Math.min(timeRemaining / maxTime, 1);
+  const timeComponent = normalizedTime * baseScore * normalizedTimeWeight;
+
+  const total = Math.round(accuracyComponent + timeComponent);
+
+  return {
+    total,
+    accuracyComponent: Math.round(accuracyComponent),
+    timeComponent: Math.round(timeComponent),
+  };
+};
+
+/**
+ * Calculate difficulty multiplier based on level
+ * @param level Current level (0-based)
+ * @param maxLevel Maximum level
+ * @returns Difficulty multiplier
+ */
+export const getDifficultyMultiplier = (
+  level: number,
+  maxLevel: number = 10
+): number => {
+  // Difficulty increases from 1.0 to 2.0 as levels progress
+  return 1 + level / maxLevel;
+};
+
+/**
+ * Calculate time limit for a level
+ * @param baseTime Base time in seconds
+ * @param level Current level (0-based)
+ * @param minTime Minimum time allowed
+ * @returns Time limit in seconds
+ */
+export const calculateTimeLimit = (
+  baseTime: number = 30,
+  level: number = 0,
+  minTime: number = 15
+): number => {
+  // Reduce time by 2 seconds per level, but not below minTime
+  return Math.max(minTime, baseTime - level * 2);
 };
