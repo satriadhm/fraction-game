@@ -18,18 +18,30 @@ export function useTwoStageGame({
 }: UseTwoStageGameProps) {
   const [currentStage, setCurrentStage] = useState<"first" | "second">("first");
   const stageChangeRef = useRef(false);
+  const stageCompletionTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // First stage game state
+  // First stage game state - fixed with base score of 1
   const firstStage = useGameState({
     totalQuestions: firstStageQuestions.length,
     autoAdvanceDelay,
+    baseScore: 1,
   });
 
-  // Second stage game state
+  // Second stage game state - fixed with base score of 1
   const secondStage = useGameState({
     totalQuestions: secondStageQuestions.length,
     autoAdvanceDelay,
+    baseScore: 1,
   });
+
+  // Clean up stage completion timer on unmount
+  useEffect(() => {
+    return () => {
+      if (stageCompletionTimerRef.current) {
+        clearTimeout(stageCompletionTimerRef.current);
+      }
+    };
+  }, []);
 
   // Handle stage change with useEffect to avoid infinite loops
   useEffect(() => {
@@ -42,15 +54,20 @@ export function useTwoStageGame({
       stageChangeRef.current = true; // Set flag to prevent multiple stage changes
 
       // Use setTimeout to delay the stage change slightly to avoid render conflicts
-      setTimeout(() => {
+      stageCompletionTimerRef.current = setTimeout(() => {
         setCurrentStage("second");
         firstStage.resetGame(); // Reset first stage for potential replay
         stageChangeRef.current = false; // Reset flag
-      }, 100);
+
+        if (stageCompletionTimerRef.current) {
+          clearTimeout(stageCompletionTimerRef.current);
+          stageCompletionTimerRef.current = null;
+        }
+      }, 1000);
     }
   }, [firstStage.gameComplete, currentStage, firstStage]);
 
-  // Calculate total score across both stages
+  // Calculate total score across both stages - fixed to ensure proper calculation
   const totalScore = firstStage.score + secondStage.score;
   const totalQuestions =
     firstStageQuestions.length + secondStageQuestions.length;
@@ -64,6 +81,12 @@ export function useTwoStageGame({
 
   // Reset both game stages
   const resetGame = useCallback(() => {
+    // Clear any pending timers
+    if (stageCompletionTimerRef.current) {
+      clearTimeout(stageCompletionTimerRef.current);
+      stageCompletionTimerRef.current = null;
+    }
+
     firstStage.resetGame();
     secondStage.resetGame();
     setCurrentStage("first");

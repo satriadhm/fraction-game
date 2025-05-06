@@ -71,12 +71,12 @@ const Game1 = () => {
     {
       type: "conditional-strip",
       instruction: "Shade 5 out of 10",
-      initialShadedSections: [3],
+      initialShadedSections: [3,4,5],
       additionalSections: 2,
       totalSections: 10,
       rows: 2,
       explanation:
-        "1 was already shaded, plus 2 more would make 3 out of 10 shaded.",
+        "1 was already shaded, plus 3 more would make 5 out of 10 shaded.",
     },
     {
       type: "hexagon-fraction",

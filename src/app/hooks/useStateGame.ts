@@ -5,11 +5,16 @@ import { useState, useCallback, useEffect, useRef } from "react";
 interface UseGameStateProps {
   totalQuestions: number;
   autoAdvanceDelay?: number;
+  // Add optional parameters for score customization
+  baseScore?: number;
+  bonusPoints?: number;
 }
 
 export function useGameState({
   totalQuestions,
   autoAdvanceDelay = 1500,
+  baseScore = 1,
+  bonusPoints = 0,
 }: UseGameStateProps) {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [score, setScore] = useState(0);
@@ -72,10 +77,15 @@ export function useGameState({
     };
   }, [showConfetti]);
 
+  // Fixed handleAnswer function that properly tracks correct answers
   const handleAnswer = useCallback(
     (isCorrect: boolean) => {
-      if (isCorrect) {
-        setScore((prev) => prev + 1);
+      // Make sure isCorrect is properly evaluated as boolean
+      const correct = Boolean(isCorrect);
+      
+      if (correct) {
+        // Add the base score + any bonus points for correct answers
+        setScore((prev) => prev + baseScore + bonusPoints);
         setShowFeedback("success");
         setShowConfetti(true);
         playCorrectSound();
@@ -99,7 +109,7 @@ export function useGameState({
         advanceTimerRef.current = null;
       }, autoAdvanceDelay);
     },
-    [currentQuestion, totalQuestions, autoAdvanceDelay]
+    [currentQuestion, totalQuestions, autoAdvanceDelay, baseScore, bonusPoints]
   );
 
   const resetGame = useCallback(() => {
@@ -136,7 +146,10 @@ export function useGameState({
 
   const playCorrectSound = () => {
     try {
-      new Audio("/correct.mp3").play().catch((error) => {
+      // Create a new Audio instance each time to prevent conflicts
+      const sound = new Audio("/correct.mp3");
+      sound.volume = 0.5; // Reduce volume to 50%
+      sound.play().catch((error) => {
         // Silently handle the error - audio play may fail due to browser policies
         console.error("Error playing sound:", error);
       });

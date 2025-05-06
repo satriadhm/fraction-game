@@ -1,4 +1,4 @@
-// src/app/utils/gameHelpers.ts
+// src/app/utils/gameHelpers.tsx
 
 /**
  * Calculate accuracy score based on position difference
@@ -50,7 +50,7 @@ export const formatTime = (seconds: number): string => {
  * @param baseScore Base score value
  * @param timeWeight Weight for time component (0-1)
  * @param accuracyWeight Weight for accuracy component (0-1)
- * @returns Calculated score
+ * @returns Calculated score components and total
  */
 export const calculateScore = (
   accuracy: number,
@@ -59,25 +59,35 @@ export const calculateScore = (
   timeWeight: number = 0.4,
   accuracyWeight: number = 0.6
 ): { total: number; accuracyComponent: number; timeComponent: number } => {
+  // Ensure accuracy is between 0 and 1
+  const clampedAccuracy = Math.max(0, Math.min(1, accuracy));
+
+  // Ensure non-negative time remaining
+  const safeTimeRemaining = Math.max(0, timeRemaining);
+
   // Ensure weights sum to 1
   const totalWeight = timeWeight + accuracyWeight;
   const normalizedTimeWeight = timeWeight / totalWeight;
   const normalizedAccuracyWeight = accuracyWeight / totalWeight;
 
-  // Calculate accuracy component
-  const accuracyComponent = accuracy * baseScore * normalizedAccuracyWeight;
+  // Calculate accuracy component - more weight on accuracy
+  const accuracyComponent =
+    clampedAccuracy * baseScore * normalizedAccuracyWeight;
 
   // Calculate time component (normalized to 0-1 based on max time of 30 seconds)
-  const maxTime = 30;
-  const normalizedTime = Math.min(timeRemaining / maxTime, 1);
+  const maxTime = 30; // Maximum expected time in seconds
+  const normalizedTime = Math.min(safeTimeRemaining / maxTime, 1);
   const timeComponent = normalizedTime * baseScore * normalizedTimeWeight;
 
+  // Round all values to avoid floating point issues
   const total = Math.round(accuracyComponent + timeComponent);
+  const roundedAccuracyComponent = Math.round(accuracyComponent);
+  const roundedTimeComponent = Math.round(timeComponent);
 
   return {
     total,
-    accuracyComponent: Math.round(accuracyComponent),
-    timeComponent: Math.round(timeComponent),
+    accuracyComponent: roundedAccuracyComponent,
+    timeComponent: roundedTimeComponent,
   };
 };
 
@@ -92,7 +102,9 @@ export const getDifficultyMultiplier = (
   maxLevel: number = 10
 ): number => {
   // Difficulty increases from 1.0 to 2.0 as levels progress
-  return 1 + level / maxLevel;
+  // Ensure level is within bounds
+  const safeLevel = Math.max(0, Math.min(level, maxLevel));
+  return 1 + safeLevel / maxLevel;
 };
 
 /**
@@ -108,5 +120,6 @@ export const calculateTimeLimit = (
   minTime: number = 15
 ): number => {
   // Reduce time by 2 seconds per level, but not below minTime
-  return Math.max(minTime, baseTime - level * 2);
+  const calculatedTime = Math.max(minTime, baseTime - level * 2);
+  return Math.round(calculatedTime); // Return whole seconds
 };
