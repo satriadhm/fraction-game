@@ -71,7 +71,7 @@ const Game1 = () => {
     {
       type: "conditional-strip",
       instruction: "Shade 5 out of 10",
-      initialShadedSections: [0],
+      initialShadedSections: [3],
       additionalSections: 2,
       totalSections: 10,
       rows: 2,
