@@ -9,29 +9,31 @@ interface UseTwoStageGameProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   secondStageQuestions: any[];
   autoAdvanceDelay?: number;
+  baseScore?: number; // Added baseScore parameter
 }
 
 export function useTwoStageGame({
   firstStageQuestions,
   secondStageQuestions,
   autoAdvanceDelay = 1500,
+  baseScore = 10, // Default to 10 points per question
 }: UseTwoStageGameProps) {
   const [currentStage, setCurrentStage] = useState<"first" | "second">("first");
   const stageChangeRef = useRef(false);
   const stageCompletionTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // First stage game state - fixed with base score of 1
+  // First stage game state - using the same baseScore for consistency
   const firstStage = useGameState({
     totalQuestions: firstStageQuestions.length,
     autoAdvanceDelay,
-    baseScore: 1,
+    baseScore, // Use the provided baseScore
   });
 
-  // Second stage game state - fixed with base score of 1
+  // Second stage game state - using the same baseScore for consistency
   const secondStage = useGameState({
     totalQuestions: secondStageQuestions.length,
     autoAdvanceDelay,
-    baseScore: 1,
+    baseScore, // Use the provided baseScore
   });
 
   // Clean up stage completion timer on unmount
@@ -56,7 +58,7 @@ export function useTwoStageGame({
       // Use setTimeout to delay the stage change slightly to avoid render conflicts
       stageCompletionTimerRef.current = setTimeout(() => {
         setCurrentStage("second");
-        firstStage.resetGame(); // Reset first stage for potential replay
+        // We don't reset the first stage's score anymore, to preserve it for the total
         stageChangeRef.current = false; // Reset flag
 
         if (stageCompletionTimerRef.current) {
@@ -65,7 +67,7 @@ export function useTwoStageGame({
         }
       }, 1000);
     }
-  }, [firstStage.gameComplete, currentStage, firstStage]);
+  }, [firstStage.gameComplete, currentStage]);
 
   // Calculate total score across both stages - fixed to ensure proper calculation
   const totalScore = firstStage.score + secondStage.score;

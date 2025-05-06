@@ -5,7 +5,7 @@ import { useState, useCallback, useEffect, useRef } from "react";
 interface UseGameStateProps {
   totalQuestions: number;
   autoAdvanceDelay?: number;
-  // Add optional parameters for score customization
+  // Add parameters for score customization
   baseScore?: number;
   bonusPoints?: number;
 }
@@ -13,7 +13,7 @@ interface UseGameStateProps {
 export function useGameState({
   totalQuestions,
   autoAdvanceDelay = 1500,
-  baseScore = 1,
+  baseScore = 10, // Default to 10 points per correct answer
   bonusPoints = 0,
 }: UseGameStateProps) {
   const [currentQuestion, setCurrentQuestion] = useState(0);
@@ -77,14 +77,15 @@ export function useGameState({
     };
   }, [showConfetti]);
 
-  // Fixed handleAnswer function that properly tracks correct answers
+  // Improved handleAnswer function that properly tracks and calculates score
   const handleAnswer = useCallback(
     (isCorrect: boolean) => {
       // Make sure isCorrect is properly evaluated as boolean
       const correct = Boolean(isCorrect);
-      
+
       if (correct) {
         // Add the base score + any bonus points for correct answers
+        // Use a functional update to ensure we're updating based on the latest state
         setScore((prev) => prev + baseScore + bonusPoints);
         setShowFeedback("success");
         setShowConfetti(true);

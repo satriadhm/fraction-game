@@ -71,7 +71,7 @@ const Game1 = () => {
     {
       type: "conditional-strip",
       instruction: "Shade 5 out of 10",
-      initialShadedSections: [3,4,5],
+      initialShadedSections: [3, 4, 5],
       additionalSections: 2,
       totalSections: 10,
       rows: 2,
@@ -138,10 +138,15 @@ const Game1 = () => {
   const game = useTwoStageGame({
     firstStageQuestions: pizzaQuestions,
     secondStageQuestions: multipleChoiceQuestions,
+    autoAdvanceDelay: 1500,
+    // Fix: Provide consistent baseScore for both stages
+    baseScore: 10,
   });
 
   // If game is complete, show results
   if (game.gameComplete) {
+    // Fix: Use totalScore directly from the game state, which now properly tracks
+    // the combined score from both stages
     UserStorage.updateStepProgress("step1", game.totalScore, true);
     return (
       <GameResults
@@ -291,7 +296,7 @@ const Game1 = () => {
               {game.currentStage === "second" && " (Multiple Choice)"}
             </span>
             <span>
-              Score:{" "}
+              Score: {/* Fix: Display the appropriate score based on stage */}
               {game.currentStage === "first"
                 ? game.currentGameState.score
                 : game.totalScore}
