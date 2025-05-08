@@ -7,12 +7,13 @@ import { usePageLoader } from "../context/PageLoaderContext";
 const Step3Page = () => {
   const { stopLoading } = usePageLoader();
   const contentSlides = [
-    "Fractions can be represented on a number line, showing their relative position between whole numbers.",
-    "A number line helps visualize the size and relationship between different fractions.",
-    "To place a fraction on a number line, divide the space between whole numbers into equal parts.",
-    "Mixed numbers (like 1½) are placed between the whole numbers they fall between.",
-    "The number line helps us compare fractions and understand their values better.",
+    "A fraction on a number line shows how a whole is divided into equal parts.",
+    "Placing fractions on a number line, we can see their size and compare them easily.",
+    "Using a number line makes it easy to compare fractions. The further a fraction is to the right, the larger its value.",
+    "Use the concept of denominator and numerator when making the fraction on the number line.",
+    "You can find a fraction on the number line by dividing the space between 0 and 1 into equal parts based on the denominator. For example, to show 1/4, divide the segment into 4 equal parts."
   ];
+  
 
   useEffect(() => {
     stopLoading();
