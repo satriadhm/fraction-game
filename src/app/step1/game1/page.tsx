@@ -1,4 +1,3 @@
-// src/app/step1/game1/page.tsx - Modified to use interactive SVG fractions
 "use client";
 
 import { motion } from "framer-motion";
@@ -15,7 +14,9 @@ import StripFractionGame, {
 import ConditionalStripGame, {
   ConditionalStripQuestion,
 } from "../../components/game/ConditionalStripGame";
-import InteractiveFractionSVG from "../../components/game/InteractiveFractionSVG"; // Import the new component
+import HexagonFractionGame, {
+  HexagonFractionQuestion,
+} from "../../components/game/HexagonFractionGame";
 import CandyProgressBar from "../../components/game/CandyProgressBar";
 import MultipleChoiceGame from "../../components/game/MultipleChoiceGame";
 import { useTwoStageGame } from "@/app/hooks";
@@ -31,22 +32,12 @@ interface PizzaQuestion {
   correctSlices: number;
 }
 
-// Add new type for interactive SVG fractions
-interface InteractiveFractionQuestion {
-  type: "interactive-fraction";
-  instruction: string;
-  fractionType: "circle" | "rectangle" | "hexagon";
-  segments: number;
-  targetFraction: string;
-  correctSegments: number;
-}
-
 // Union type for all first stage questions
 type FirstStageQuestion =
   | PizzaQuestion
   | StripFractionQuestion
   | ConditionalStripQuestion
-  | InteractiveFractionQuestion;
+  | HexagonFractionQuestion;
 
 const Game1 = () => {
   const router = useRouter();
@@ -57,7 +48,7 @@ const Game1 = () => {
     stopLoading();
   }, [stopLoading]);
 
-  // Define the questions with proper type annotations - now with interactive fractions
+  // Define the questions with proper type annotations
   const pizzaQuestions: FirstStageQuestion[] = [
     {
       instruction: "Shade 3 out of 4 of the pizza",
@@ -69,32 +60,42 @@ const Game1 = () => {
       totalSlices: 8,
       correctSlices: 2,
     },
-    // Modified question 3: Interactive circle fraction
+    // Question 3: Strip question
     {
-      type: "interactive-fraction",
-      instruction: "Shade 3 out of 8 sections in the circle",
-      fractionType: "circle",
-      segments: 8,
-      targetFraction: "3/8",
-      correctSegments: 3,
+      type: "strip",
+      instruction: "Shade 3 out of 10 sections.",
+      totalSections: 10,
+      correctSections: 3,
+      rows: 2, // Make it a 2x5 grid for better UI
     },
-    // Modified question 4: Interactive rectangle fraction
     {
-      type: "interactive-fraction",
-      instruction: "Shade 4 out of 10 sections in the rectangle",
-      fractionType: "rectangle",
-      segments: 10,
-      targetFraction: "4/10",
-      correctSegments: 4,
+      type: "conditional-strip",
+      instruction: "Shade 5 out of 10",
+      initialShadedSections: [3, 4, 5],
+      additionalSections: 2,
+      totalSections: 10,
+      rows: 2,
+      explanation:
+        "1 was already shaded, plus 3 more would make 5 out of 10 shaded.",
     },
-    // Modified question 5: Interactive hexagon fraction
     {
-      type: "interactive-fraction",
-      instruction: "Shade 4 out of 7 hexagons in the honeycomb",
-      fractionType: "hexagon",
-      segments: 7,
-      targetFraction: "4/7",
-      correctSegments: 4,
+      type: "hexagon-fraction",
+      instruction: "What fraction of the shape is shaded?",
+      totalHexagons: 7,
+      shadedHexagons: 4,
+      presetPattern: true,
+      // Define the hexagon layout pattern as [row, column] coordinates
+      hexagonLayout: [
+        [0, 0], // Top hexagon
+        [1, 0],
+        [1, 1],
+        [1, 2], // Second row
+        [2, 0],
+        [2, 1],
+        [2, 2], // Third row
+      ],
+      // Indices of the hexagons that are shaded (0-based index from the hexagonLayout array)
+      shadedIndices: [2, 3, 5, 6], // 4 out of 7 hexagons are shaded
     },
   ];
 
@@ -108,28 +109,28 @@ const Game1 = () => {
       correctAnswer: "3/4",
     },
     {
-      question:
-        "You have 10 slices of pizza.\n You want to share them with four friends.\n How many slices would each of you get??",
-      options: ["2", "5", "4", "3"],
-      correctAnswer: "2",
+      question: "Look at the shape and choose the correct fraction that represents the shaded part.",
+      image: "/fraction-grid-1.png", // Need to create this image showing 5/8 shaded squares in a 2x4 grid
+      options: ["3/5", "5/8", "3/8", "8/5"],
+      correctAnswer: "5/8",
     },
     {
-      question:
-        "If you color 3 slices of a pizza with 6 equal slices, what fraction of the pizza is colored?",
-      options: ["1/2", "3/6", "2/6", "4/6"],
-      correctAnswer: "1/2",
+      question: "Look at the shape and choose the correct answer that represents the shaded part.",
+      image: "/fraction-hexagon-1.png", // Need to create this image showing a fully shaded hexagon
+      options: ["1", "2/6", "5/3", "8/6"],
+      correctAnswer: "1",
     },
     {
-      question:
-        "If a pizza has 8 slices and you shade 4, what fraction is shaded?",
-      options: ["1/2", "4/8", "Both A and B", "None of the above"],
-      correctAnswer: "Both A and B",
+      question: "Look at the shape and choose the correct fraction that represents the shaded part.",
+      image: "/fraction-circle-1.png", // Need to create this image showing 4/6 of a circle shaded
+      options: ["5/6", "3/6", "4/6", "6/3"],
+      correctAnswer: "4/6",
     },
     {
-      question:
-        "If 3/4 of a pizza is shaded, how many slices are shaded in a 12-slice pizza?",
-      options: ["3", "4", "9", "12"],
-      correctAnswer: "9",
+      question: "Look at the shape and choose the correct fraction that represents the shaded part.",
+      image: "/fraction-heptagon-1.png", // Need to create this image showing 3/7 of a heptagon shaded
+      options: ["3/7", "3/6", "4/7", "7/7"],
+      correctAnswer: "3/7",
     },
   ];
 
@@ -178,17 +179,10 @@ const Game1 = () => {
             disabled={!!game.currentGameState.showFeedback}
           />
         );
-      } else if (currentQuestion.type === "interactive-fraction") {
-        // Render the new interactive SVG fraction component
-        const interactiveQuestion =
-          currentQuestion as InteractiveFractionQuestion;
+      } else if (currentQuestion.type === "hexagon-fraction") {
         return (
-          <InteractiveFractionSVG
-            type={interactiveQuestion.fractionType}
-            segments={interactiveQuestion.segments}
-            targetFraction={interactiveQuestion.targetFraction}
-            correctSegments={interactiveQuestion.correctSegments}
-            question={interactiveQuestion.instruction}
+          <HexagonFractionGame
+            question={currentQuestion as HexagonFractionQuestion}
             onAnswer={game.currentGameState.handleAnswer}
             disabled={!!game.currentGameState.showFeedback}
           />
@@ -233,10 +227,8 @@ const Game1 = () => {
           return `Great job! ${
             (currentQuestion as ConditionalStripQuestion).explanation
           }`;
-        } else if (currentQuestion.type === "interactive-fraction") {
-          return `Great job! You correctly identified the fraction ${
-            (currentQuestion as InteractiveFractionQuestion).targetFraction
-          }`;
+        } else if (currentQuestion.type === "hexagon-fraction") {
+          return "Correct! There are 4 shaded hexagons out of 7 total hexagons, which is 4/7.";
         }
         return "Great job! Your answer is correct.";
       } else {
@@ -247,12 +239,8 @@ const Game1 = () => {
           return `Not quite. ${
             (currentQuestion as ConditionalStripQuestion).explanation
           }`;
-        } else if (currentQuestion.type === "interactive-fraction") {
-          return `Not quite. Try to shade exactly ${
-            (currentQuestion as InteractiveFractionQuestion).correctSegments
-          } sections to represent ${
-            (currentQuestion as InteractiveFractionQuestion).targetFraction
-          }`;
+        } else if (currentQuestion.type === "hexagon-fraction") {
+          return "Not quite. Count the total number of hexagons and how many are shaded yellow.";
         }
         return "Not quite. Try again!";
       }
