@@ -7,12 +7,13 @@ import { usePageLoader } from "../context/PageLoaderContext";
 const Step1Page = () => {
   const { stopLoading } = usePageLoader();
   const contentSlides = [
-    "Fractions represent parts of a whole. The denominator (bottom number) tells how many equal parts the whole is divided into.",
-    "The numerator (top number) tells how many parts we're talking about.",
-    "We can represent fractions using shapes divided into equal parts.",
-    "When we shade parts of a shape, we can express the shaded portion as a fraction.",
-    "Addition of fractions must have the same denominator.",
+    "denominator : The bottom number of a fraction, showing how many equal parts the whole is divided into",
+    "numerator : the top number of a fraction, showing how many parts you have or are being considered",
+    "Dividing line : also known as the division or dividing bar, fraction line or bar, the line in a fraction separating the numerator from the denominator",
+    "A fraction is a part of a whole.",
+    "A fraction shows how something is divided into equal parts, with each part being the same size"
   ];
+  
 
   useEffect(() => {
     stopLoading();

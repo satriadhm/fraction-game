@@ -7,13 +7,13 @@ import { usePageLoader } from "../context/PageLoaderContext";
 const Step2Page = () => {
   const { stopLoading } = usePageLoader();
   const contentSlides = [
-    "Equivalent fractions represent the same value, even though they may look different.",
-    "To find equivalent fractions, multiply or divide both the numerator and denominator by the same number.",
-    "For example, 1/2 = 2/4 = 3/6 = 4/8, they all represent the same value.",
-    "Multiplication of fractions is done by multiplying the numerator and denominator.",
-    "Division of fractions is done by multiplying by the reciprocal.",
+    "A fraction on a number line shows how a whole is divided into equal parts.",
+    "Placing fractions on a number line, we can see their size and compare them easily.",
+    "Using a number line makes it easy to compare fractions. The further a fraction is to the right, the larger its value.",
+    "Use the concept of denominator and numerator when making the fraction on the number line.",
+    "You can find a fraction on the number line by dividing the space between 0 and 1 into equal parts based on the denominator. For example, to show 1/4, divide the segment into 4 equal parts."
   ];
-
+  
   useEffect(() => {
     stopLoading();
   }, [stopLoading]);
