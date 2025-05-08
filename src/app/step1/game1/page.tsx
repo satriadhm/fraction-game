@@ -60,13 +60,12 @@ const Game1 = () => {
       totalSlices: 8,
       correctSlices: 2,
     },
-    // Question 3: Strip question
     {
       type: "strip",
       instruction: "Shade 3 out of 10 sections.",
       totalSections: 10,
       correctSections: 3,
-      rows: 2, // Make it a 2x5 grid for better UI
+      rows: 2,
     },
     {
       type: "conditional-strip",
@@ -84,22 +83,19 @@ const Game1 = () => {
       totalHexagons: 7,
       shadedHexagons: 4,
       presetPattern: true,
-      // Define the hexagon layout pattern as [row, column] coordinates
       hexagonLayout: [
-        [0, 0], // Top hexagon
+        [0, 0], 
         [1, 0],
         [1, 1],
-        [1, 2], // Second row
+        [1, 2], 
         [2, 0],
         [2, 1],
-        [2, 2], // Third row
+        [2, 2], 
       ],
-      // Indices of the hexagons that are shaded (0-based index from the hexagonLayout array)
-      shadedIndices: [2, 3, 5, 6], // 4 out of 7 hexagons are shaded
+      shadedIndices: [2, 3, 5, 6], 
     },
   ];
 
-  // Define the multiple choice questions
   const multipleChoiceQuestions = [
     {
       question:
@@ -110,43 +106,38 @@ const Game1 = () => {
     },
     {
       question: "Look at the shape and choose the correct fraction that represents the shaded part.",
-      image: "/fraction-grid-1.png", // Need to create this image showing 5/8 shaded squares in a 2x4 grid
+      image: "/fraction-grid-1.png",
       options: ["3/5", "5/8", "3/8", "8/5"],
       correctAnswer: "5/8",
     },
     {
       question: "Look at the shape and choose the correct answer that represents the shaded part.",
-      image: "/fraction-hexagon-1.png", // Need to create this image showing a fully shaded hexagon
+      image: "/fraction-hexagon-1.png",
       options: ["1", "2/6", "5/3", "8/6"],
       correctAnswer: "1",
     },
     {
       question: "Look at the shape and choose the correct fraction that represents the shaded part.",
-      image: "/fraction-circle-1.png", // Need to create this image showing 4/6 of a circle shaded
+      image: "/fraction-circle-1.png",
       options: ["5/6", "3/6", "4/6", "6/3"],
       correctAnswer: "4/6",
     },
     {
       question: "Look at the shape and choose the correct fraction that represents the shaded part.",
-      image: "/fraction-heptagon-1.png", // Need to create this image showing 3/7 of a heptagon shaded
+      image: "/fraction-heptagon-1.png",
       options: ["3/7", "3/6", "4/7", "7/7"],
       correctAnswer: "3/7",
     },
   ];
 
-  // Use custom hook to manage two-stage game state
   const game = useTwoStageGame({
     firstStageQuestions: pizzaQuestions,
     secondStageQuestions: multipleChoiceQuestions,
     autoAdvanceDelay: 1500,
-    // Fix: Provide consistent baseScore for both stages
     baseScore: 10,
   });
 
-  // If game is complete, show results
   if (game.gameComplete) {
-    // Fix: Use totalScore directly from the game state, which now properly tracks
-    // the combined score from both stages
     UserStorage.updateStepProgress("step1", game.totalScore, true);
     return (
       <GameResults
@@ -157,12 +148,9 @@ const Game1 = () => {
     );
   }
 
-  // Determine which game component to render based on the current question
   const renderGameComponent = () => {
     if (game.currentStage === "first") {
       const currentQuestion = pizzaQuestions[game.currentQuestion];
-
-      // Handle different question types
       if (currentQuestion.type === "strip") {
         return (
           <StripFractionGame
@@ -188,7 +176,6 @@ const Game1 = () => {
           />
         );
       } else {
-        // Regular pizza question
         return (
           <PizzaSliceGame
             question={currentQuestion as PizzaQuestion}
@@ -198,12 +185,10 @@ const Game1 = () => {
         );
       }
     } else {
-      // Multiple choice questions for second stage
       return (
         <MultipleChoiceGame
           question={multipleChoiceQuestions[game.currentQuestion]}
           onAnswer={(selectedOption) => {
-            // Create an adapter that converts string to boolean
             const isCorrect =
               selectedOption ===
               multipleChoiceQuestions[game.currentQuestion].correctAnswer;
@@ -215,7 +200,6 @@ const Game1 = () => {
     }
   };
 
-  // Get feedback message based on the current question
   const getFeedbackMessage = () => {
     if (game.currentStage === "first") {
       const currentQuestion = pizzaQuestions[game.currentQuestion];
@@ -252,7 +236,6 @@ const Game1 = () => {
 
   return (
     <div className="relative flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 p-5 md:p-8 overflow-hidden">
-      {/* Cute background elements */}
       <motion.div
         className="absolute top-0 left-0 w-full h-40 bg-gradient-to-r from-pink-100 via-transparent to-pink-100"
         animate={{ opacity: [0.2, 0.5, 0.2] }}
@@ -265,12 +248,9 @@ const Game1 = () => {
         transition={{ duration: 15, repeat: Infinity }}
       />
 
-      {/* Confetti effect when answering correctly */}
       <ConfettiEffect show={game.currentGameState.showConfetti} />
 
-      {/* Main game container */}
       <div className="max-w-3xl w-full">
-        {/* Game header */}
         <motion.div
           initial={{ y: -50, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
@@ -288,7 +268,6 @@ const Game1 = () => {
         </motion.div>
         <GameStats currentStep="step1" />
 
-        {/* Game progress tracker */}
         <div className="mb-6">
           <div className="flex justify-between text-sm font-medium text-gray-600 mb-1">
             <span>
@@ -296,7 +275,7 @@ const Game1 = () => {
               {game.currentStage === "second" && " (Multiple Choice)"}
             </span>
             <span>
-              Score: {/* Fix: Display the appropriate score based on stage */}
+              Score:
               {game.currentStage === "first"
                 ? game.currentGameState.score
                 : game.totalScore}
@@ -308,7 +287,6 @@ const Game1 = () => {
           />
         </div>
 
-        {/* Game content */}
         <motion.div
           initial={{ scale: 0.95, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}

@@ -123,23 +123,35 @@ const Game2 = () => {
   // True/False questions
   const trueFalseQuestions = [
     {
-      question: "True or False: The fractions 4/8 and 1/2 are equivalent.",
-      options: ["True", "False"],
-      correctAnswer: "True",
-      explanation:
-        "4/8 can be simplified to 1/2 by dividing both numerator and denominator by 4. Therefore, they are equivalent.",
+      question: "These images show equivalent fractions.",
+      imageUrl: "/equivalent-fractions-1.png",
+      options: ["TRUE", "FALSE"],
+      correctAnswer: "TRUE", 
+      explanation: "Both images represent the same portion of the whole."
     },
     {
-      question:
-        "True or False: If you add 1 to both the numerator and denominator of a fraction, you get an equivalent fraction.",
-      options: ["True", "False"],
-      correctAnswer: "False",
-      explanation:
-        "Adding the same number to both the numerator and denominator does not create an equivalent fraction. For example, 1/2 and 2/3 are not equivalent.",
+      question: "These images show equivalent fractions.",
+      imageUrl: "/equivalent-fractions-2.png",
+      options: ["TRUE", "FALSE"],
+      correctAnswer: "FALSE",
+      explanation: "These fractions represent different portions of the whole."
+    },
+    {
+      question: "These images show equivalent fractions.",
+      imageUrl: "/equivalent-fractions-3.png",
+      options: ["TRUE", "FALSE"],
+      correctAnswer: "TRUE",
+      explanation: "Both shapes represent the same fraction value."
+    },
+    {
+      question: "These images show equivalent fractions.",
+      imageUrl: "/equivalent-fractions-4.png",
+      options: ["TRUE", "FALSE"],
+      correctAnswer: "TRUE",
+      explanation: "Both rectangles have the same fraction of area shaded."
     },
   ];
 
-  // Visual selection questions - now using SVG
   const svgVisualSelectionQuestions = [
     {
       question: "Select the visual that shows a fraction equivalent to 2/6.",
@@ -155,7 +167,6 @@ const Game2 = () => {
     },
   ];
 
-  // Improved decimal matching questions
   const decimalMatchingQuestions = [
     {
       question: "Match each fraction with its equivalent decimal value:",
@@ -178,7 +189,6 @@ const Game2 = () => {
     },
   ];
 
-  // Fraction Recipe questions
   const fractionRecipeQuestions = [
     {
       initialFraction: "1/3",
@@ -218,52 +228,40 @@ const Game2 = () => {
     },
   ];
 
-  // Combine all questions into a single array with exactly 10 questions
   const allQuestions: Question[] = [
-    // First matching game (1)
     {
       type: "equivalent-matching",
       id: 1,
       content: equivalentMatchingQuestions[0],
     },
 
-    // First recipe game (2)
     { type: "fraction-recipe", id: 2, content: fractionRecipeQuestions[0] },
 
-    // Three multiple choice questions (3-5)
     ...multipleChoiceQuestions.map((q, idx) => ({
       type: "multiple-choice" as QuestionType,
       id: 3 + idx,
       content: q,
     })),
 
-    // Second recipe game (6)
     { type: "fraction-recipe", id: 6, content: fractionRecipeQuestions[1] },
 
-    // Two true/false questions (7-8)
     ...trueFalseQuestions.map((q, idx) => ({
       type: "true-false" as QuestionType,
       id: 7 + idx,
       content: q,
     })),
 
-    // One SVG visual selection question (9)
     {
       type: "visual-selection",
       id: 9,
       content: svgVisualSelectionQuestions[0],
     },
 
-    // One decimal matching question (10)
     { type: "decimal-matching", id: 10, content: decimalMatchingQuestions[0] },
   ];
 
-  // Get current question - moved this outside conditional rendering
   const currentQuestion = allQuestions[game.currentQuestion];
 
-  // Define all handler functions outside conditional rendering to follow React Hooks rules
-
-  // Handle answer for equivalent fractions matching game
   const handleEquivalentFractionsAnswer = useCallback(
     (score: number, total: number) => {
       const isCorrect = score === total;
@@ -272,18 +270,15 @@ const Game2 = () => {
     [game]
   );
 
-  // Handle multiple choice or true/false answer
   const handleChoiceAnswer = useCallback(
     (selectedOption: string) => {
       const correctAnswer = currentQuestion?.content?.correctAnswer;
       const isCorrect = selectedOption === correctAnswer;
       setSelectedAnswer(selectedOption);
 
-      // Short delay to show the explanation
       setTimeout(() => {
         setShowExplanation(true);
 
-        // Auto advance after showing explanation
         setTimeout(() => {
           game.handleAnswer(isCorrect);
           setSelectedAnswer(null);
@@ -294,7 +289,6 @@ const Game2 = () => {
     [currentQuestion, game]
   );
 
-  // Handle visual selection answer
   const handleVisualSelectionAnswer = useCallback(
     (selectedLabel: string) => {
       const correctAnswer = currentQuestion?.content?.correctAnswer;
@@ -314,7 +308,6 @@ const Game2 = () => {
     [currentQuestion, game]
   );
 
-  // Handle fraction recipe answer
   const handleFractionRecipeAnswer = useCallback(
     (isCorrect: boolean) => {
       game.handleAnswer(isCorrect);
@@ -330,7 +323,6 @@ const Game2 = () => {
     [game]
   );
 
-  // Reset game function
   const resetGameHandler = useCallback(() => {
     game.resetGame();
     setSelectedAnswer(null);
@@ -338,7 +330,6 @@ const Game2 = () => {
     setShouldShowConfetti(false);
   }, [game]);
 
-  // Show results when game is complete
   if (game.gameComplete) {
     UserStorage.updateStepProgress("step2", game.score, true);
     return (
@@ -350,7 +341,6 @@ const Game2 = () => {
     );
   }
 
-  // Render the appropriate game component based on question type
   const renderQuestionComponent = () => {
     if (!currentQuestion) return null;
 
