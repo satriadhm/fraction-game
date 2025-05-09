@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { motion } from "framer-motion";
-import dynamic from "next/dynamic";
 import GameLayout from "../../components/templates/GameLayout";
 import GameResults from "../../components/game/GameResult";
 import MultipleChoiceGame from "../../components/game/MultipleChoiceGame";
@@ -17,63 +16,40 @@ import FractionDragDropGame, {
   NumberLineFraction,
 } from "@/app/components/game/FractionDragandDropGame";
 
-// Import GameStats with dynamic import to avoid hydration issues
-const GameStats = dynamic(
-  () => import("@/app/components/game/GameStats"),
-  { ssr: false } // This ensures it only renders on client-side
-);
+// Component to render stats with a delay to avoid hydration issues
+const DelayedGameStats = () => {
+  const [mounted, setMounted] = useState(false);
 
-// Define interfaces for component props to ensure compatibility
-interface EquivalentFractionsGameProps {
-  question: {
-    instruction: string;
-    pairs: Array<{
-      id: number;
-      leftSide: { colored: number; total: number };
-      rightSide: { colored: number; total: number };
-      isEquivalent: boolean;
-    }>;
-  };
-  onAnswer: (score: number, totalPairs: number) => void;
-  disabled?: boolean;
-}
+  // Only show component after client-side hydration is complete
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
-interface MultipleChoiceGameProps {
-  question: {
-    question: string;
-    options: string[];
-    correctAnswer: string;
-    image?: string;
-    imageUrl?: string;
-  };
-  onAnswer: (selectedOption: string) => void;
-  disabled?: boolean;
-}
+  if (!mounted) return null;
 
-interface FractionDragDropGameProps {
-  question: {
-    instruction: string;
-    pieces: Array<{
-      id: string;
-      value: string;
-      image: React.ReactNode;
-    }>;
-    dropZones: Array<{
-      id: string;
-      label: string;
-      accepts: string;
-    }>;
-    explanation: string;
-  };
-  onAnswer: (isCorrect: boolean) => void;
-  disabled?: boolean;
-}
+  return (
+    <div className="bg-white bg-opacity-90 rounded-xl p-4 mb-4 shadow-md">
+      <div className="flex justify-between items-center">
+        <div>
+          <h3 className="font-bold text-purple-700">Your Stats</h3>
+          <p className="text-sm text-gray-600">
+            Best Score: <span className="font-bold">0</span>
+          </p>
+        </div>
+        <div className="text-right">
+          <p className="text-sm text-gray-600">
+            Attempts: <span className="font-bold">0</span>
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const Game2 = () => {
   // Access page loader
   const { stopLoading } = usePageLoader();
   const [showExplanation, setShowExplanation] = useState(false);
-  // Control confetti locally to prevent render loops
   const [shouldShowConfetti, setShouldShowConfetti] = useState(false);
 
   // Stop loading when component mounts
@@ -86,7 +62,7 @@ const Game2 = () => {
 
   // Equivalent fractions matching game questions
   const equivalentMatchingQuestions = useMemo(
-    (): EquivalentFractionsGameProps["question"][] => [
+    () => [
       {
         instruction:
           "Connect the equivalent fractions by clicking on matching pairs, then click Submit Answer when done",
@@ -186,7 +162,7 @@ const Game2 = () => {
 
   // True/False questions
   const trueFalseQuestions = useMemo(
-    (): MultipleChoiceGameProps["question"][] => [
+    () => [
       {
         question: "These images show equivalent fractions.",
         imageUrl: "/equivalent-fractions-1.png",
@@ -228,7 +204,7 @@ const Game2 = () => {
 
   // Drag and Drop questions
   const dragDropQuestions = useMemo(
-    (): FractionDragDropGameProps["question"][] => [
+    () => [
       {
         instruction:
           "Drag the fraction visualizations to their equivalent fraction values",
@@ -473,19 +449,17 @@ const Game2 = () => {
       const correctAnswer = currentQuestion.correctAnswer || "";
       const isCorrect = selectedOption === correctAnswer;
 
-      // Avoid setting state during render - use a one-time flag
+      // Set a one-time flag for state updates
       if (!showExplanation) {
-        setTimeout(() => {
-          setShowExplanation(true);
+        setShowExplanation(true);
 
-          setTimeout(() => {
-            // Prevent multiple state updates by checking current state
-            if (showExplanation) {
-              game.handleAnswer(isCorrect);
-              setShowExplanation(false);
-            }
-          }, 2000);
-        }, 500);
+        // Use a timeout to ensure we don't trigger state updates too quickly
+        const timer = setTimeout(() => {
+          game.handleAnswer(isCorrect);
+          setShowExplanation(false);
+        }, 2000);
+
+        return () => clearTimeout(timer);
       }
     },
     [game, trueFalseQuestions, showExplanation, allQuestions.length]
@@ -595,8 +569,8 @@ const Game2 = () => {
       accentColor="purple"
       backButtonPath="/step2"
     >
-      {/* Use client-side only rendering for GameStats to prevent hydration mismatch */}
-      {typeof window !== "undefined" && <GameStats currentStep="step2" />}
+      <DelayedGameStats />
+
       <motion.div
         key={
           game.currentQuestion < allQuestions.length
