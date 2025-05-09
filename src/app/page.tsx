@@ -338,7 +338,7 @@ export default function LandingPage() {
       {/* Three logos row */}
       <div className="flex justify-center items-center gap-8 mb-6">
         {/* Logo 1 - UKSW */}
-        <div className="w-32 h-32 flex items-center justify-center bg-white rounded-full p-2">
+        <div className="w-32 h-32 flex items-center justify-center rounded-full p-2">
           <Image 
             src="/uksw-logo-1.png" 
             alt="Universitas Kristen Satya Wacana"
@@ -349,7 +349,7 @@ export default function LandingPage() {
         </div>
         
         {/* Logo 2 - FKIP UKSW */}
-        <div className="w-32 h-32 flex items-center justify-center bg-white rounded-full p-2">
+        <div className="w-32 h-32 flex items-center justify-center rounded-full p-2">
           <Image 
             src="/uksw-logo-2.png" 
             alt="FKIP UKSW"
@@ -360,7 +360,7 @@ export default function LandingPage() {
         </div>
         
         {/* Logo 3 - PGSD FKIP UKSW */}
-        <div className="w-32 h-32 flex items-center justify-center bg-white rounded-full p-2">
+        <div className="w-32 h-32 flex items-center justify-center rounded-full p-2">
           <Image 
             src="/uksw-logo-3.png" 
             alt="PGSD FKIP UKSW"
