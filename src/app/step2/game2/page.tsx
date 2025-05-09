@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { motion } from "framer-motion";
 import GameLayout from "../../components/templates/GameLayout";
 import GameResults from "../../components/game/GameResult";
@@ -10,19 +10,22 @@ import { useGameState } from "@/app/hooks";
 import EquivalentFractionsGame from "@/app/components/game/EquivalenceFractions";
 import { usePageLoader } from "@/app/context/PageLoaderContext";
 import SVGVisualSelectionGame from "@/app/components/game/SVGVisualSelectionGame";
-import FractionRecipeGame from "@/app/components/game/FractionRecipe";
 import DecimalMatchingGame from "@/app/components/game/DecimalMatchingGame";
 import { UserStorage } from "@/app/utils/userStorage";
 import GameStats from "@/app/components/game/GameStats";
+import VisualFractionBuilder from "@/app/components/game/VisualFractionBuilder";
+import FractionDragDropGame, { CircleFraction, RectangleFraction, HexagonFraction, NumberLineFraction } from "@/app/components/game/FractionDragandDropGame";
+import EquivalentFractionMultiplier from "@/app/components/game/EquivalentFractionMultiplier";
 
 // Define different question types
 type QuestionType =
   | "equivalent-matching"
-  | "multiple-choice"
+  | "drag-drop"
   | "visual-selection"
   | "true-false"
-  | "fraction-recipe"
-  | "decimal-matching";
+  | "decimal-matching"
+  | "visual-builder"
+  | "fraction-multiplier";
 
 interface Question {
   type: QuestionType;
@@ -38,31 +41,16 @@ const Game2 = () => {
   // Control confetti locally to prevent render loops
   const [shouldShowConfetti, setShouldShowConfetti] = useState(false);
 
-  // Game state
-  const game = useGameState({
-    totalQuestions: 10,
-    autoAdvanceDelay: 2000,
-  });
-
-  // Handle the confetti state properly
-  useEffect(() => {
-    setShouldShowConfetti(game.showConfetti);
-
-    if (game.showConfetti) {
-      const timer = setTimeout(() => {
-        setShouldShowConfetti(false);
-      }, 2000);
-      return () => clearTimeout(timer);
-    }
-  }, [game.showConfetti]);
-
   // Stop loading when component mounts
   useEffect(() => {
     stopLoading();
   }, [stopLoading]);
 
+  // QUESTION DEFINITIONS
+  // ===================
+
   // Equivalent fractions matching game questions
-  const equivalentMatchingQuestions = [
+  const equivalentMatchingQuestions = useMemo(() => [
     {
       instruction:
         "Connect the equivalent fractions by clicking on matching pairs, then click Submit Answer when done",
@@ -87,72 +75,41 @@ const Game2 = () => {
         },
       ],
     },
-  ];
-
-  // Multiple choice questions
-  const multipleChoiceQuestions = [
-    {
-      question: "Which fraction is equivalent to 1/2?",
-      options: ["2/4", "3/5", "2/3", "1/3"],
-      correctAnswer: "2/4",
-      explanation:
-        "1/2 = 2/4 because 1×2 = 2 and 2×2 = 4. When you multiply both the numerator and denominator by the same number, you get an equivalent fraction.",
-    },
-    {
-      question: "Which is NOT an equivalent fraction of 2/3?",
-      options: ["4/6", "6/9", "8/10", "10/15"],
-      correctAnswer: "8/10",
-      explanation:
-        "8/10 = 4/5 when simplified, which is not equal to 2/3. All other options simplify to 2/3.",
-    },
-    {
-      question: "To find an equivalent fraction, you...",
-      options: [
-        "Only multiply the numerator",
-        "Only multiply the denominator",
-        "Multiply both numerator and denominator by the same number",
-        "Add the same number to both numerator and denominator",
-      ],
-      correctAnswer:
-        "Multiply both numerator and denominator by the same number",
-      explanation:
-        "To create equivalent fractions, you must multiply (or divide) both the numerator and denominator by the same non-zero number.",
-    },
-  ];
+  ], []);
 
   // True/False questions
-  const trueFalseQuestions = [
+  const trueFalseQuestions = useMemo(() => [
     {
       question: "These images show equivalent fractions.",
       imageUrl: "/equivalent-fractions-1.png",
       options: ["TRUE", "FALSE"],
-      correctAnswer: "TRUE", 
-      explanation: "Both images represent the same portion of the whole."
+      correctAnswer: "TRUE",
+      explanation: "Both images represent the same portion of the whole.",
     },
     {
       question: "These images show equivalent fractions.",
       imageUrl: "/equivalent-fractions-2.png",
       options: ["TRUE", "FALSE"],
       correctAnswer: "FALSE",
-      explanation: "These fractions represent different portions of the whole."
+      explanation: "These fractions represent different portions of the whole.",
     },
     {
       question: "These images show equivalent fractions.",
       imageUrl: "/equivalent-fractions-3.png",
       options: ["TRUE", "FALSE"],
       correctAnswer: "TRUE",
-      explanation: "Both shapes represent the same fraction value."
+      explanation: "Both shapes represent the same fraction value.",
     },
     {
       question: "These images show equivalent fractions.",
       imageUrl: "/equivalent-fractions-4.png",
       options: ["TRUE", "FALSE"],
       correctAnswer: "TRUE",
-      explanation: "Both rectangles have the same fraction of area shaded."
+      explanation: "Both rectangles have the same fraction of area shaded.",
     },
-  ];
+  ], []);
 
-  const svgVisualSelectionQuestions = [
+  const svgVisualSelectionQuestions = useMemo(() => [
     {
       question: "Select the visual that shows a fraction equivalent to 2/6.",
       options: [
@@ -165,9 +122,9 @@ const Game2 = () => {
       explanation:
         "2/6 can be simplified to 1/3 by dividing both numbers by 2. The first visual correctly shows 1/3.",
     },
-  ];
+  ], []);
 
-  const decimalMatchingQuestions = [
+  const decimalMatchingQuestions = useMemo(() => [
     {
       question: "Match each fraction with its equivalent decimal value:",
       groups: [
@@ -187,80 +144,312 @@ const Game2 = () => {
       explanation:
         "Equivalent fractions have the same decimal value. When converted to decimals: 1/4 = 2/8 = 0.25, 1/2 = 4/8 = 0.5, and 3/4 = 6/8 = 0.75.",
     },
-  ];
+  ], []);
 
-  const fractionRecipeQuestions = [
+  // New Drag and Drop questions
+  const dragDropQuestions = useMemo(() => [
     {
-      initialFraction: "1/3",
-      targetFraction: "2/6",
-      steps: [
+      instruction:
+        "Drag the fraction visualizations to their equivalent fraction values",
+      pieces: [
         {
-          instruction: "What number should you multiply the numerator by?",
-          options: ["1", "2", "3", "4"],
-          correctAnswer: "2",
+          id: "piece1",
+          value: "1/2",
+          image: <CircleFraction numerator={1} denominator={2} />,
         },
         {
-          instruction: "What number should you multiply the denominator by?",
-          options: ["1", "2", "3", "4"],
-          correctAnswer: "2",
+          id: "piece2",
+          value: "2/4",
+          image: <RectangleFraction numerator={2} denominator={4} />,
+        },
+        {
+          id: "piece3",
+          value: "3/6",
+          image: <HexagonFraction numerator={3} denominator={6} />,
+        },
+        {
+          id: "piece4",
+          value: "4/8",
+          image: <NumberLineFraction numerator={4} denominator={8} />,
+        },
+      ],
+      dropZones: [
+        {
+          id: "zone1",
+          label: "Drop 1/2 here",
+          accepts: "1/2",
+        },
+        {
+          id: "zone2",
+          label: "Drop 2/4 here",
+          accepts: "2/4",
+        },
+        {
+          id: "zone3",
+          label: "Drop 3/6 here",
+          accepts: "3/6",
         },
       ],
       explanation:
-        "To transform 1/3 into 2/6, we multiply both the numerator and denominator by 2: (1×2)/(3×2) = 2/6. This creates an equivalent fraction.",
+        "All these fractions are equivalent to 1/2 when simplified. 1/2 = 2/4 = 3/6 = 4/8.",
     },
     {
-      initialFraction: "2/5",
-      targetFraction: "4/10",
-      steps: [
+      instruction:
+        "Match the circle fractions with their equivalent rectangle fractions",
+      pieces: [
         {
-          instruction: "What number should you multiply the numerator by?",
-          options: ["1", "2", "3", "4"],
-          correctAnswer: "2",
+          id: "piece1",
+          value: "1/3",
+          image: <CircleFraction numerator={1} denominator={3} />,
         },
         {
-          instruction: "What number should you multiply the denominator by?",
-          options: ["1", "2", "3", "4"],
-          correctAnswer: "2",
+          id: "piece2",
+          value: "2/3",
+          image: <CircleFraction numerator={2} denominator={3} />,
+        },
+        {
+          id: "piece3",
+          value: "2/6",
+          image: <RectangleFraction numerator={2} denominator={6} />,
+        },
+        {
+          id: "piece4",
+          value: "4/6",
+          image: <RectangleFraction numerator={4} denominator={6} />,
+        },
+      ],
+      dropZones: [
+        {
+          id: "zone1",
+          label: "Equivalent to 1/3",
+          accepts: "2/6",
+        },
+        {
+          id: "zone2",
+          label: "Equivalent to 2/3",
+          accepts: "4/6",
         },
       ],
       explanation:
-        "To transform 2/5 into 4/10, we multiply both the numerator and denominator by 2: (2×2)/(5×2) = 4/10. This creates an equivalent fraction.",
+        "2/6 is equivalent to 1/3 (both equal 1÷3). 4/6 is equivalent to 2/3 (both equal 2÷3).",
     },
-  ];
+    {
+      instruction: "Find the missing pieces to create equivalent fractions",
+      pieces: [
+        {
+          id: "piece1",
+          value: "3/9",
+          image: <CircleFraction numerator={3} denominator={9} />,
+        },
+        {
+          id: "piece2",
+          value: "1/3",
+          image: <CircleFraction numerator={1} denominator={3} />,
+        },
+        {
+          id: "piece3",
+          value: "1/2",
+          image: <RectangleFraction numerator={1} denominator={2} />,
+        },
+        {
+          id: "piece4",
+          value: "3/6",
+          image: <RectangleFraction numerator={3} denominator={6} />,
+        },
+      ],
+      dropZones: [
+        {
+          id: "zone1",
+          label: "Equivalent to 3/9",
+          accepts: "1/3",
+        },
+        {
+          id: "zone2",
+          label: "Equivalent to 3/6",
+          accepts: "1/2",
+        },
+      ],
+      explanation:
+        "1/3 is equivalent to 3/9 when simplified. Similarly, 3/6 simplifies to 1/2.",
+    },
+  ], []);
 
-  const allQuestions: Question[] = [
+  // Visual builder questions
+  const visualBuilderQuestions = useMemo(() => [
+    {
+      instruction:
+        "Create a fraction equivalent to 1/2 by selecting sections of the shape",
+      targetFraction: "1/2",
+      targetNumerator: 1,
+      targetDenominator: 2,
+      maxSections: 8,
+      shapeType: "circle",
+      explanation:
+        "You can create equivalent fractions by selecting the same proportion of sections. For example, 1/2 = 2/4 = 3/6 = 4/8.",
+    },
+    {
+      instruction:
+        "Create a fraction equivalent to 2/3 by selecting sections of the shape",
+      targetFraction: "2/3",
+      targetNumerator: 2,
+      targetDenominator: 3,
+      maxSections: 9,
+      shapeType: "rectangle",
+      explanation:
+        "The fraction 2/3 is equivalent to 4/6, 6/9, and other fractions where the numerator is 2/3 of the denominator.",
+    },
+    {
+      instruction:
+        "Create a fraction equivalent to 3/4 by selecting sections of the shape",
+      targetFraction: "3/4",
+      targetNumerator: 3,
+      targetDenominator: 4,
+      maxSections: 8,
+      shapeType: "hexagon",
+      explanation:
+        "The fraction 3/4 is equivalent to 6/8 and other fractions where the numerator is 3/4 of the denominator.",
+    },
+  ], []);
+
+  // Fraction multiplier questions
+  const fractionMultiplierQuestions = useMemo(() => [
+    {
+      instruction:
+        "Transform the starting fraction to match the target fraction",
+      startFraction: {
+        numerator: 1,
+        denominator: 3,
+      },
+      targetFraction: {
+        numerator: 2,
+        denominator: 6,
+      },
+      possibleMultipliers: [2, 3, 4, 5],
+      explanation:
+        "To transform 1/3 into 2/6, we multiply both numerator and denominator by 2: (1×2)/(3×2) = 2/6. This creates an equivalent fraction.",
+    },
+    {
+      instruction:
+        "Transform the starting fraction to match the target fraction",
+      startFraction: {
+        numerator: 2,
+        denominator: 5,
+      },
+      targetFraction: {
+        numerator: 4,
+        denominator: 10,
+      },
+      possibleMultipliers: [2, 3, 4, 5],
+      explanation:
+        "To transform 2/5 into 4/10, we multiply both numerator and denominator by 2: (2×2)/(5×2) = 4/10. This creates an equivalent fraction.",
+    },
+    {
+      instruction:
+        "Transform the starting fraction to match the target fraction",
+      startFraction: {
+        numerator: 1,
+        denominator: 4,
+      },
+      targetFraction: {
+        numerator: 3,
+        denominator: 12,
+      },
+      possibleMultipliers: [2, 3, 4, 5],
+      explanation:
+        "To transform 1/4 into 3/12, we multiply both numerator and denominator by 3: (1×3)/(4×3) = 3/12. This creates an equivalent fraction.",
+    },
+  ], []);
+
+  // Create the sequence of questions
+  const allQuestions: Question[] = useMemo(() => [
     {
       type: "equivalent-matching",
       id: 1,
       content: equivalentMatchingQuestions[0],
     },
 
-    { type: "fraction-recipe", id: 2, content: fractionRecipeQuestions[0] },
+    {
+      type: "fraction-multiplier",
+      id: 2,
+      content: fractionMultiplierQuestions[0],
+    },
 
-    ...multipleChoiceQuestions.map((q, idx) => ({
-      type: "multiple-choice" as QuestionType,
-      id: 3 + idx,
+    { type: "drag-drop", id: 3, content: dragDropQuestions[0] },
+
+    { type: "visual-builder", id: 4, content: visualBuilderQuestions[0] },
+
+    ...trueFalseQuestions.slice(0, 2).map((q, idx) => ({
+      type: "true-false" as QuestionType,
+      id: 5 + idx,
       content: q,
     })),
 
-    { type: "fraction-recipe", id: 6, content: fractionRecipeQuestions[1] },
+    {
+      type: "fraction-multiplier",
+      id: 7,
+      content: fractionMultiplierQuestions[1],
+    },
 
-    ...trueFalseQuestions.map((q, idx) => ({
+    { type: "drag-drop", id: 8, content: dragDropQuestions[1] },
+
+    { type: "visual-builder", id: 9, content: visualBuilderQuestions[1] },
+
+    ...trueFalseQuestions.slice(2).map((q, idx) => ({
       type: "true-false" as QuestionType,
-      id: 7 + idx,
+      id: 10 + idx,
       content: q,
     })),
 
     {
       type: "visual-selection",
-      id: 9,
+      id: 12,
       content: svgVisualSelectionQuestions[0],
     },
 
-    { type: "decimal-matching", id: 10, content: decimalMatchingQuestions[0] },
-  ];
+    {
+      type: "fraction-multiplier",
+      id: 13,
+      content: fractionMultiplierQuestions[2],
+    },
 
-  const currentQuestion = allQuestions[game.currentQuestion];
+    { type: "drag-drop", id: 14, content: dragDropQuestions[2] },
+
+    { type: "visual-builder", id: 15, content: visualBuilderQuestions[2] },
+
+    { type: "decimal-matching", id: 16, content: decimalMatchingQuestions[0] },
+  ], [
+    equivalentMatchingQuestions,
+    fractionMultiplierQuestions,
+    dragDropQuestions,
+    visualBuilderQuestions,
+    trueFalseQuestions,
+    svgVisualSelectionQuestions,
+    decimalMatchingQuestions,
+  ]);
+
+  // GAME LOGIC
+  // ==========
+
+  // Game state
+  const game = useGameState({
+    totalQuestions: allQuestions.length,
+    autoAdvanceDelay: 2000,
+  });
+
+  // Handle the confetti state properly
+  useEffect(() => {
+    setShouldShowConfetti(game.showConfetti);
+
+    if (game.showConfetti) {
+      const timer = setTimeout(() => {
+        setShouldShowConfetti(false);
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [game.showConfetti]);
+
+  // ANSWER HANDLERS
+  // ==============
 
   const handleEquivalentFractionsAnswer = useCallback(
     (score: number, total: number) => {
@@ -272,7 +461,10 @@ const Game2 = () => {
 
   const handleChoiceAnswer = useCallback(
     (selectedOption: string) => {
-      const correctAnswer = currentQuestion?.content?.correctAnswer;
+      const correctAnswer =
+        game.currentQuestion < allQuestions.length
+          ? allQuestions[game.currentQuestion]?.content?.correctAnswer
+          : "";
       const isCorrect = selectedOption === correctAnswer;
       setSelectedAnswer(selectedOption);
 
@@ -286,12 +478,15 @@ const Game2 = () => {
         }, 2500);
       }, 500);
     },
-    [currentQuestion, game]
+    [game, allQuestions]
   );
 
   const handleVisualSelectionAnswer = useCallback(
     (selectedLabel: string) => {
-      const correctAnswer = currentQuestion?.content?.correctAnswer;
+      const correctAnswer =
+        game.currentQuestion < allQuestions.length
+          ? allQuestions[game.currentQuestion]?.content?.correctAnswer
+          : "";
       const isCorrect = selectedLabel === correctAnswer;
       setSelectedAnswer(selectedLabel);
 
@@ -305,10 +500,26 @@ const Game2 = () => {
         }, 2500);
       }, 500);
     },
-    [currentQuestion, game]
+    [game, allQuestions]
   );
 
-  const handleFractionRecipeAnswer = useCallback(
+  const handleVisualBuilderAnswer = useCallback(
+    (isCorrect: boolean) => {
+      game.handleAnswer(isCorrect);
+    },
+    [game]
+  );
+
+  // Handle drag drop answer
+  const handleDragDropAnswer = useCallback(
+    (isCorrect: boolean) => {
+      game.handleAnswer(isCorrect);
+    },
+    [game]
+  );
+
+  // Handle fraction multiplier answer
+  const handleFractionMultiplierAnswer = useCallback(
     (isCorrect: boolean) => {
       game.handleAnswer(isCorrect);
     },
@@ -330,18 +541,14 @@ const Game2 = () => {
     setShouldShowConfetti(false);
   }, [game]);
 
-  if (game.gameComplete) {
-    UserStorage.updateStepProgress("step2", game.score, true);
-    return (
-      <GameResults
-        score={game.score}
-        totalQuestions={allQuestions.length}
-        onRestartGame={resetGameHandler}
-      />
-    );
-  }
+  // RENDER FUNCTIONS
+  // ===============
 
+  // Render the current question component based on its type
   const renderQuestionComponent = () => {
+    if (game.currentQuestion >= allQuestions.length) return null;
+
+    const currentQuestion = allQuestions[game.currentQuestion];
     if (!currentQuestion) return null;
 
     switch (currentQuestion.type) {
@@ -354,7 +561,6 @@ const Game2 = () => {
           />
         );
 
-      case "multiple-choice":
       case "true-false":
         return (
           <div>
@@ -394,11 +600,29 @@ const Game2 = () => {
           />
         );
 
-      case "fraction-recipe":
+      case "drag-drop":
         return (
-          <FractionRecipeGame
+          <FractionDragDropGame
             question={currentQuestion.content}
-            onAnswer={handleFractionRecipeAnswer}
+            onAnswer={handleDragDropAnswer}
+            disabled={!!game.showFeedback}
+          />
+        );
+
+      case "visual-builder":
+        return (
+          <VisualFractionBuilder
+            question={currentQuestion.content}
+            onAnswer={handleVisualBuilderAnswer}
+            disabled={!!game.showFeedback}
+          />
+        );
+
+      case "fraction-multiplier":
+        return (
+          <EquivalentFractionMultiplier
+            question={currentQuestion.content}
+            onAnswer={handleFractionMultiplierAnswer}
             disabled={!!game.showFeedback}
           />
         );
@@ -408,6 +632,19 @@ const Game2 = () => {
     }
   };
 
+  // Show game results when complete
+  if (game.gameComplete) {
+    UserStorage.updateStepProgress("step2", game.score, true);
+    return (
+      <GameResults
+        score={game.score}
+        totalQuestions={allQuestions.length}
+        onRestartGame={resetGameHandler}
+      />
+    );
+  }
+
+  // Main game layout
   return (
     <GameLayout
       title="Equivalent Fractions"
@@ -415,7 +652,7 @@ const Game2 = () => {
       currentQuestion={game.currentQuestion}
       totalQuestions={allQuestions.length}
       score={game.score}
-      showConfetti={shouldShowConfetti} // Using the local state to control confetti
+      showConfetti={shouldShowConfetti}
       showFeedback={game.showFeedback}
       feedbackMessage={
         game.showFeedback === "success"
@@ -430,7 +667,11 @@ const Game2 = () => {
     >
       <GameStats currentStep="step2" />
       <motion.div
-        key={currentQuestion?.id}
+        key={
+          game.currentQuestion < allQuestions.length
+            ? allQuestions[game.currentQuestion]?.id
+            : "unknown"
+        }
         initial={{ opacity: 0, x: 20 }}
         animate={{ opacity: 1, x: 0 }}
         exit={{ opacity: 0, x: -20 }}
