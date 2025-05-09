@@ -279,7 +279,12 @@ export default function LandingPage() {
    to include the Universitas Kristen Satya Wacana logo.
 */}
 
-{/* FOOTER - Enhanced with UKSW Logo */}
+{/* 
+   This code updates the footer section of your landing page (src/app/page.tsx)
+   to include the three requested logos in a row.
+*/}
+
+{/* FOOTER - Enhanced with Three Logos */}
 <footer className="bg-gradient-to-r from-pink-600 to-purple-600 text-white py-12 px-6 md:px-16">
   <div className="max-w-6xl mx-auto">
     <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -330,22 +335,46 @@ export default function LandingPage() {
     </div>
     
     <div className="border-t border-pink-400 mt-12 pt-8 text-center">
-      <div className="flex justify-center items-center mb-4">
-        {/* UKSW Logo added here */}
-        <div className="w-48">
+      {/* Three logos row */}
+      <div className="flex justify-center items-center gap-8 mb-6">
+        {/* Logo 1 - UKSW */}
+        <div className="w-32 h-32 flex items-center justify-center bg-white rounded-full p-2">
           <Image 
-            src="/uksw-logo.png" 
+            src="/uksw-logo-1.png" 
             alt="Universitas Kristen Satya Wacana"
-            width={300}
+            width={120}
+            height={120}
+            className="object-contain"
+          />
+        </div>
+        
+        {/* Logo 2 - FKIP UKSW */}
+        <div className="w-32 h-32 flex items-center justify-center bg-white rounded-full p-2">
+          <Image 
+            src="/uksw-logo-2.png" 
+            alt="FKIP UKSW"
+            width={120}
+            height={120}
+            className="object-contain"
+          />
+        </div>
+        
+        {/* Logo 3 - PGSD FKIP UKSW */}
+        <div className="w-32 h-32 flex items-center justify-center bg-white rounded-full p-2">
+          <Image 
+            src="/uksw-logo-3.png" 
+            alt="PGSD FKIP UKSW"
+            width={120}
             height={120}
             className="object-contain"
           />
         </div>
       </div>
+      
       <p className="text-pink-100">© 2025 INTAN. All rights reserved.</p>
     </div>
   </div>
 </footer>
-    </main>
+</main>
   );
 }
