@@ -274,60 +274,78 @@ export default function LandingPage() {
         </motion.div>
       </section>
 
-      {/* FOOTER - Enhanced */}
-      <footer className="bg-gradient-to-r from-pink-600 to-purple-600 text-white py-12 px-6 md:px-16">
-        <div className="max-w-6xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div>
-              <div className="flex items-center gap-3 mb-4">
-                <Image
-                  src="/logo.png"
-                  alt="Logo"
-                  width={300}
-                  height={300}
-                  className="object-contain"
-                />
-              </div>
-              <p className="text-pink-100">
-                Making fraction learning fun and interactive for everyone.
-              </p>
-            </div>
+   {/* 
+   This code updates the footer section of your landing page (src/app/page.tsx)
+   to include the Universitas Kristen Satya Wacana logo.
+*/}
 
-            <div>
-              <h4 className="font-bold text-lg mb-4">Quick Links</h4>
-              <ul className="space-y-2 text-pink-100">
-                <li>
-                  <a href="#" className="hover:text-white transition-colors">
-                    About Us
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-white transition-colors">
-                    Contact
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-white transition-colors">
-                    Privacy Policy
-                  </a>
-                </li>
-              </ul>
-            </div>
-
-            <div>
-              <h4 className="font-bold text-lg mb-4">Contact Us</h4>
-              <p className="text-pink-100">
-                Email: intansilvia531@gmail.com
-                <br />
-                Phone: (+62)82241389340
-              </p>
-            </div>
-          </div>
-          <div className="border-t border-pink-400 mt-12 pt-8 text-center text-pink-100">
-            <p>© 2025 INTAN. All rights reserved.</p>
-          </div>
+{/* FOOTER - Enhanced with UKSW Logo */}
+<footer className="bg-gradient-to-r from-pink-600 to-purple-600 text-white py-12 px-6 md:px-16">
+  <div className="max-w-6xl mx-auto">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div>
+        <div className="flex items-center gap-3 mb-4">
+          <Image
+            src="/logo.png"
+            alt="Logo"
+            width={300}
+            height={300}
+            className="object-contain"
+          />
         </div>
-      </footer>
+        <p className="text-pink-100">
+          Making fraction learning fun and interactive for everyone.
+        </p>
+      </div>
+
+      <div>
+        <h4 className="font-bold text-lg mb-4">Quick Links</h4>
+        <ul className="space-y-2 text-pink-100">
+          <li>
+            <a href="#" className="hover:text-white transition-colors">
+              About Us
+            </a>
+          </li>
+          <li>
+            <a href="#" className="hover:text-white transition-colors">
+              Contact
+            </a>
+          </li>
+          <li>
+            <a href="#" className="hover:text-white transition-colors">
+              Privacy Policy
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <div>
+        <h4 className="font-bold text-lg mb-4">Contact Us</h4>
+        <p className="text-pink-100">
+          Email: intansilvia531@gmail.com
+          <br />
+          Phone: (+62)82241389340
+        </p>
+      </div>
+    </div>
+    
+    <div className="border-t border-pink-400 mt-12 pt-8 text-center">
+      <div className="flex justify-center items-center mb-4">
+        {/* UKSW Logo added here */}
+        <div className="w-48">
+          <Image 
+            src="/uksw-logo.png" 
+            alt="Universitas Kristen Satya Wacana"
+            width={300}
+            height={120}
+            className="object-contain"
+          />
+        </div>
+      </div>
+      <p className="text-pink-100">© 2025 INTAN. All rights reserved.</p>
+    </div>
+  </div>
+</footer>
     </main>
   );
 }
