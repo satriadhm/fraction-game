@@ -1,4 +1,3 @@
-// src/app/components/game/FractionCutterGame.tsx
 "use client";
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
@@ -114,7 +113,7 @@ const FractionCutterGame: React.FC<FractionCutterGameProps> = ({
         );
       }
 
-      // Calculate time bonus
+      // Calculate time bonus based on remaining time
       const timeBonus = Math.floor(timeLeft * (level.timeBonusMultiplier || 1));
 
       if (isWithinThreshold) {
@@ -140,9 +139,9 @@ const FractionCutterGame: React.FC<FractionCutterGameProps> = ({
     stickmanPosition,
     level.numerator,
     level.denominator,
+    level.timeBonusMultiplier,
     ACCURACY_THRESHOLD,
     timeLeft,
-    level.timeBonusMultiplier,
     onSuccess,
     onFailure,
   ]);

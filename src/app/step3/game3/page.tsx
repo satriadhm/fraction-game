@@ -1,4 +1,3 @@
-// src/app/step3/game3/page.tsx
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
@@ -32,11 +31,12 @@ const Game3Page = () => {
   const [isPaused, setIsPaused] = useState(false);
   const [feedbackMessage, setFeedbackMessage] = useState("");
 
-  // Constants for scoring
+  // Constants for scoring - updated for better balance
   const BASE_SCORE = 100;
-  const TIME_PENALTY_PER_SECOND = 1;
-  const ACCURACY_WEIGHT = 0.6;
-  const TIME_WEIGHT = 0.4;
+  const ACCURACY_WEIGHT = 0.7; // Increased weight for accuracy
+  const TIME_WEIGHT = 0.3; // Decreased weight for time
+  const MAX_TIME_BONUS = 50; // Maximum time bonus points
+  const PERFECT_BONUS = 20; // Bonus for perfect accuracy
   const LEVELS_TOTAL = GAME_LEVELS.length;
 
   // Stop loading when component mounts
@@ -71,7 +71,7 @@ const Game3Page = () => {
     }
   }, [lives, resetLevelTimer]);
 
-  // Timer logic - fixed dependency array
+  // Timer logic
   useEffect(() => {
     if (!gameStarted || gameComplete || isPaused || showFeedback) return;
 
@@ -88,24 +88,29 @@ const Game3Page = () => {
     return () => clearInterval(timer);
   }, [gameStarted, gameComplete, isPaused, showFeedback, handleTimerExpired]);
 
-  // Calculate score based on accuracy and time
+  // Calculate score based on accuracy and time - improved version
   const calculateScore = useCallback(
-    (accuracyPercentage: number, timeRemaining: number) => {
+    (accuracyPercentage: number, timeBonus: number) => {
       // Convert accuracy from 0-100 to 0-1
-      const accuracy = accuracyPercentage / 100;
+      const accuracy = Math.min(100, Math.max(0, accuracyPercentage)) / 100;
 
-      // Time bonus: more time left = more bonus
-      const timeBonus = Math.max(0, timeRemaining * TIME_PENALTY_PER_SECOND);
+      // Base score from accuracy (70% of points)
+      const accuracyScore = Math.round(BASE_SCORE * accuracy * ACCURACY_WEIGHT);
 
-      // Base score + accuracy component + time component
-      const accuracyScore = accuracy * BASE_SCORE * ACCURACY_WEIGHT;
-      const timeScore = (timeBonus / 30) * BASE_SCORE * TIME_WEIGHT; // Normalize time bonus
+      // Perfect cut bonus
+      const perfectBonus = accuracy >= 0.95 ? PERFECT_BONUS : 0;
 
-      const totalScore = Math.round(accuracyScore + timeScore);
+      // Time bonus (30% of points) - normalized to prevent excessive bonuses
+      const normalizedTimeBonus = Math.min(timeBonus, MAX_TIME_BONUS);
+      const timeScore = Math.round(normalizedTimeBonus * TIME_WEIGHT);
+
+      // Total score with clear components
+      const totalScore = accuracyScore + timeScore + perfectBonus;
 
       return {
-        accuracyScore: Math.round(accuracyScore),
-        timeScore: Math.round(timeScore),
+        accuracyScore,
+        timeScore,
+        perfectBonus,
         totalScore,
       };
     },
@@ -114,18 +119,30 @@ const Game3Page = () => {
 
   // Handle successful level completion
   const handleLevelComplete = useCallback(
-    (accuracyPercentage: number) => {
-      // Calculate level score
-      const scores = calculateScore(accuracyPercentage, timeLeft);
+    (accuracyPercentage: number, timeBonus: number) => {
+      // Calculate level score with the improved function
+      const scores = calculateScore(accuracyPercentage, timeBonus);
 
+      // Update total score
       setTotalScore((prev) => prev + scores.totalScore);
 
+      // Update feedback message to show score breakdown clearly
       setShowFeedback("success");
       setShowConfetti(true);
-      setFeedbackMessage(
-        `Perfect cut! Accuracy: ${Math.round(accuracyPercentage)}%\n` +
-          `Accuracy Score: ${scores.accuracyScore} + Time Bonus: ${scores.timeScore}`
-      );
+
+      let feedbackText = `Great cut! Accuracy: ${Math.round(
+        accuracyPercentage
+      )}%\n`;
+      feedbackText += `Base Score: ${scores.accuracyScore}`;
+
+      if (scores.perfectBonus > 0) {
+        feedbackText += ` + Perfect Bonus: ${scores.perfectBonus}`;
+      }
+
+      feedbackText += ` + Time Bonus: ${scores.timeScore}`;
+      feedbackText += ` = ${scores.totalScore} points`;
+
+      setFeedbackMessage(feedbackText);
 
       // Move to next level after showing feedback
       setTimeout(() => {
@@ -142,7 +159,7 @@ const Game3Page = () => {
         }
       }, 2500);
     },
-    [currentLevel, timeLeft, calculateScore, resetLevelTimer, LEVELS_TOTAL]
+    [currentLevel, calculateScore, resetLevelTimer, LEVELS_TOTAL]
   );
 
   // Handle level failure
@@ -302,12 +319,15 @@ const Game3Page = () => {
               <p className="text-indigo-800">
                 Base Score: {BASE_SCORE} points
                 <br />
-                Accuracy Bonus: Up to {Math.round(
-                  BASE_SCORE * ACCURACY_WEIGHT
+                Accuracy Component: Up to{" "}
+                {Math.round(BASE_SCORE * ACCURACY_WEIGHT)} points
+                <br />
+                Time Bonus: Up to {Math.round(
+                  MAX_TIME_BONUS * TIME_WEIGHT
                 )}{" "}
                 points
                 <br />
-                Time Bonus: Up to {Math.round(BASE_SCORE * TIME_WEIGHT)} points
+                Perfect Cut Bonus: {PERFECT_BONUS} points
               </p>
             </div>
           </div>
