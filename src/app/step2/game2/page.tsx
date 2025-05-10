@@ -52,9 +52,6 @@ const Game2 = () => {
   const [showExplanation, setShowExplanation] = useState(false);
   const [shouldShowConfetti, setShouldShowConfetti] = useState(false);
 
-  // Track the total score separately to ensure consistent calculation
-  const [totalScore, setTotalScore] = useState(0);
-
   // Stop loading when component mounts
   useEffect(() => {
     stopLoading();
@@ -411,11 +408,11 @@ const Game2 = () => {
   // GAME LOGIC
   // ==========
 
-  // Game state - fixed baseScore parameter to ensure proper scoring
+  // Game state - with simplified scoring (just 10 points per correct answer)
   const game = useGameState({
     totalQuestions: allQuestions.length,
     autoAdvanceDelay: 2000,
-    baseScore: 10, // Ensure base score is set consistently
+    baseScore: 10,
   });
 
   // Handle the confetti state properly
@@ -433,25 +430,13 @@ const Game2 = () => {
     }
   }, [game.showConfetti, shouldShowConfetti]);
 
-  // Update total score whenever game score changes
-  useEffect(() => {
-    setTotalScore(game.score);
-  }, [game.score]);
-
   // ANSWER HANDLERS
   // ==============
 
+  // Simplified handler for equivalent fractions - just +10 if all correct
   const handleEquivalentFractionsAnswer = useCallback(
     (score: number, total: number) => {
       const isCorrect = score === total;
-
-      // Update the score directly if correct
-      if (isCorrect) {
-        // Add the points for this question (each correct pair is worth points)
-        const questionPoints = (score * 10) / total; // Normalize to base score (10 points)
-        setTotalScore((prev) => prev + questionPoints);
-      }
-
       game.handleAnswer(isCorrect);
     },
     [game]
@@ -482,7 +467,7 @@ const Game2 = () => {
     [game, trueFalseQuestions, showExplanation, allQuestions.length]
   );
 
-  // Handle drag drop answer
+  // Handle drag drop answer - simplified to just right/wrong
   const handleDragDropAnswer = useCallback(
     (isCorrect: boolean) => {
       game.handleAnswer(isCorrect);
@@ -492,9 +477,6 @@ const Game2 = () => {
 
   const resetGameHandler = useCallback(() => {
     game.resetGame();
-    setTotalScore(0); // Reset the total score as well
-    setShowExplanation(false);
-    setShouldShowConfetti(false);
   }, [game]);
 
   // RENDER FUNCTIONS
@@ -556,11 +538,11 @@ const Game2 = () => {
 
   // Show game results when complete
   if (game.gameComplete) {
-    // Make sure the final score is used here
-    UserStorage.updateStepProgress("step2", totalScore, true);
+    // Save progress with the final score
+    UserStorage.updateStepProgress("step2", game.score, true);
     return (
       <GameResults
-        score={totalScore}
+        score={game.score}
         totalQuestions={allQuestions.length}
         onRestartGame={resetGameHandler}
       />
@@ -574,7 +556,7 @@ const Game2 = () => {
       subtitle="Explore fractions that look different but have the same value"
       currentQuestion={game.currentQuestion}
       totalQuestions={allQuestions.length}
-      score={totalScore} // Use the updated total score here
+      score={game.score}
       showConfetti={shouldShowConfetti}
       showFeedback={game.showFeedback}
       feedbackMessage={

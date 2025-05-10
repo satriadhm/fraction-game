@@ -43,7 +43,7 @@ const ConfettiEffect: React.FC<ConfettiEffectProps> = ({
   onComplete,
 }) => {
   const [confetti, setConfetti] = useState<ConfettiPiece[]>([]);
-  const [isComplete, setIsComplete] = useState(false);
+  const [localShow, setLocalShow] = useState(false);
 
   // Generate random confetti pieces
   const generateConfetti = React.useCallback((): ConfettiPiece[] => {
@@ -74,34 +74,27 @@ const ConfettiEffect: React.FC<ConfettiEffectProps> = ({
     });
   }, [pieces, origin, shapes, sizes, colors, duration]);
 
-  // Generate confetti pieces when 'show' changes to true
+  // Track when the show prop changes from false to true
   useEffect(() => {
-    if (show && !isComplete) {
+    if (show && !localShow) {
+      setLocalShow(true);
       const newConfetti = generateConfetti();
       setConfetti(newConfetti);
-      setIsComplete(false);
 
       // Set timer to clean up confetti after animation completes
       const timer = setTimeout(() => {
         setConfetti([]);
-        setIsComplete(true);
+        setLocalShow(false);
         if (onComplete) onComplete();
-      }, duration * 1000 + 500); // Extra time to ensure all animations complete
+      }, duration * 1000 + 1000); // Extra time to ensure all animations complete
 
       return () => clearTimeout(timer);
-    } else if (!show && confetti.length > 0) {
-      // Add this condition to clear confetti when show becomes false
+    } else if (!show && localShow) {
+      // When show becomes false, update local state to match
+      setLocalShow(false);
       setConfetti([]);
-      setIsComplete(false);
     }
-  }, [
-    show,
-    duration,
-    onComplete,
-    generateConfetti,
-    isComplete,
-    confetti.length,
-  ]);
+  }, [show, duration, onComplete, generateConfetti, localShow]);
 
   // Calculate starting position based on origin
   const getStartPosition = (origin: ConfettiOrigin) => {
@@ -248,7 +241,7 @@ const ConfettiEffect: React.FC<ConfettiEffectProps> = ({
   };
 
   // If not showing or no confetti pieces, don't render anything
-  if (!show || confetti.length === 0) return null;
+  if (!localShow || confetti.length === 0) return null;
 
   return (
     <div className="fixed inset-0 pointer-events-none overflow-hidden z-50">

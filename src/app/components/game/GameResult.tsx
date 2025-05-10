@@ -27,7 +27,9 @@ const GameResults: React.FC<GameResultsProps> = ({
   const progress = UserStorage.getProgress();
   const profile = UserStorage.getProfile();
 
-  const percentage = Math.round((score / totalQuestions) * 100);
+  // Fix the percentage calculation - ensure it's correctly calculated
+  // and limited to a reasonable number
+  const percentage = Math.min(Math.round((score / totalQuestions) * 100), 100);
 
   const getFeedbackMessage = () => {
     if (percentage >= 90) return "Outstanding! You're a fraction master!";
