@@ -201,172 +201,180 @@ const Game2 = () => {
     ],
     []
   );
+  // Example of how to implement the revised drag and drop questions
+  // This would go in the Game2.tsx file or wherever you define your questions
 
-  // Drag and Drop questions
+  // Revised dragDropQuestions - drag fraction shapes to equivalent fraction values
   const dragDropQuestions = useMemo(
     () => [
       {
         instruction:
-          "Drag the fraction visualizations to their equivalent fraction values",
+          "Drag the fraction shapes to their equivalent fraction values",
         pieces: [
           {
             id: "piece1",
-            value: "1/2",
+            value: "1/2", // The actual value of this piece
             image: <CircleFraction numerator={1} denominator={2} />,
           },
           {
             id: "piece2",
-            value: "2/4",
-            image: <RectangleFraction numerator={2} denominator={4} />,
+            value: "1/3",
+            image: <CircleFraction numerator={1} denominator={3} />,
           },
           {
             id: "piece3",
-            value: "3/6",
-            image: <HexagonFraction numerator={3} denominator={6} />,
-          },
-          {
-            id: "piece4",
-            value: "4/8",
-            image: <NumberLineFraction numerator={4} denominator={8} />,
+            value: "1/4",
+            image: <CircleFraction numerator={1} denominator={4} />,
           },
         ],
         dropZones: [
           {
             id: "zone1",
-            label: "Drop 1/2 here",
-            accepts: "1/2",
+            label: "2/4",
+            equivalentValue: "2/4", // This is equivalent to 1/2
+            acceptsId: "piece1",
           },
           {
             id: "zone2",
-            label: "Drop 2/4 here",
-            accepts: "2/4",
+            label: "2/6",
+            equivalentValue: "2/6", // This is equivalent to 1/3
+            acceptsId: "piece2",
           },
           {
             id: "zone3",
-            label: "Drop 3/6 here",
-            accepts: "3/6",
+            label: "3/12",
+            equivalentValue: "3/12", // This is equivalent to 1/4
+            acceptsId: "piece3",
           },
         ],
         explanation:
-          "All these fractions are equivalent to 1/2 when simplified. 1/2 = 2/4 = 3/6 = 4/8.",
+          "1/2 = 2/4, 1/3 = 2/6, and 1/4 = 3/12 because each pair has the same value when simplified.",
       },
       {
-        instruction:
-          "Match the circle fractions with their equivalent rectangle fractions",
+        instruction: "Match each fraction shape with its equivalent value",
         pieces: [
           {
             id: "piece1",
-            value: "1/3",
-            image: <CircleFraction numerator={1} denominator={3} />,
+            value: "2/3",
+            image: <RectangleFraction numerator={2} denominator={3} />,
+          },
+          {
+            id: "piece2",
+            value: "3/4",
+            image: <RectangleFraction numerator={3} denominator={4} />,
+          },
+          {
+            id: "piece3",
+            value: "1/5",
+            image: <RectangleFraction numerator={1} denominator={5} />,
+          },
+        ],
+        dropZones: [
+          {
+            id: "zone1",
+            label: "4/6",
+            equivalentValue: "4/6", // Equivalent to 2/3
+            acceptsId: "piece1",
+          },
+          {
+            id: "zone2",
+            label: "6/8",
+            equivalentValue: "6/8", // Equivalent to 3/4
+            acceptsId: "piece2",
+          },
+          {
+            id: "zone3",
+            label: "2/10",
+            equivalentValue: "2/10", // Equivalent to 1/5
+            acceptsId: "piece3",
+          },
+        ],
+        explanation:
+          "2/3 = 4/6, 3/4 = 6/8, and 1/5 = 2/10. In each case, we multiply both the numerator and denominator by the same number to get equivalent fractions.",
+      },
+      {
+        instruction: "Place each fraction with its equivalent value",
+        pieces: [
+          {
+            id: "piece1",
+            value: "3/5",
+            image: <HexagonFraction numerator={3} denominator={5} />,
+          },
+          {
+            id: "piece2",
+            value: "2/5",
+            image: <HexagonFraction numerator={2} denominator={5} />,
+          },
+          {
+            id: "piece3",
+            value: "4/5",
+            image: <HexagonFraction numerator={4} denominator={5} />,
+          },
+        ],
+        dropZones: [
+          {
+            id: "zone1",
+            label: "6/10",
+            equivalentValue: "6/10", // Equivalent to 3/5
+            acceptsId: "piece1",
+          },
+          {
+            id: "zone2",
+            label: "4/10",
+            equivalentValue: "4/10", // Equivalent to 2/5
+            acceptsId: "piece2",
+          },
+          {
+            id: "zone3",
+            label: "8/10",
+            equivalentValue: "8/10", // Equivalent to 4/5
+            acceptsId: "piece3",
+          },
+        ],
+        explanation:
+          "3/5 = 6/10, 2/5 = 4/10, and 4/5 = 8/10. To find equivalent fractions, multiply both the numerator and denominator by the same number.",
+      },
+      {
+        instruction: "Match the fraction shapes to their equivalent values",
+        pieces: [
+          {
+            id: "piece1",
+            value: "1/2",
+            image: <NumberLineFraction numerator={1} denominator={2} />,
           },
           {
             id: "piece2",
             value: "2/3",
-            image: <CircleFraction numerator={2} denominator={3} />,
+            image: <NumberLineFraction numerator={2} denominator={3} />,
           },
           {
             id: "piece3",
-            value: "2/6",
-            image: <RectangleFraction numerator={2} denominator={6} />,
-          },
-          {
-            id: "piece4",
-            value: "4/6",
-            image: <RectangleFraction numerator={4} denominator={6} />,
+            value: "3/4",
+            image: <NumberLineFraction numerator={3} denominator={4} />,
           },
         ],
         dropZones: [
           {
             id: "zone1",
-            label: "Equivalent to 1/3",
-            accepts: "2/6",
+            label: "3/6",
+            equivalentValue: "3/6", // Equivalent to 1/2
+            acceptsId: "piece1",
           },
           {
             id: "zone2",
-            label: "Equivalent to 2/3",
-            accepts: "4/6",
+            label: "6/9",
+            equivalentValue: "6/9", // Equivalent to 2/3
+            acceptsId: "piece2",
+          },
+          {
+            id: "zone3",
+            label: "9/12",
+            equivalentValue: "9/12", // Equivalent to 3/4
+            acceptsId: "piece3",
           },
         ],
         explanation:
-          "2/6 is equivalent to 1/3 (both equal 1÷3). 4/6 is equivalent to 2/3 (both equal 2÷3).",
-      },
-      {
-        instruction: "Find the missing pieces to create equivalent fractions",
-        pieces: [
-          {
-            id: "piece1",
-            value: "3/9",
-            image: <CircleFraction numerator={3} denominator={9} />,
-          },
-          {
-            id: "piece2",
-            value: "1/3",
-            image: <CircleFraction numerator={1} denominator={3} />,
-          },
-          {
-            id: "piece3",
-            value: "1/2",
-            image: <RectangleFraction numerator={1} denominator={2} />,
-          },
-          {
-            id: "piece4",
-            value: "3/6",
-            image: <RectangleFraction numerator={3} denominator={6} />,
-          },
-        ],
-        dropZones: [
-          {
-            id: "zone1",
-            label: "Equivalent to 3/9",
-            accepts: "1/3",
-          },
-          {
-            id: "zone2",
-            label: "Equivalent to 3/6",
-            accepts: "1/2",
-          },
-        ],
-        explanation:
-          "1/3 is equivalent to 3/9 when simplified. Similarly, 3/6 simplifies to 1/2.",
-      },
-      {
-        instruction: "Drag the fraction pieces to match equivalent fractions",
-        pieces: [
-          {
-            id: "piece1",
-            value: "4/12",
-            image: <CircleFraction numerator={4} denominator={12} />,
-          },
-          {
-            id: "piece2",
-            value: "1/3",
-            image: <CircleFraction numerator={1} denominator={3} />,
-          },
-          {
-            id: "piece3",
-            value: "2/5",
-            image: <RectangleFraction numerator={2} denominator={5} />,
-          },
-          {
-            id: "piece4",
-            value: "4/10",
-            image: <RectangleFraction numerator={4} denominator={10} />,
-          },
-        ],
-        dropZones: [
-          {
-            id: "zone1",
-            label: "Equivalent to 4/12",
-            accepts: "1/3",
-          },
-          {
-            id: "zone2",
-            label: "Equivalent to 4/10",
-            accepts: "2/5",
-          },
-        ],
-        explanation:
-          "4/12 simplifies to 1/3, and 4/10 simplifies to 2/5. These are equivalent fractions.",
+          "1/2 = 3/6, 2/3 = 6/9, and 3/4 = 9/12. These fractions are equivalent because they represent the same portion of a whole.",
       },
     ],
     []

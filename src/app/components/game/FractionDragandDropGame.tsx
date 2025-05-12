@@ -5,6 +5,7 @@ import React, { useState, useRef } from "react";
 import AnimatedButton from "../molecules/AnimatedButton";
 import Icon from "../atoms/Icon";
 
+// Modified interface where each dropZone has exactly one accepted piece
 interface FractionPiece {
   id: string;
   value: string;
@@ -14,7 +15,8 @@ interface FractionPiece {
 interface DropZone {
   id: string;
   label: string;
-  accepts: string;
+  equivalentValue: string; // The equivalent fraction value this zone accepts
+  acceptsId: string; // Direct reference to the piece ID
 }
 
 interface FractionDragDropGameProps {
@@ -71,13 +73,15 @@ const FractionDragDropGame: React.FC<FractionDragDropGameProps> = ({
     // Check if all zones have correct placements
     const allCorrect = question.dropZones.every((zone) => {
       const placedPieceId = placements[zone.id];
-      if (!placedPieceId) return false;
-
-      const placedPiece = question.pieces.find((p) => p.id === placedPieceId);
-      return placedPiece && placedPiece.value === zone.accepts;
+      return placedPieceId === zone.acceptsId;
     });
 
-    onAnswer(allCorrect);
+    // Check all zones are filled
+    const allZonesFilled = question.dropZones.every((zone) =>
+      Object.keys(placements).includes(zone.id)
+    );
+
+    onAnswer(allCorrect && allZonesFilled);
   };
 
   const resetPlacements = () => {
@@ -91,13 +95,16 @@ const FractionDragDropGame: React.FC<FractionDragDropGameProps> = ({
         <p className="text-xl font-bold text-center text-purple-700">
           {question.instruction}
         </p>
+        <p className="text-sm text-purple-600 mt-2">
+          Match each fraction shape with its equivalent fraction value
+        </p>
       </div>
 
       <div className="flex flex-col md:flex-row gap-6 mb-8 w-full max-w-2xl">
         {/* Fraction Pieces Section */}
         <div className="md:w-1/2 bg-blue-50 p-4 rounded-xl border-2 border-blue-200">
           <h3 className="text-lg font-bold text-blue-700 mb-3">
-            Fraction Pieces
+            Fraction Shapes
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {question.pieces.map((piece) => (
@@ -126,7 +133,9 @@ const FractionDragDropGame: React.FC<FractionDragDropGameProps> = ({
 
         {/* Drop Zones Section */}
         <div className="md:w-1/2 bg-purple-50 p-4 rounded-xl border-2 border-purple-200">
-          <h3 className="text-lg font-bold text-purple-700 mb-3">Drop Zones</h3>
+          <h3 className="text-lg font-bold text-purple-700 mb-3">
+            Equivalent Values
+          </h3>
           <div className="flex flex-col space-y-4">
             {question.dropZones.map((zone) => {
               const hasContent = !!placements[zone.id];
@@ -154,9 +163,10 @@ const FractionDragDropGame: React.FC<FractionDragDropGameProps> = ({
                       </div>
                     </div>
                   ) : (
+                    // This is where the updated dropZone content goes
                     <div className="flex flex-col items-center justify-center h-20">
                       <div className="p-4">
-                        <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center">
+                        <div className="w-12 h-6 rounded-full bg-gray-100 flex items-center justify-center">
                           <svg
                             width="24"
                             height="24"
@@ -173,7 +183,10 @@ const FractionDragDropGame: React.FC<FractionDragDropGameProps> = ({
                           </svg>
                         </div>
                       </div>
-                      <p className="text-gray-500 font-medium">{zone.label}</p>
+                      <p className="text-gray-800 font-medium">{zone.label}</p>
+                      {zone.equivalentValue && (
+                        <p className="text-xs text-gray-500">Drop shape here</p>
+                      )}
                     </div>
                   )}
                 </div>
