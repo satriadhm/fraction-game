@@ -420,7 +420,7 @@ const Game2 = () => {
   const game = useGameState({
     totalQuestions: allQuestions.length,
     autoAdvanceDelay: 2000,
-    baseScore: 10,
+    baseScore: 1,
   });
 
   // Handle the confetti state properly
