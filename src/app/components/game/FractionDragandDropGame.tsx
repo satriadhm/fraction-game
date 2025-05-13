@@ -1,11 +1,9 @@
-// src/app/components/game/FractionDragDropGame.tsx
 "use client";
 
 import React, { useState, useRef } from "react";
 import AnimatedButton from "../molecules/AnimatedButton";
 import Icon from "../atoms/Icon";
 
-// Modified interface where each dropZone has exactly one accepted piece
 interface FractionPiece {
   id: string;
   value: string;
@@ -15,8 +13,8 @@ interface FractionPiece {
 interface DropZone {
   id: string;
   label: string;
-  equivalentValue: string; // The equivalent fraction value this zone accepts
-  acceptsId: string; // Direct reference to the piece ID
+  equivalentValue: string;
+  acceptsId: string; 
 }
 
 interface FractionDragDropGameProps {
@@ -46,7 +44,6 @@ const FractionDragDropGame: React.FC<FractionDragDropGameProps> = ({
     e.preventDefault();
     const pieceId = e.dataTransfer.getData("pieceId");
 
-    // Update placements
     setPlacements((prev) => ({
       ...prev,
       [zoneId]: pieceId,
@@ -54,7 +51,7 @@ const FractionDragDropGame: React.FC<FractionDragDropGameProps> = ({
   };
 
   const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault(); // Allow drop
+    e.preventDefault(); 
   };
 
   const isPieceInAnyZone = (pieceId: string) => {
@@ -70,13 +67,11 @@ const FractionDragDropGame: React.FC<FractionDragDropGameProps> = ({
   };
 
   const checkAnswer = () => {
-    // Check if all zones have correct placements
     const allCorrect = question.dropZones.every((zone) => {
       const placedPieceId = placements[zone.id];
       return placedPieceId === zone.acceptsId;
     });
 
-    // Check all zones are filled
     const allZonesFilled = question.dropZones.every((zone) =>
       Object.keys(placements).includes(zone.id)
     );
@@ -90,7 +85,6 @@ const FractionDragDropGame: React.FC<FractionDragDropGameProps> = ({
 
   return (
     <div className="w-full flex flex-col items-center" ref={containerRef}>
-      {/* Instruction */}
       <div className="relative mb-6 px-4 py-3 bg-purple-100 rounded-xl border-2 border-purple-200 text-center w-full max-w-md mx-auto">
         <p className="text-xl font-bold text-center text-purple-700">
           {question.instruction}
@@ -101,7 +95,6 @@ const FractionDragDropGame: React.FC<FractionDragDropGameProps> = ({
       </div>
 
       <div className="flex flex-col md:flex-row gap-6 mb-8 w-full max-w-2xl">
-        {/* Fraction Pieces Section */}
         <div className="md:w-1/2 bg-blue-50 p-4 rounded-xl border-2 border-blue-200">
           <h3 className="text-lg font-bold text-blue-700 mb-3">
             Fraction Shapes
@@ -131,7 +124,6 @@ const FractionDragDropGame: React.FC<FractionDragDropGameProps> = ({
           </div>
         </div>
 
-        {/* Drop Zones Section */}
         <div className="md:w-1/2 bg-purple-50 p-4 rounded-xl border-2 border-purple-200">
           <h3 className="text-lg font-bold text-purple-700 mb-3">
             Equivalent Values
@@ -163,7 +155,6 @@ const FractionDragDropGame: React.FC<FractionDragDropGameProps> = ({
                       </div>
                     </div>
                   ) : (
-                    // This is where the updated dropZone content goes
                     <div className="flex flex-col items-center justify-center h-20">
                       <div className="p-4">
                         <div className="w-12 h-6 rounded-full bg-gray-100 flex items-center justify-center">
@@ -196,7 +187,6 @@ const FractionDragDropGame: React.FC<FractionDragDropGameProps> = ({
         </div>
       </div>
 
-      {/* Buttons */}
       <div className="flex gap-4 justify-center">
         <AnimatedButton
           onClick={checkAnswer}
@@ -226,7 +216,6 @@ const FractionDragDropGame: React.FC<FractionDragDropGameProps> = ({
   );
 };
 
-// SVG fraction visualizations
 export const CircleFraction = ({
   numerator,
   denominator,
@@ -240,7 +229,6 @@ export const CircleFraction = ({
   const radius = size * 0.4;
   const elements = [];
 
-  // Draw the circle outline
   elements.push(
     <circle
       key="outline"
@@ -253,7 +241,6 @@ export const CircleFraction = ({
     />
   );
 
-  // Draw the segments
   for (let i = 0; i < denominator; i++) {
     const startAngle = (i * 360) / denominator;
     const endAngle = ((i + 1) * 360) / denominator;
@@ -264,7 +251,6 @@ export const CircleFraction = ({
     const x1 = centerX + radius * Math.cos(startRad);
     const y1 = centerY + radius * Math.sin(startRad);
 
-    // Draw lines from center to edge
     elements.push(
       <line
         key={`line-${i}`}
@@ -277,7 +263,6 @@ export const CircleFraction = ({
       />
     );
 
-    // Fill in colored segments for the numerator
     if (i < numerator) {
       const largeArcFlag = endAngle - startAngle <= 180 ? "0" : "1";
       const x2 = centerX + radius * Math.cos(endRad);
@@ -298,7 +283,6 @@ export const CircleFraction = ({
   );
 };
 
-// Rectangle fraction visualization
 export const RectangleFraction = ({
   numerator,
   denominator,
@@ -310,7 +294,6 @@ export const RectangleFraction = ({
   const height = 50;
   const elements = [];
 
-  // Draw the rectangle outline
   elements.push(
     <rect
       key="outline"
@@ -322,10 +305,8 @@ export const RectangleFraction = ({
     />
   );
 
-  // Draw the segments
   const segmentWidth = width / denominator;
   for (let i = 0; i < denominator; i++) {
-    // Vertical dividing lines
     if (i > 0) {
       elements.push(
         <line
@@ -340,7 +321,6 @@ export const RectangleFraction = ({
       );
     }
 
-    // Colored segments for numerator
     if (i < numerator) {
       elements.push(
         <rect
@@ -363,7 +343,6 @@ export const RectangleFraction = ({
   );
 };
 
-// Hexagon pattern visualization
 export const HexagonFraction = ({
   numerator,
   denominator,
@@ -374,7 +353,6 @@ export const HexagonFraction = ({
   const size = 80;
   const elements = [];
   const hexSize = 15;
-  // Define hexagon positions for a honeycomb pattern
   const positions = [
     { x: 20, y: 20 },
     { x: 50, y: 20 },
@@ -384,11 +362,9 @@ export const HexagonFraction = ({
     { x: 65, y: 35 },
   ];
 
-  // Create hexagons up to denominator count (up to the positions available)
   for (let i = 0; i < Math.min(positions.length, denominator); i++) {
     const { x, y } = positions[i];
 
-    // Create hexagon path
     const points = [];
     for (let j = 0; j < 6; j++) {
       const angle = (j * 60 * Math.PI) / 180;
@@ -415,7 +391,6 @@ export const HexagonFraction = ({
   );
 };
 
-// Number line visualization
 export const NumberLineFraction = ({
   numerator,
   denominator,
@@ -431,7 +406,6 @@ export const NumberLineFraction = ({
   const endX = startX + lineLength;
   const elements = [];
 
-  // Draw the line
   elements.push(
     <line
       key="line"
