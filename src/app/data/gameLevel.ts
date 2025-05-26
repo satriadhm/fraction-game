@@ -126,14 +126,14 @@ export const GAME_LEVELS: GameLevel[] = [
     fraction: "2/5",
     numerator: 2,
     denominator: 5,
-    hint: "The number line is reversed - 0 is on the right, not the left!",
-    challenge: "The line is reversed - fractions increase from right to left!",
+    hint: "Watch out — the number line is flipped: 0 sits on the left!",
+    challenge: "Fractions get larger as you move right along the line!",
     moveSpeed: 2.5,
     accuracyThreshold: 3.5,
     timeBonusMultiplier: 4,
     background: "bg-gradient-to-l from-amber-50 to-blue-100",
     lineGradient: "bg-gradient-to-l from-amber-500 to-blue-500",
-    reversed: true,
+    reversed: false,
   },
 
   // Level 8: Multiple moving obstacles

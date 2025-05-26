@@ -27,23 +27,16 @@ const Game3Page = () => {
   const [showConfetti, setShowConfetti] = useState(false);
   const [gameComplete, setGameComplete] = useState(false);
   const [gameStarted, setGameStarted] = useState(false);
-  const [timeLeft, setTimeLeft] = useState(30);
+  const [timeLeft, setTimeLeft] = useState(30); // 30 seconds per level initially
   const [isPaused, setIsPaused] = useState(false);
   const [feedbackMessage, setFeedbackMessage] = useState("");
 
-  // NEW SIMPLIFIED SCORING SYSTEM
-  const SCORING = {
-    PERFECT: { threshold: 95, points: 1500, emoji: "🎯", title: "PERFECT CUT!" },
-    EXCELLENT: { threshold: 85, points: 1200, emoji: "🎖️", title: "EXCELLENT!" },
-    GREAT: { threshold: 70, points: 1000, emoji: "⭐", title: "GREAT CUT!" },
-    GOOD: { threshold: 55, points: 800, emoji: "👍", title: "GOOD CUT!" },
-    OK: { threshold: 40, points: 600, emoji: "👌", title: "NICE TRY!" },
-    MINIMUM: { threshold: 0, points: 400, emoji: "✅", title: "COMPLETED!" }
-  };
-
-  const TIME_BONUS_RATE = 25; // 25 points per second remaining
-  const MAX_TIME_BONUS = 750; // Maximum time bonus
-  const LEVEL_BONUS_BASE = 200; // Base bonus per level
+  // Constants for scoring - updated for better balance
+  const BASE_SCORE = 100;
+  const ACCURACY_WEIGHT = 0.7; // Increased weight for accuracy
+  const TIME_WEIGHT = 0.3; // Decreased weight for time
+  const MAX_TIME_BONUS = 50; // Maximum time bonus points
+  const PERFECT_BONUS = 20; // Bonus for perfect accuracy
   const LEVELS_TOTAL = GAME_LEVELS.length;
 
   // Stop loading when component mounts
@@ -54,9 +47,9 @@ const Game3Page = () => {
   // Reset timer for current level
   const resetLevelTimer = useCallback(() => {
     // Progressive difficulty: less time as levels increase
-    const baseTime = 35;
-    const timePerLevel = Math.max(20, baseTime - currentLevel * 1.5);
-    setTimeLeft(Math.round(timePerLevel));
+    const baseTime = 30;
+    const timePerLevel = Math.max(15, baseTime - currentLevel * 2);
+    setTimeLeft(timePerLevel);
   }, [currentLevel]);
 
   // Handle when timer expires
@@ -66,11 +59,11 @@ const Game3Page = () => {
     if (lives <= 1) {
       // Game over
       setGameComplete(true);
-      setFeedbackMessage("⏰ Time's up! Game Over!");
+      setFeedbackMessage("Time's up! Game Over!");
     } else {
       // Retry level
       setShowFeedback("error");
-      setFeedbackMessage("⏰ Time's up! Try again!");
+      setFeedbackMessage("Time's up! Try again!");
       setTimeout(() => {
         setShowFeedback(null);
         resetLevelTimer();
@@ -95,49 +88,61 @@ const Game3Page = () => {
     return () => clearInterval(timer);
   }, [gameStarted, gameComplete, isPaused, showFeedback, handleTimerExpired]);
 
-  // NEW SIMPLIFIED SCORE CALCULATION
+  // Calculate score based on accuracy and time - improved version
   const calculateScore = useCallback(
-    (accuracyPercentage: number, timeRemaining: number) => {
-      // Determine accuracy tier
-      let accuracyTier = SCORING.MINIMUM;
-      
-      for (const [, tier] of Object.entries(SCORING)) {
-        if (accuracyPercentage >= tier.threshold) {
-          accuracyTier = tier;
-          break;
-        }
-      }
+    (accuracyPercentage: number, timeBonus: number) => {
+      // Convert accuracy from 0-100 to 0-1
+      const accuracy = Math.min(100, Math.max(0, accuracyPercentage)) / 100;
 
-      // Calculate components
-      const baseScore = accuracyTier.points;
-      const timeBonus = Math.min(timeRemaining * TIME_BONUS_RATE, MAX_TIME_BONUS);
-      const levelBonus = (currentLevel + 1) * LEVEL_BONUS_BASE;
-      const totalScore = baseScore + timeBonus + levelBonus;
+      // Base score from accuracy (70% of points)
+      const accuracyScore = Math.round(BASE_SCORE * accuracy * ACCURACY_WEIGHT);
+
+      // Perfect cut bonus
+      const perfectBonus = accuracy >= 0.95 ? PERFECT_BONUS : 0;
+
+      // Time bonus (30% of points) - normalized to prevent excessive bonuses
+      const normalizedTimeBonus = Math.min(timeBonus, MAX_TIME_BONUS);
+      const timeScore = Math.round(normalizedTimeBonus * TIME_WEIGHT);
+
+      // Total score with clear components
+      const totalScore = accuracyScore + timeScore + perfectBonus;
 
       return {
-        tier: accuracyTier,
-        baseScore,
-        timeBonus: Math.round(timeBonus),
-        levelBonus,
-        totalScore: Math.round(totalScore),
-        accuracy: Math.round(accuracyPercentage)
+        accuracyScore,
+        timeScore,
+        perfectBonus,
+        totalScore,
       };
     },
-    [currentLevel]
+    []
   );
 
   // Handle successful level completion
   const handleLevelComplete = useCallback(
-    (accuracyPercentage: number) => {
-      const scores = calculateScore(accuracyPercentage, timeLeft);
+    (accuracyPercentage: number, timeBonus: number) => {
+      // Calculate level score with the improved function
+      const scores = calculateScore(accuracyPercentage, timeBonus);
 
       // Update total score
       setTotalScore((prev) => prev + scores.totalScore);
 
-      // Simple success feedback - just green checkmark
+      // Update feedback message to show score breakdown clearly
       setShowFeedback("success");
       setShowConfetti(true);
-      setFeedbackMessage(""); // No text message, just visual feedback
+
+      let feedbackText = `Great cut! Accuracy: ${Math.round(
+        accuracyPercentage
+      )}%\n`;
+      feedbackText += `Base Score: ${scores.accuracyScore}`;
+
+      if (scores.perfectBonus > 0) {
+        feedbackText += ` + Perfect Bonus: ${scores.perfectBonus}`;
+      }
+
+      feedbackText += ` + Time Bonus: ${scores.timeScore}`;
+      feedbackText += ` = ${scores.totalScore} points`;
+
+      setFeedbackMessage(feedbackText);
 
       // Move to next level after showing feedback
       setTimeout(() => {
@@ -145,14 +150,16 @@ const Game3Page = () => {
         setShowConfetti(false);
 
         if (currentLevel < LEVELS_TOTAL - 1) {
+          // Next level
           setCurrentLevel((prev) => prev + 1);
           resetLevelTimer();
         } else {
+          // Game complete
           setGameComplete(true);
         }
-      }, 1500); // Shorter delay since we only show checkmark
+      }, 2500);
     },
-    [currentLevel, calculateScore, resetLevelTimer, LEVELS_TOTAL, timeLeft]
+    [currentLevel, calculateScore, resetLevelTimer, LEVELS_TOTAL]
   );
 
   // Handle level failure
@@ -161,19 +168,21 @@ const Game3Page = () => {
       setLives((prev) => prev - 1);
 
       if (lives <= 1) {
+        // Game over
         setGameComplete(true);
-        setFeedbackMessage(`💥 Game Over!\n\nFinal Score: ${totalScore.toLocaleString()} points`);
+        setFeedbackMessage(`Game Over! ${reason}`);
       } else {
+        // Try again
         setShowFeedback("error");
-        setFeedbackMessage(`❌ ${reason}\n\n💝 Lives remaining: ${lives - 1}\nTry again!`);
+        setFeedbackMessage(`${reason} Try again!`);
 
         setTimeout(() => {
           setShowFeedback(null);
           resetLevelTimer();
-        }, 2500);
+        }, 2000);
       }
     },
-    [lives, resetLevelTimer, totalScore]
+    [lives, resetLevelTimer]
   );
 
   // Start game
@@ -198,19 +207,10 @@ const Game3Page = () => {
     resetLevelTimer();
   };
 
-  // Calculate potential max score for progress display
-  const getMaxPossibleScore = () => {
-    let maxScore = 0;
-    for (let i = 0; i < LEVELS_TOTAL; i++) {
-      maxScore += SCORING.PERFECT.points + MAX_TIME_BONUS + ((i + 1) * LEVEL_BONUS_BASE);
-    }
-    return maxScore;
-  };
-
   // If game is complete, show results
   if (gameComplete) {
-    // Update user progress with new scoring system
-    UserStorage.updateStepProgress("step3", totalScore, currentLevel >= LEVELS_TOTAL - 1);
+    // Update user progress
+    UserStorage.updateStepProgress("step3", totalScore, true);
 
     return (
       <GameResults
@@ -225,153 +225,110 @@ const Game3Page = () => {
   if (!gameStarted) {
     return (
       <GameLayout
-        title="🥷 Fraction Ninja"
-        subtitle="Master the art of precise fraction cutting!"
+        title="Fraction Ninja"
+        subtitle="Cut the line at the exact fraction position!"
         currentQuestion={0}
         totalQuestions={LEVELS_TOTAL}
         score={0}
-        maxScore={getMaxPossibleScore()}
+        maxScore={LEVELS_TOTAL * BASE_SCORE}
         backgroundColor="bg-gradient-to-br from-blue-50 to-indigo-100"
         accentColor="blue"
       >
         <motion.div
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          className="bg-white p-8 rounded-2xl shadow-lg text-center max-w-2xl mx-auto"
+          className="bg-white p-8 rounded-2xl shadow-lg text-center max-w-xl mx-auto"
         >
+          <h2 className="text-3xl font-bold text-blue-600 mb-4">
+            Welcome to Fraction Ninja!
+          </h2>
+
           <div className="mb-8">
-            <h2 className="text-4xl font-bold text-blue-600 mb-4">
-              🥷 Welcome, Fraction Ninja! 
-            </h2>
-            
-            <div className="relative w-48 h-48 mx-auto mb-6">
+            <div className="relative w-40 h-40 mx-auto mb-4">
               <motion.div
                 animate={{
                   y: [0, -20, 0],
                   rotate: [0, 5, 0, -5, 0],
                 }}
                 transition={{
-                  duration: 3,
+                  duration: 2,
                   repeat: Infinity,
                   repeatType: "reverse",
                 }}
               >
-                {/* Enhanced Ninja Character */}
+                {/* Ninja Character SVG */}
                 <svg
-                  width="192"
-                  height="192"
-                  viewBox="0 0 192 192"
+                  width="160"
+                  height="160"
+                  viewBox="0 0 160 160"
                   fill="none"
                   xmlns="http://www.w3.org/2000/svg"
                 >
-                  {/* Ninja Body */}
-                  <circle cx="96" cy="70" r="35" fill="#2D3748" />
-                  <rect x="60" y="70" width="72" height="70" rx="8" fill="#2D3748" />
-                  
-                  {/* Headband */}
-                  <rect x="61" y="65" width="70" height="12" rx="6" fill="#E53E3E" />
-                  <path d="M131 71 L145 60 L140 76 Z" fill="#E53E3E" />
-                  
-                  {/* Eyes */}
-                  <ellipse cx="80" cy="60" rx="8" ry="12" fill="white" />
-                  <ellipse cx="112" cy="60" rx="8" ry="12" fill="white" />
-                  <circle cx="80" cy="62" r="4" fill="#2D3748" />
-                  <circle cx="112" cy="62" r="4" fill="#2D3748" />
-                  
-                  {/* Sword */}
-                  <rect x="140" y="90" width="50" height="10" rx="3" fill="#C0C0C0" />
-                  <rect x="135" y="88" width="15" height="14" rx="3" fill="#8B4513" />
-                  <path d="M185 90 L200 75 L190 95 Z" fill="#4285F4" />
-                  
-                  {/* Arms */}
-                  <rect x="35" y="85" width="30" height="12" rx="6" fill="#2D3748" />
-                  <rect x="127" y="85" width="30" height="12" rx="6" fill="#2D3748" />
-                  
-                  {/* Legs */}
-                  <rect x="70" y="135" width="15" height="40" rx="7" fill="#2D3748" />
-                  <rect x="107" y="135" width="15" height="40" rx="7" fill="#2D3748" />
-                  
-                  {/* Feet */}
-                  <ellipse cx="77" cy="178" rx="12" ry="6" fill="#1A202C" />
-                  <ellipse cx="114" cy="178" rx="12" ry="6" fill="#1A202C" />
+                  <circle cx="80" cy="60" r="30" fill="#333" />
+                  <rect
+                    x="50"
+                    y="60"
+                    width="60"
+                    height="60"
+                    rx="5"
+                    fill="#333"
+                  />
+                  <path d="M80 50 L90 35 L95 40 Z" fill="white" />
+                  <ellipse cx="70" cy="50" rx="5" ry="8" fill="white" />
+                  <ellipse cx="90" cy="50" rx="5" ry="8" fill="white" />
+                  <circle cx="70" cy="50" r="3" fill="#333" />
+                  <circle cx="90" cy="50" r="3" fill="#333" />
+                  <rect
+                    x="110"
+                    y="80"
+                    width="40"
+                    height="8"
+                    rx="2"
+                    fill="#888"
+                  />
+                  <rect
+                    x="110"
+                    y="80"
+                    width="10"
+                    height="8"
+                    rx="2"
+                    fill="#654321"
+                  />
+                  <path d="M145 80 L160 65 L150 80 Z" fill="#4285F4" />
                 </svg>
               </motion.div>
             </div>
-          </div>
 
-          <div className="mb-8 space-y-6">
-            {/* How to Play */}
-            <div className="bg-blue-50 p-6 rounded-xl text-left">
-              <h3 className="font-bold text-blue-700 mb-4 text-xl">🎮 How to Play:</h3>
-              <div className="grid md:grid-cols-2 gap-4">
-                <ul className="list-none space-y-2 text-blue-800">
-                  <li>🕹️ Move ninja: ← → Arrow keys or touch</li>
-                  <li>⚔️ Cut line: Spacebar or tap</li>
-                  <li>🎯 Be precise for maximum points</li>
-                </ul>
-                <ul className="list-none space-y-2 text-blue-800">
-                  <li>⚡ Cut quickly for time bonus</li>
-                  <li>💝 You have 3 lives</li>
-                  <li>🏆 Complete all {LEVELS_TOTAL} levels!</li>
-                </ul>
-              </div>
+            <p className="text-lg mb-4">
+              Test your fraction skills by cutting lines at the exact positions!
+            </p>
+
+            <div className="bg-blue-50 p-4 rounded-lg mb-4 text-left">
+              <h3 className="font-bold text-blue-700 mb-2">How to Play:</h3>
+              <ul className="list-disc pl-5 space-y-1 text-blue-800">
+                <li>Move the ninja with arrow keys or touch</li>
+                <li>Cut the line with spacebar or tap</li>
+                <li>Be as precise as possible for maximum points</li>
+                <li>Complete cuts faster for time bonuses</li>
+                <li>You have 3 lives - use them wisely!</li>
+              </ul>
             </div>
 
-            {/* Scoring System */}
-            <div className="bg-gradient-to-r from-yellow-50 to-orange-50 p-6 rounded-xl">
-              <h3 className="font-bold text-orange-700 mb-4 text-xl">💰 Scoring System:</h3>
-              <div className="grid md:grid-cols-2 gap-4 text-sm">
-                <div className="space-y-2">
-                  <div className="flex justify-between items-center">
-                    <span>{SCORING.PERFECT.emoji} Perfect (95%+)</span>
-                    <span className="font-bold text-green-600">{SCORING.PERFECT.points.toLocaleString()}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span>{SCORING.EXCELLENT.emoji} Excellent (85%+)</span>
-                    <span className="font-bold text-blue-600">{SCORING.EXCELLENT.points.toLocaleString()}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span>{SCORING.GREAT.emoji} Great (70%+)</span>
-                    <span className="font-bold text-purple-600">{SCORING.GREAT.points.toLocaleString()}</span>
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <div className="flex justify-between items-center">
-                    <span>⚡ Time Bonus</span>
-                    <span className="font-bold text-yellow-600">Up to {MAX_TIME_BONUS.toLocaleString()}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span>🏆 Level Bonus</span>
-                    <span className="font-bold text-indigo-600">{LEVEL_BONUS_BASE} × Level</span>
-                  </div>
-                  <div className="flex justify-between items-center border-t pt-2">
-                    <span className="font-bold">💎 Max Per Level</span>
-                    <span className="font-bold text-2xl text-green-600">~2,500+</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Challenge Preview */}
-            <div className="bg-purple-50 p-6 rounded-xl">
-              <h3 className="font-bold text-purple-700 mb-3 text-xl">⚔️ Challenges Ahead:</h3>
-              <div className="grid md:grid-cols-3 gap-4 text-sm">
-                <div className="text-center">
-                  <div className="text-2xl mb-2">🎯</div>
-                  <div className="font-semibold">Precision Tests</div>
-                  <div className="text-gray-600">Hit exact fractions</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl mb-2">🚧</div>
-                  <div className="font-semibold">Moving Obstacles</div>
-                  <div className="text-gray-600">Time your cuts</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl mb-2">🕵️</div>
-                  <div className="font-semibold">Stealth Mode</div>
-                  <div className="text-gray-600">No visual guides</div>
-                </div>
-              </div>
+            <div className="bg-indigo-50 p-4 rounded-lg mb-4">
+              <h3 className="font-bold text-indigo-700 mb-2">Scoring:</h3>
+              <p className="text-indigo-800">
+                Base Score: {BASE_SCORE} points
+                <br />
+                Accuracy Component: Up to{" "}
+                {Math.round(BASE_SCORE * ACCURACY_WEIGHT)} points
+                <br />
+                Time Bonus: Up to {Math.round(
+                  MAX_TIME_BONUS * TIME_WEIGHT
+                )}{" "}
+                points
+                <br />
+                Perfect Cut Bonus: {PERFECT_BONUS} points
+              </p>
             </div>
           </div>
 
@@ -381,9 +338,8 @@ const Game3Page = () => {
             size="large"
             hoverEffect="bounce"
             icon={<Icon type="play" />}
-            className="text-xl px-12 py-4"
           >
-            🥷 Begin Ninja Training!
+            Start Game
           </AnimatedButton>
         </motion.div>
       </GameLayout>
@@ -393,36 +349,39 @@ const Game3Page = () => {
   // Main game view
   return (
     <GameLayout
-      title="🥷 Fraction Ninja"
+      title="Fraction Ninja"
       subtitle={`Level ${currentLevel + 1}: ${GAME_LEVELS[currentLevel]?.name}`}
       currentQuestion={currentLevel}
       totalQuestions={LEVELS_TOTAL}
       score={totalScore}
       showConfetti={showConfetti}
+      showFeedback={showFeedback}
+      feedbackMessage={feedbackMessage}
+      onFeedbackComplete={() => setShowFeedback(null)}
       backgroundColor="bg-gradient-to-br from-blue-50 to-indigo-100"
       accentColor="blue"
     >
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-xl mx-auto">
         <GameStats currentStep="step3" />
 
-        {/* Enhanced Stats Bar */}
-        <div className="grid grid-cols-3 gap-4 mb-6">
+        {/* Stats Bar */}
+        <div className="flex justify-between items-center mb-4 bg-white p-3 rounded-lg shadow-md">
           {/* Lives */}
-          <div className="bg-white p-4 rounded-xl shadow-md text-center">
-            <div className="text-sm font-medium text-gray-600 mb-2">Lives</div>
-            <div className="flex justify-center space-x-1">
+          <div className="flex items-center space-x-2">
+            <span className="text-sm font-medium text-gray-600">Lives:</span>
+            <div className="flex space-x-1">
               {Array.from({ length: 3 }).map((_, i) => (
                 <motion.div
                   key={i}
                   initial={{ scale: 1 }}
                   animate={{
-                    scale: i < lives ? 1 : 0.7,
+                    scale: i < lives ? 1 : 0.8,
                     opacity: i < lives ? 1 : 0.3,
                   }}
                   transition={{ duration: 0.3 }}
                 >
                   <svg
-                    className={`w-8 h-8 ${
+                    className={`w-6 h-6 ${
                       i < lives ? "text-red-500" : "text-gray-300"
                     } fill-current`}
                     viewBox="0 0 24 24"
@@ -435,12 +394,12 @@ const Game3Page = () => {
           </div>
 
           {/* Timer */}
-          <div className="bg-white p-4 rounded-xl shadow-md text-center">
-            <div className="text-sm font-medium text-gray-600 mb-2">Time Left</div>
-            <div className="flex items-center justify-center space-x-2">
+          <div className="flex items-center space-x-2">
+            <span className="text-sm font-medium text-gray-600">Time:</span>
+            <div className="flex items-center">
               <svg
-                className={`w-6 h-6 ${
-                  timeLeft <= 10 ? "text-red-500 animate-pulse" : "text-blue-500"
+                className={`w-5 h-5 ${
+                  timeLeft <= 10 ? "text-red-500" : "text-blue-500"
                 }`}
                 fill="none"
                 viewBox="0 0 24 24"
@@ -454,8 +413,10 @@ const Game3Page = () => {
                 />
               </svg>
               <span
-                className={`font-bold text-2xl ${
-                  timeLeft <= 10 ? "text-red-500" : "text-blue-600"
+                className={`font-bold text-lg ml-1 ${
+                  timeLeft <= 10
+                    ? "text-red-500 animate-pulse"
+                    : "text-blue-600"
                 }`}
               >
                 {timeLeft}s
@@ -464,121 +425,43 @@ const Game3Page = () => {
           </div>
 
           {/* Score */}
-          <div className="bg-white p-4 rounded-xl shadow-md text-center">
-            <div className="text-sm font-medium text-gray-600 mb-2">Total Score</div>
-            <div className="font-bold text-2xl text-purple-700">
-              {totalScore.toLocaleString()}
-            </div>
+          <div className="flex items-center space-x-2">
+            <span className="text-sm font-medium text-gray-600">Score:</span>
+            <span className="font-bold text-lg text-purple-700">
+              {totalScore}
+            </span>
           </div>
         </div>
 
         {/* Main Game Component */}
-        <div className="bg-white rounded-2xl shadow-xl p-6 mb-6 relative">
-          {/* Success Feedback Overlay - Simple green checkmark */}
-          {showFeedback === "success" && (
-            <motion.div
-              initial={{ scale: 0, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0, opacity: 0 }}
-              transition={{ type: "spring", stiffness: 300, damping: 20 }}
-              className="absolute inset-0 z-50 flex items-center justify-center rounded-2xl backdrop-blur-sm bg-green-400/20"
-            >
-              <motion.div
-                animate={{ rotate: [0, 360], scale: [1, 1.2, 1] }}
-                transition={{ duration: 0.6 }}
-                className="bg-green-500 rounded-full p-8 shadow-2xl"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-16 w-16 text-white"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth={3}
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
-              </motion.div>
-            </motion.div>
-          )}
-
-          {/* Error Feedback Overlay */}
-          {showFeedback === "error" && (
-            <motion.div
-              initial={{ scale: 0, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0, opacity: 0 }}
-              transition={{ type: "spring", stiffness: 300, damping: 20 }}
-              className="absolute inset-0 z-50 flex items-center justify-center rounded-2xl backdrop-blur-sm bg-red-400/20"
-            >
-              <div className="bg-red-500 p-6 rounded-xl max-w-sm text-center">
-                <motion.div
-                  animate={{ x: [0, -10, 10, -10, 10, 0] }}
-                  transition={{ duration: 0.5 }}
-                  className="flex justify-center mb-4"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-12 w-12 text-white"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth={3}
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M6 18L18 6M6 6l12 12"
-                    />
-                  </svg>
-                </motion.div>
-                <p className="text-white text-center font-medium whitespace-pre-line">
-                  {feedbackMessage}
-                </p>
-              </div>
-            </motion.div>
-          )}
-          
-          <FractionCutterGame
-            level={GAME_LEVELS[currentLevel]}
-            onSuccess={handleLevelComplete}
-            onFailure={handleLevelFailed}
-            isPaused={isPaused || !!showFeedback}
-            timeLeft={timeLeft}
-          />
-        </div>
+        <FractionCutterGame
+          level={GAME_LEVELS[currentLevel]}
+          onSuccess={handleLevelComplete}
+          onFailure={handleLevelFailed}
+          isPaused={isPaused || !!showFeedback}
+          timeLeft={timeLeft}
+        />
 
         {/* Controls */}
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between mt-6">
           <AnimatedButton
             onClick={() => setIsPaused(!isPaused)}
             color="purple"
-            size="medium"
+            size="small"
             hoverEffect="wobble"
             icon={<Icon type={isPaused ? "play" : "pause"} />}
           >
             {isPaused ? "Resume" : "Pause"}
           </AnimatedButton>
 
-          <div className="text-center">
-            <div className="text-sm text-gray-600">Progress</div>
-            <div className="font-bold text-lg text-blue-600">
-              Level {currentLevel + 1} of {LEVELS_TOTAL}
-            </div>
-          </div>
-
           <AnimatedButton
             onClick={() => router.push("/menu")}
             color="blue"
-            size="medium"
+            size="small"
             hoverEffect="wobble"
             icon={<Icon type="home" />}
           >
-            Exit Game
+            Back to Menu
           </AnimatedButton>
         </div>
       </div>
