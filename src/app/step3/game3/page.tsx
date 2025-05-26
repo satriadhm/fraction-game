@@ -130,20 +130,6 @@ const Game3Page = () => {
       setShowFeedback("success");
       setShowConfetti(true);
 
-      let feedbackText = `Great cut! Accuracy: ${Math.round(
-        accuracyPercentage
-      )}%\n`;
-      feedbackText += `Base Score: ${scores.accuracyScore}`;
-
-      if (scores.perfectBonus > 0) {
-        feedbackText += ` + Perfect Bonus: ${scores.perfectBonus}`;
-      }
-
-      feedbackText += ` + Time Bonus: ${scores.timeScore}`;
-      feedbackText += ` = ${scores.totalScore} points`;
-
-      setFeedbackMessage(feedbackText);
-
       // Move to next level after showing feedback
       setTimeout(() => {
         setShowFeedback(null);
