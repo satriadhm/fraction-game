@@ -316,30 +316,7 @@ const Menu = () => {
           </motion.div>
         </div>
 
-        {/* Achievement section */}
-        {progress && progress.achievements.length > 0 && (
-          <motion.div
-            className="mt-12 text-center"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1 }}
-          >
-            <h3 className="text-2xl font-bold text-white mb-4">
-              Your Achievements
-            </h3>
-            <div className="flex gap-4 justify-center">
-              {progress.achievements.map((achievement) => (
-                <motion.div
-                  key={achievement}
-                  className="bg-white bg-opacity-20 px-6 py-3 rounded-full text-white font-semibold"
-                  whileHover={{ scale: 1.05 }}
-                >
-                  {achievement.replace("_", " ").toUpperCase()}
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
-        )}
+       
       </div>
     </CuteDecorationWrapper>
   );
